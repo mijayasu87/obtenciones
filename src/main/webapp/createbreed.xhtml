@@ -1,0 +1,1242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3c.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:x="http://xpert.com/faces" 
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <meta charset="utf-8" />
+        <meta name="viewport"    content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+
+        <title>OBTENCIONES VEGETALES</title>
+
+        <link rel="shortcut icon" type="image/png" href="#{resource['images/favicon.png']}" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+
+        <link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700" />
+        <link rel="stylesheet" type="text/css" href="#{resource['assets/css/bootstrap.min.css']}" />
+        <link rel="stylesheet" type="text/css" href="#{resource['assets/css/font-awesome.min.css']}" />
+
+        <!-- Custom styles for our template -->
+        <link rel="stylesheet" type="text/css" href="#{resource['assets/css/bootstrap-theme.css']}" />
+        <link rel="stylesheet" type="text/css" href="#{resource['assets/css/main.css']}" />
+        <!-- My own style css -->
+
+        <link rel="stylesheet" type="text/css" href="#{resource['assets/css/style.css']}" />
+    </h:head>
+    <h:body>
+        <!-- Start Page Loading -->
+        <div id="loader-wrapper">
+            <div id="loader"></div>        
+            <div class="loader-section section-left"></div>
+            <div class="loader-section section-right"></div>
+        </div>
+        <p:growl id="mensajes" showDetail="true" life="4000"/>
+        <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
+            <div class="menu" >
+                <a href="#" class="logo"  title="Logo Senadi" ><img src="#{resource['images/sena_2.png']}" width="161px"/></a>
+
+                <i id="edit_action" class="material-icons prefix" style="color: white; margin-left: 20px; display: inline-block">person</i>
+
+                <p:outputLabel value="#{loginBean.owner.firsName} #{loginBean.owner.lastName} - Casillero: #{loginBean.owner.casillero}" style="color: white; font-size: 18px" />
+
+                <div style="float: right; display: inline-block; margin-top: 5px">                    
+                    <a class="btn_home" href="breederform.xhtml" title="INICIO" ><i class="pi pi-home" style="font-size: 25px;"></i></a>
+                    <p:commandLink styleClass="btn_logout" actionListener="#{loginBean.logout}"
+                                   oncomplete="logout(xhr, status, args)"
+                                   title="CERRAR SESIÓN" immediate="true">
+                        <i class="material-icons" style="font-size: 30px; ">exit_to_app</i>
+                    </p:commandLink>
+
+
+                </div>
+            </div>
+            <br/>
+            <div style="text-align: center !important; margin: 0 auto !important;">
+                <p:outputLabel value="REGISTRO DE OBTENCIONES VEGETALES" style="font-size: 20px; color: black"/>
+
+                <p:accordionPanel multiple="false" widgetVar="basic" style="width: 80%; text-align: left; margin: 0 auto;" 
+                                  id="acordion" activeIndex="#{breederFormBean.activeIndex}">
+                    <p:tab title="Solicitante" id="solicitantetab">
+                        <p:commandButton value="AGREGAR SOLICITANTE" class="btn_peque" style="margin-left: 10%" 
+                                         oncomplete="if(args.newperson){PF('dlgPerson').show();}" 
+                                         actionListener="#{breederFormBean.prepareNewApplicant}" process="@this" 
+                                         update="allform:dlgPerson allform:frmPerson"
+                                         styleClass="#{breederFormBean.showApplicantsTableError and breederFormBean.applicants.size() == 0 ?'invalid-table btn_peque':'btn_peque'}"/>
+                        <p:dataTable id="tablaDeSolicitantes" var="person"
+                                     value="#{breederFormBean.applicants}" widgetVar="tablaDeSolicitantes"
+                                     emptyMessage="No hay Datos para mostrar"                                              
+                                     binding="#{breederFormBean.applicantData}"
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rows="20"
+                                     rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
+                                     style="width: 80%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
+                                     styleClass="#{breederFormBean.showApplicantsTableError and breederFormBean.applicants.size() == 0 ?'invalid-table':''}"
+                                     rowKey="#{person.id}">
+
+                            <p:column headerText="Nombre" style="text-align: center;" >
+                                <h:outputText value="#{person.name}" />
+                            </p:column>
+                            <p:column headerText="Tipo" style="text-align: center; width: 10%" >
+                                <h:outputText value="#{breederFormBean.getIdentificationType(person.identificationType)}" />
+                            </p:column>
+                            <p:column headerText="Documento" style="text-align: center; width: 10%" >
+                                <h:outputText value="#{person.identificationNumber}" />
+                            </p:column>
+                            <p:column headerText="País de Nacionalidad" style="text-align: center; width: 10%" >
+                                <h:outputText value="#{person.nationality}" />
+                            </p:column>
+                            <p:column headerText="Dirección" style="text-align: center;" >
+                                <h:outputText value="#{person.address}" />
+                            </p:column>
+                            <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >                                
+                                <p:commandLink class="link" title="Editar person" actionListener="#{breederFormBean.prepareEditApplicant}"
+                                               oncomplete="if(args.editperson){PF('dlgPerson').show();}" process="@this" update="allform:dlgPerson allform:frmPerson">
+                                    <i id="edit_action" class="material-icons md-10" style="font-size: 20px">edit</i>
+                                </p:commandLink>
+                                <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeApplicant}"
+                                               update="allform:acordion allform:tablaDeSolicitantes mensajes"
+                                               title="Remover Solicitante" process="@this">
+                                    <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                    <!--<p:confirm header="CONFIRMAR" message="SEGURO DE REMOVER EL SOLICITANTE: {person.name} ?"/>-->
+                                </p:commandLink>                                
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+                    <p:tab title="Obtentor" id="obtent">
+                        <p:commandButton value="AGREGAR OBTENTOR" class="btn_peque" style="margin-left: 10%" 
+                                         oncomplete="if(args.newperson){PF('dlgPerson').show();}" 
+                                         actionListener="#{breederFormBean.prepareNewObtentor}" process="@this" 
+                                         update="allform:dlgPerson allform:frmPerson"
+                                         styleClass="#{breederFormBean.showObtentorsTableError and breederFormBean.obtentors.size() == 0 ?'invalid-table btn_peque':'btn_peque'}"/>
+                        <p:dataTable id="tablaDeObtentores" var="person"
+                                     value="#{breederFormBean.obtentors}" widgetVar="tablaDeObtentores"
+                                     emptyMessage="No hay Datos para mostrar"                                              
+                                     binding="#{breederFormBean.obtentorData}"
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rows="20"
+                                     rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
+                                     style="width: 80%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
+                                     styleClass="#{breederFormBean.showObtentorsTableError and breederFormBean.obtentors.size() == 0 ?'invalid-table btn_peque':'btn_peque'}"
+                                     rowKey="#{person.id}">
+
+                            <p:column headerText="Nombre" style="text-align: center;" >
+                                <h:outputText value="#{person.name}" />
+                            </p:column>
+                            <p:column headerText="Tipo" style="text-align: center; width: 10%" >
+                                <h:outputText value="#{breederFormBean.getIdentificationType(person.identificationType)}" />
+                            </p:column>
+                            <p:column headerText="Documento" style="text-align: center; width: 10%" >
+                                <h:outputText value="#{person.identificationNumber}" />
+                            </p:column>
+                            <p:column headerText="País de Nacionalidad" style="text-align: center; width: 10%" >
+                                <h:outputText value="#{person.nationality}" />
+                            </p:column>
+                            <p:column headerText="Dirección" style="text-align: center;" >
+                                <h:outputText value="#{person.address}" />
+                            </p:column>
+                            <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >
+                                <p:commandLink class="link" title="Editar person" actionListener="#{breederFormBean.prepareEditObtentor}"
+                                               oncomplete="if(args.editperson){PF('dlgPerson').show();}" process="@this" update="allform:dlgPerson allform:frmPerson">
+                                    <i id="edit_action" class="material-icons md-10" style="font-size: 20px">edit</i>
+                                </p:commandLink>
+                                <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeObtentor}"
+                                               update="allform:acordion allform:tablaDeObtentores mensajes"
+                                               title="Remover Obtentor" process="@this">
+                                    <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                    <!--<p:confirm header="CONFIRMAR" message="SEGURO DE REMOVER EL OBTENTOR {person.name} ?"/>--> 
+                                </p:commandLink>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+                    <p:tab title="Dirección para Notificaciones" id="dirnot">
+                        <p:outputLabel value="La dirección de notificaciones corresponde a:" />
+                        <br/><br/><br/>
+                        <p:selectOneRadio id="corresponde" value="#{breederFormBean.tipoNotificacion}" layout="pageDirection" 
+                                          style="margin-top: -20px; text-align: left"
+                                          styleClass="#{breederFormBean.showTipoNotificacionError ? 'invalid-field' : ''}">
+                            <f:selectItem itemValue="SOLICITANTE" itemLabel="Solicitante/Uno de los solicitantes"/>
+                            <f:selectItem itemValue="OBTENTOR" itemLabel="Obtentor (Si es diferente del / de los solicitante (s))" />
+                            <f:selectItem itemValue="REPRESENTANTE" itemLabel="Representante legal" />
+                            <f:selectItem itemValue="APODERADO" itemLabel="Apoderado" />
+                            <p:ajax update="mensajes corresponde personnot allform:dlgSolNot frmSolNot tablaDeSolNot allform:dlgPerson allform:frmPerson" 
+                                    listener="#{breederFormBean.onNotificationSelected}" oncomplete="if(args.pernotsel){PF('dlgSolNot').show();}else if(args.perdial){PF('dlgPerson').show();}"/>
+                        </p:selectOneRadio>
+
+                        <p:panelGrid columns="2" columnClasses="twenty-percent,seventy-percent" style="width: 80%" id="personnot">
+                            <p:outputLabel value="Documento: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personNotification.identificationNumber}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="Nombre: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personNotification.name}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="País: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personNotification.nationality}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="Ciudad: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.cityNotification}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="Dirección: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personNotification.address}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="Teléfono: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personNotification.phone}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="Email: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personNotification.email}" class="maxsize " readonly="true"/>
+                            <p:outputLabel value="Casillero Judicial: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personVegetableNotification.judicialLocker}" class="maxsize bordesuperior" maxlength="30"/>
+                            <p:outputLabel value="Código Poder: " class="maxsize bordesuperior"/>
+                            <p:inputText value="#{breederFormBean.personVegetableNotification.powerCode}" class="maxsize bordesuperior" maxlength="30"/>
+
+                        </p:panelGrid>
+                        <p:dialog id="dlgSolNot" modal="true" resizable="true"
+                                  header="SELECCIONE UNA PERSONA DE LA LISTA" fitViewport="true" dynamic="false"
+                                  widgetVar="dlgSolNot" style="font-size: 16px !important; " showEffect="explode" 
+                                  hideEffect="explode" closeOnEscape="false" width="70%">
+                            <p:ajax event="close" update="dlgSolNot" resetValues="true" />
+                            <p:growl id="nuevosol" life="1000"/>
+                            <h:form id="frmSolNot">
+                                <p:dataTable id="tablaDeSolNot" var="person"
+                                             value="#{breederFormBean.personsNotification}" widgetVar="tablaDeSolNot"
+                                             emptyMessage="No hay Datos para mostrar"                                              
+                                             binding="#{breederFormBean.personNotificationData}"
+                                             paginator="true"
+                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                             rows="20"
+                                             rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
+                                             style="border: black !important; width: 100%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
+                                             rowKey="#{person.id}">
+
+                                    <p:column headerText="Nombre" style="text-align: center;" >
+                                        <h:outputText value="#{person.name}" />
+                                    </p:column>
+                                    <p:column headerText="Tipo" style="text-align: center; width: 10%" >
+                                        <h:outputText value="#{breederFormBean.getIdentificationType(person.identificationType)}" />
+                                    </p:column>
+                                    <p:column headerText="Documento" style="text-align: center; width: 10%" >
+                                        <h:outputText value="#{person.identificationNumber}" />
+                                    </p:column>
+                                    <p:column headerText="País de Nacionalidad" style="text-align: center; width: 10%" >
+                                        <h:outputText value="#{person.nationality}" />
+                                    </p:column>
+                                    <p:column headerText="Dirección" style="text-align: center;" >
+                                        <h:outputText value="#{person.address}" />
+                                    </p:column>
+                                    <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >
+                                        <p:commandLink class="link" title="Seleccionar solicitante" actionListener="#{breederFormBean.selectedPersonNotification}"
+                                                       oncomplete="if(args.pernot){PF('dlgSolNot').hide();}" process="@this" 
+                                                       update="mensajes dirnot allform:acordion:personnot">
+                                            <i class="pi pi-check" style="font-size: 2rem"></i>
+                                        </p:commandLink>                                        
+                                    </p:column>
+                                </p:dataTable>
+                                <p:commandButton value="CERRAR" actionListener="#{breederFormBean.closeApplicantNotDialog}" process="@this" 
+                                                 class="btn_cerrar" update="mensajes allform:acordion:corresponde allform:acordion:personnot" style="float: right" 
+                                                 oncomplete="PF('dlgSolNot').hide();"/>
+                            </h:form>
+                        </p:dialog>
+                    </p:tab>
+                    <p:tab title="Taxón botánico" id="taxbot">
+                        <p:outputLabel value="Nombre en latín del género, la especie o la subespecie a los que pertenece la variedad* Taxón botánico*:" class="maxsize"
+                                       for="botanicalt"/>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.botanicalTaxon}" id="botanicalt"  
+                                         styleClass="#{(breederFormBean.showTab4Error and breederFormBean.vegetableForms.botanicalTaxon.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <p:outputLabel value="Nombre común:" class="maxsize" for="commonn"/>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.commonName}" id="commonn" 
+                                         styleClass="#{(breederFormBean.showTab4Error and breederFormBean.vegetableForms.commonName.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                    </p:tab>
+                    <p:tab title="Denominación de la variedad" id="denvar">
+
+                        <p>La denominación deberá ser igual en todos los países miembros de la Unión Internacional para la Protección de las Obtenciones Vegetales (UPOV) donde se solicite protección, y deberá ser diferente de una variedad existente de la misma especie vegetal o de una especie semejante y no deberá ser utilizada más de una vez en la misma clase.</p>
+                        <p>La denominación genérica propuesta en la solicitud no deberá corresponder a una marca, nombre comercial de la variedad, indicación geográfica o denominación de origen de productos agrícolas o alimenticios.</p>                                                
+                        <p:outputLabel value="Designación provisional (referencia del obtentor) de la variedad:" class="maxsize" for="provdes"/>                                                
+                        <br/><br/>
+                        <p>Deberían corroborarse las referencias del obtentor entre registros: en todos los procedimientos oficiales debe utilizarse la misma referencia del obtentor.</p>
+                        <p><strong>Referencia del obtentor*:</strong></p>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.provitionalDesignation}" id="provdes"
+                                         styleClass="#{(breederFormBean.showTab5Error and breederFormBean.vegetableForms.provitionalDesignation.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <br/><br/>
+                        <p:outputLabel value="Denominación genérica propuesta de la variedad *:" class="maxsize" for="genden"/>
+
+                        <p>La denominación deberá ser escrita en mayúsculas y deberá ser la misma en caso de estar registrada en otro país.</p>
+
+                        <p>Denominación de la variedad*:</p>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.genericDenomination}" id="genden"
+                                         styleClass="#{(breederFormBean.showTab5Error and breederFormBean.vegetableForms.genericDenomination.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <br/><br/>
+                        <p:outputLabel value="La denominación puede ser un «nombre de fantasía» o un «CÓDIGO»*:" class="maxsize"/>
+
+                        <p>Las denominaciones de variedades pueden ser «nombres de fantasía» (pronunciables) o nombres de «CÓDIGO» (combinación de números y letras con un máximo de 10 caracteres; los espacios en blanco no se consideran caracteres).</p>
+
+                        <p:selectOneRadio id="dentypesel" value="#{breederFormBean.denominationTypeSelected}" layout="pageDirection" 
+                                          style="text-align: left" 
+                                          styleClass="#{breederFormBean.showTab5Error and (breederFormBean.denominationTypeSelected eq null || breederFormBean.denominationTypeSelected.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="FANTASY" itemLabel="Nombre de fantasía"/>
+                            <f:selectItem itemValue="CODE" itemLabel="Código" />                            
+                        </p:selectOneRadio>
+                    </p:tab>                    
+                    <p:tab title="¿Cómo se ha transferido la variedad al/a los solicitante(s)?" id="transfvar">
+                        “Si el solicitante es diferente del obtentor se debe ingresar de forma física la prueba documental adecuada.”
+                        <br/><br/>
+                        <p:outputLabel value="Seleccione 'Sí' si el obtentor no es el solicitante:" />
+                        <p:selectOneRadio id="vartranobsel" value="#{breederFormBean.varietyTransferObtentor}" layout="pageDirection" 
+                                          style="text-align: left" 
+                                          styleClass="#{breederFormBean.showTab6Error and (breederFormBean.varietyTransferObtentor eq null || breederFormBean.varietyTransferObtentor.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <p:ajax update="mensajes allform:acordion:panvariety" listener="#{breederFormBean.onVarietyTransferSelected}"/>
+                        </p:selectOneRadio>
+
+                        <p:panel id="panvariety" style="#{breederFormBean.vegetableForms.varietyTransfer?'display:block':'display:none'}">
+                            <p:selectOneRadio id="vartransel" value="#{breederFormBean.varietyTransferSelected}" layout="pageDirection" 
+                                              style="text-align: left" 
+                                              styleClass="#{breederFormBean.showTab6Vartr and (breederFormBean.varietyTransferSelected eq null || breederFormBean.varietyTransferSelected.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                                <f:selectItem itemValue="SUCCESSION" itemLabel="Sucesión"/>
+                                <f:selectItem itemValue="CONTRACT" itemLabel="Contrato" />
+                                <f:selectItem itemValue="CONTRACT_EMPLOY" itemLabel="Contrato de trabajo (Indique la legislación nacional pertinente)" />
+                                <f:selectItem itemValue="TRANSFER_RIGHTS" itemLabel="Cesión de derechos (si el solicitante y el obtentor no son la misma persona).
+                                              Si el solicitante y el obtentor no son la misma persona, adjunte toda la documentación relativa a la cesión de derechos" />
+                                <f:selectItem itemValue="ANOTHER" itemLabel="Otra (Especifique)" />                            
+                                <p:ajax update="mensajes vartrandes" listener="#{breederFormBean.onVarietySelected}"/>
+                            </p:selectOneRadio>
+                            <p:inputTextarea id="vartrandes" value="#{breederFormBean.vegetableForms.varietyTransferDescription}" class="maxsize " 
+                                             style="#{breederFormBean.withDescriptionVariety ? 'display:block' : 'display:none'}"
+                                             styleClass="#{(breederFormBean.vegetableForms.varietyTransferDescription.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                            <br/>
+                            <p:outputLabel value="Origen geográfico de la variedad*:" class="maxsize" for="paisorigen"/>
+                            <p:selectOneMenu id="paisorigen" value="#{breederFormBean.countryOrigin}" converter="countryConverter"
+                                             class="maxsize" widgetVar="paisor" dynamic="false">                                                    
+                                <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                               itemLabel="#{c.name}" itemValue="#{c}" />                            
+                            </p:selectOneMenu>
+                        </p:panel>
+
+                    </p:tab>
+                    <p:tab title="Información de todas las demás solicitudes de protección de obtención vegetal o listados oficiales relativos a esta variedad realizados en un Estado miembro de la Unión." 
+                           id="infsol">
+                        <p:outputLabel value="¿Se ha realizado otras solicitudes en relación con esta variedad?" for="hasother"/>                        
+                        <p:selectOneRadio id="hasother" value="#{breederFormBean.previousRequest}" layout="pageDirection" 
+                                          style="text-align: left" 
+                                          styleClass="#{breederFormBean.showTab7Error and (breederFormBean.previousRequest eq null || breederFormBean.previousRequest.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <p:ajax update="mensajes allform:acordion:solant"  listener="#{breederFormBean.onPreviousRequestSelected}"/>
+                        </p:selectOneRadio>
+                        <p:panelGrid columns="1" style="#{breederFormBean.vegetableForms.hasOtherApplications ? 'display:block' : 'display:none'}" 
+                                     id="solant">
+                            <p:panel header="Solicitudes anteriores:">
+                                <p>La protección se refiere a patentes de plantas, patentes industriales, y a títulos 
+                                    especiales de protección vegetal, entre éstos, el certificado de obtentor</p>
+
+                                <p>Registro de variedades es cualquier inscripción en el registro de variedades 
+                                    cuya comercialización está autorizada por la autoridad competente. 
+                                    (Ejm.: en Ecuador, Dirección Nacional Agropecuaria, Unidad de Semillas.) </p>
+
+                                <p>En la columna situación de la solicitud debe usar las abreviaturas indicadas en el apartado. Esto es,</p>
+                                <ul>
+                                    <li>A =  en trámite</li>
+                                    <li>B =  rechazada</li>
+                                    <li>C =  retirada</li>
+                                    <li>D =  aceptada</li>
+                                    <li>E =  otros (especifique)</li>
+                                </ul>
+
+                                <p>Debe indicar todas las solicitudes anteriores sin excepciones, en orden cronológico. 
+                                    En caso de indicar "otros", por favor especifique.</p>
+
+                                <p>En todos los casos en que la solicitud esté aceptada indicar el número de registro.</p>
+
+                                <p>Cuando la denominación varietal haya sido aceptada por una autoridad competente subráyese 
+                                    la denominación en la última columna.</p>
+                                <p:commandButton value="NUEVA SOLICITUD ANTERIOR" actionListener="#{breederFormBean.prepareNewApplication}"
+                                                 oncomplete="if(args.newapppro){PF('dlgProtection').show();}" process="@this" update="frmProtection"
+                                                 styleClass="#{breederFormBean.showTab7Prote and breederFormBean.vegetableProtections.size() == 0 ?'invalid-table btn_peque':'btn_peque'}"/>
+                                <p:dataTable id="tablaDeSolAnteriores" var="protection"
+                                             value="#{breederFormBean.vegetableProtections}" widgetVar="tablaDeSolAnteriores"
+                                             emptyMessage="No hay Datos para mostrar"                                              
+                                             binding="#{breederFormBean.protectionData}"
+                                             paginator="true"
+                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                             rows="20"
+                                             rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
+                                             style="width: 100%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
+                                             styleClass="#{breederFormBean.showTab7Prote and breederFormBean.vegetableProtections.size() == 0 ?'invalid-table':''}"
+                                             rowKey="#{protection.id}">
+                                    <p:column headerText="Tipo Protección" style="text-align: center;" >
+                                        <h:outputText value="#{breederFormBean.getProtectionTypeLabel(protection.protectionType)}" />
+                                    </p:column>
+                                    <p:column headerText="País" style="text-align: center;" >
+                                        <h:outputText value="#{breederFormBean.getCountryName(protection.submissionCountryId)}" />
+                                    </p:column>
+                                    <p:column headerText="Fecha de Presentación" style="text-align: center;" >
+                                        <h:outputText value="#{protection.submissionDate}" >
+                                            <f:convertDateTime pattern="dd - MMMM - yyyy"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Número de solicitud" style="text-align: center;" >
+                                        <h:outputText value="#{protection.applicationNumber}" />
+                                    </p:column>
+                                    <p:column headerText="Número de registro" style="text-align: center;" >
+                                        <h:outputText value="#{protection.registerNumber}" />
+                                    </p:column>
+                                    <p:column headerText="Estado/Situación" style="text-align: center;" >
+                                        <h:outputText value="#{protection.status}" />
+                                    </p:column>
+                                    <p:column headerText="Denominación de la variedad y referencia del obtentor" style="text-align: center;" >
+                                        <h:outputText value="#{protection.denomination}" />
+                                    </p:column>
+                                    <p:column headerText="Acciones" style="text-align: center;" >
+                                        <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeProtection}"
+                                                       update="allform:acordion:tablaDeSolAnteriores mensajes"
+                                                       title="Remover Obtentor" process="@this" >
+                                            <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                            <p:confirm header="CONFIRMAR" message="SEGURO DE REMOVER EL REGISTRO SELECCIONADO ?"/> 
+                                        </p:commandLink>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>                            
+                        </p:panelGrid>
+
+                        <p:dialog id="dlgProtection" modal="true" resizable="true"
+                                  header="REGISTRAR SOLICITUD ANTERIOR" fitViewport="true" dynamic="false"
+                                  widgetVar="dlgProtection" style="font-size: 16px !important; " showEffect="explode" 
+                                  hideEffect="explode" closeOnEscape="false" width="55%">
+                            <p:ajax event="close" update="dlgProtection" resetValues="true" />
+                            <p:growl id="nuevopro" life="1000"/>
+                            <h:form id="frmProtection">
+                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                                    <p:outputLabel value="Tipo de protección:" class="maxsize bordesuperior" for="hasother"/>
+                                    <p:selectOneRadio id="hasother" value="#{breederFormBean.protectionType}"  
+                                                      style="text-align: left; margin-left: 10px;" required="true">
+                                        <f:selectItem itemValue="DERECHO OBTENTOR" itemLabel="Protección mediante Derecho de Obtentor"/>
+                                        <f:selectItem itemValue="PATENTE" itemLabel="Protección mediante Patente" />
+                                        <f:selectItem itemValue="CULTIVARES" itemLabel="Registro de cultivares" />
+                                    </p:selectOneRadio>
+                                    <p:outputLabel value="País de Presentación:" class="maxsize bordesuperior" for="paispres"/>
+                                    <p:selectOneMenu id="paispres" value="#{breederFormBean.countrySubmission}" converter="countryConverter"
+                                                     class="maxsize" widgetVar="paispre" dynamic="false" required="true">                                                    
+                                        <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                                       itemLabel="#{c.name}" itemValue="#{c}" />                            
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Fecha de Presentación:" class="maxsize bordesuperior" for="subdate"/>
+                                    <p:calendar id="subdate" value="#{breederFormBean.vegetableProtection.submissionDate}"
+                                                inputStyleClass="maxsize" required="true"/>
+                                    <p:outputLabel value="Número de solicitud:" class="maxsize bordesuperior" for="apnu"/>
+                                    <p:inputText id="apnu" value="#{breederFormBean.vegetableProtection.applicationNumber}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Número de registro:" class="maxsize bordesuperior" for="regn"/>
+                                    <p:inputText id="regn" value="#{breederFormBean.vegetableProtection.registerNumber}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Estado / Situación:" class="maxsize bordesuperior" for="essit"/>                                    
+                                    <p:selectOneMenu id="essit" value="#{breederFormBean.vegetableProtection.status}" 
+                                                     class="maxsize" widgetVar="essit" dynamic="false" required="true">
+                                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItem itemLabel="A = en trámite" itemValue="A" />
+                                        <f:selectItem itemLabel="B = rechazada" itemValue="A" />
+                                        <f:selectItem itemLabel="C = retirada" itemValue="A" />
+                                        <f:selectItem itemLabel="D = aceptada" itemValue="A" />
+                                        <f:selectItem itemLabel="E = otros" itemValue="A" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Denominación de la variedad y referencia del obtentor:" class="maxsize bordesuperior" for="denop"/>
+                                    <p:inputText id="denop" value="#{breederFormBean.vegetableProtection.denomination}" class="maxsize"
+                                                 required="true"/>
+                                </p:panelGrid>
+                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgProtection').hide()" style="float: right"/>
+                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveProtection}" 
+                                                 oncomplete="if(args.savepro){PF('dlgProtection').hide();}" process="@form" 
+                                                 update="mensajes allform:acordion:tablaDeSolAnteriores @form" style="float: right">
+
+                                </p:commandButton>
+                            </h:form>
+                        </p:dialog>
+                    </p:tab>
+                    <p:tab title="Prioridad" id="priori">
+                        <p>La reivindicación de prioridad deberá basarse en la primera solicitud de protección de la variedad en cuestión, 
+                            presentada por usted o por su representante / apoderado, en un Estado miembro de la UPOV. 
+                            El solicitante podrá reivindicar prioridad, siempre y cuando no hayan transcurrido más de doce 
+                            meses desde la presentación de la primera solicitud en el extranjero (Artículo 328 del Reglamento 
+                            de Gestión de los Conocimientos).  Las copias de esa solicitud anterior, compulsadas por la autoridad competente, 
+                            deberán recibirse por la Oficina en el plazo de 3 meses desde la fecha de la solicitud, 
+                            tomando en cuenta las formalidades del artículo 329 del Reglamento de Gestión de los Conocimientos.</p>
+                        <p:outputLabel value="¿Hay una reivindicación de prioridad?" class="maxsize" for="haspricla"/>
+                        <p:selectOneRadio id="haspricla" value="#{breederFormBean.priorityClaim}" layout="pageDirection" 
+                                          style="text-align: left" 
+                                          styleClass="#{breederFormBean.showTab8Error and (breederFormBean.priorityClaim eq null || breederFormBean.priorityClaim.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <p:ajax update="mensajes allform:acordion:panpriori" listener="#{breederFormBean.onPriorityClaim}"/>
+                        </p:selectOneRadio>
+
+                        <p:panel id="panpriori" style="#{breederFormBean.vegetableForms.priorityClaim ?'display:block':'display:none'}">
+                            <p:outputLabel value="Se reivindica la prioridad con respecto de la solicitud de protección presentada con anterioridad con base a la siguiente información:" class="maxsize"/>
+                            <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                                <p:outputLabel value="País:" class="maxsize bordesuperior" for="paispri"/>
+                                <p:selectOneMenu id="paispri" value="#{breederFormBean.countryPriority}" converter="countryConverter"
+                                                 widgetVar="paispri" dynamic="false" 
+                                                 styleClass="#{breederFormBean.showTab8Prior and (breederFormBean.countryPriority eq null || breederFormBean.countryPriority.getId() lt 1) ? 'invalid-inputfield' : 'maxsize'}">
+                                    <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                                   itemLabel="#{c.name}" itemValue="#{c}" />                            
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Fecha de Solicitud:" class="maxsize bordesuperior" for="fecsol"/>
+                                <p:calendar id="fecsol" value="#{breederFormBean.vegetablePriority.applicationDate}"                                             
+                                            inputStyleClass="#{breederFormBean.showTab8Prior and breederFormBean.vegetablePriority.applicationDate eq null ? 'invalid-inputfield' : 'maxsize'}"/>
+                                <p:outputLabel value="Nombre del Solicitante:" class="maxsize bordesuperior" for="nomsol"/>
+                                <p:inputText id="nomsol" value="#{breederFormBean.vegetablePriority.applicantName}" class="maxsize"
+                                             styleClass="#{breederFormBean.showTab8Prior and (breederFormBean.vegetablePriority.applicantName eq null || breederFormBean.vegetablePriority.applicantName.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                                <p:outputLabel value="Denominación genérica:" class="maxsize bordesuperior" for="dengen"/>
+                                <p:inputText id="dengen" value="#{breederFormBean.vegetablePriority.genericDenomination}" class="maxsize"
+                                             styleClass="#{breederFormBean.showTab8Prior and (breederFormBean.vegetablePriority.genericDenomination eq null || breederFormBean.vegetablePriority.genericDenomination.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                                <p:outputLabel value="Número de solicitud:" class="maxsize bordesuperior" for="numsol"/>
+                                <p:inputText id="numsol" value="#{breederFormBean.vegetablePriority.applicationNumber}" class="maxsize"
+                                             styleClass="#{breederFormBean.showTab8Prior and (breederFormBean.vegetablePriority.applicationNumber eq null || breederFormBean.vegetablePriority.applicationNumber.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                            </p:panelGrid>
+                            <br/>
+                            <p:outputLabel value="Documentos relativos a la prioridad:" class="maxsize"/>
+                            La Oficina deberá haber recibido las copias de la solicitud anterior, compulsadas por la autoridad competente, 
+                            en el plazo de 3 meses desde la fecha de la solicitud, tomando en cuenta las formalidades del artículo 329 del 
+                            Reglamento de Gestión de los Conocimientos
+                        </p:panel>
+
+
+                    </p:tab>
+                    <p:tab title="¿Se ha vendido o explotado de otro modo la obtención vegetal? " id="explot">
+
+                        <p><strong>“Se otorga protección a las variedades nuevas. Una variedad será considerada nueva si el 
+                                material de reproducción o de multiplicación, o un producto de su cosecha no hubiese 
+                                sido vendido o entregado de otra manera lícita a terceros, por el obtentor o su 
+                                causahabiente o con su consentimiento, para fines de explotación comercial de la variedad.”</strong></p>
+                        <p>Marque la casilla «Sí» o «No». Si la pregunta no es aplicable, indíquelo. 
+                            En el caso de que la respuesta sea «Sí», sírvase especificar la fecha exacta y el país. 
+                            La mera indicación de un año, como «2005», no es suficiente.</p>
+
+                        <p>La protección de obtención vegetal sólo se concede si la variedad es nueva. 
+                            No se considerará nueva si se ha vendido, o cedido de otro modo, o con el consentimiento del obtentor:</p>
+
+                        <ul>
+                            <li>en la Subregión Andina, un año antes de la fecha de presentación de la solicitud;</li>
+                            <li>fuera de la Subregión Andina, cuatro (4) años antes de la fecha de presentación de la solicitud o, 
+                                en caso de especies arbóreas y vides, seis (6) años antes de la fecha de presentación de la solicitud.</li>
+                        </ul>
+
+                        <p>El solicitante deberá haber adoptado las precauciones pertinentes para garantizar 
+                            que no se produzcan ventas ni cesiones equivalentes antes del plazo permitido.</p>
+
+                        <p:outputLabel value="En el territorio de la Subregión Andina:" class="maxsize" for="interr"/>
+                        <p:selectOneRadio id="interr" value="#{breederFormBean.interritory}" 
+                                          style="text-align: left; margin-left: 15px;" 
+                                          styleClass="#{breederFormBean.showTab9Error and (breederFormBean.interritory eq null || breederFormBean.interritory.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <p:ajax update="mensajes allform:acordion:panin" listener="#{breederFormBean.onInTerritory}"/>
+                        </p:selectOneRadio>
+                        <p:panelGrid id="panin" columns="1" style="#{breederFormBean.vegetableForms.inTerritory ? 'display:block': 'display:none'}">
+                            <p:commandButton value="AGREGAR EN TERRITORIO" actionListener="#{breederFormBean.prepareNewInExploited}" process="@this"
+                                             update="mensajes allform:acordion:dlgExploited allform:frmExploited" class="btn_peque" 
+                                             style="#{breederFormBean.inExploitedSelleds.size() != 0?'display:none':'display:block'}"
+                                             oncomplete="if(args.newexplo){PF('dlgExploited').show()}" id="btnin"
+                                             styleClass="#{breederFormBean.showTab9Error and breederFormBean.inExploitedSelleds.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
+                            <p:dataTable id="tablaIn" var="exploited" style="#{breederFormBean.inExploitedSelleds.size()>0?'display:block':'display:none'}"
+                                         value="#{breederFormBean.inExploitedSelleds}" widgetVar="tablaIn"
+                                         emptyMessage="No hay Datos para mostrar"                                              
+                                         binding="#{breederFormBean.inexploitedData}"                                             
+                                         rows="20"
+                                         rowKey="#{exploited.id}">                                
+                                <p:column headerText="Fecha de Presentación" style="text-align: center;" >
+                                    <h:outputText value="#{exploited.explotationDate}" >
+                                        <f:convertDateTime pattern="dd - MMMM - yyyy"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="País" style="text-align: center;" >
+                                    <h:outputText value="#{breederFormBean.getCountryName(exploited.countryId)}" />
+                                </p:column>
+                                <p:column headerText="Denominación" style="text-align: center;" >
+                                    <h:outputText value="#{exploited.denomination}" />
+                                </p:column>
+                                <p:column headerText="Acciones" style="text-align: center;" >
+                                    <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeInExploited}"
+                                                   update="allform:acordion:tablaIn allform:acordion:btnin mensajes"
+                                                   title="Remover Registro" process="@this" >
+                                        <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                    </p:commandLink>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panelGrid>
+                        <br/>
+                        <p:outputLabel value="Fuera del territorio de la Subregión Andina:" class="maxsize"/>
+                        <p:selectOneRadio id="outterr" value="#{breederFormBean.outterritory}" 
+                                          style="text-align: left; margin-left: 15px;" 
+                                          styleClass="#{breederFormBean.showTab9Error and (breederFormBean.outterritory eq null || breederFormBean.outterritory.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <p:ajax update="mensajes allform:acordion:panout" listener="#{breederFormBean.onOutTerritory}"/>
+                        </p:selectOneRadio>
+                        <p:panelGrid id="panout" columns="1" style="#{breederFormBean.vegetableForms.outTerritory ? 'display:block': 'display:none'}">
+                            <p:commandButton value="AGREGAR FUERA DEL TERRITORIO" actionListener="#{breederFormBean.prepareNewOutExploited}" process="@this"
+                                             update="mensajes allform:acordion:dlgExploited allform:frmExploited" class="btn_peque" 
+                                             style="#{breederFormBean.outExploitedSelleds.size() != 0?'display:none':'display:block'}"
+                                             oncomplete="if(args.newexplo){PF('dlgExploited').show()}" id="btnout"
+                                             styleClass="#{breederFormBean.showTab9Error and breederFormBean.outExploitedSelleds.size()== 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
+                            <p:dataTable id="tablaOut" var="exploited" style="#{breederFormBean.outExploitedSelleds.size()>0?'display:block':'display:none'}"
+                                         value="#{breederFormBean.outExploitedSelleds}" widgetVar="tablaOut"
+                                         emptyMessage="No hay Datos para mostrar"                                              
+                                         binding="#{breederFormBean.outexploitedData}"                                             
+                                         rows="20"
+                                         rowKey="#{exploited.id}">                                
+                                <p:column headerText="Fecha de Presentación" style="text-align: center;" >
+                                    <h:outputText value="#{exploited.explotationDate}" >
+                                        <f:convertDateTime pattern="dd - MMMM - yyyy"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="País" style="text-align: center;" >
+                                    <h:outputText value="#{breederFormBean.getCountryName(exploited.countryId)}" />
+                                </p:column>
+                                <p:column headerText="Denominación" style="text-align: center;" >
+                                    <h:outputText value="#{exploited.denomination}" />
+                                </p:column>
+                                <p:column headerText="Acciones" style="text-align: center;" >
+                                    <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeOutExploited}"
+                                                   update="allform:acordion:tablaOut allform:acordion:btnout mensajes"
+                                                   title="Remover Registro" process="@this" >
+                                        <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                    </p:commandLink>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panelGrid>
+                        <p:dialog id="dlgExploited" modal="true" resizable="true"
+                                  header="#{breederFormBean.exploitedDilogTitle}" fitViewport="true" dynamic="false"
+                                  widgetVar="dlgExploited" style="font-size: 16px !important; " showEffect="explode" 
+                                  hideEffect="explode" closeOnEscape="false" width="55%">
+                            <p:ajax event="close" update="dlgExploited" resetValues="true" />
+                            <p:growl id="nuevoexp" life="1000"/>
+                            <h:form id="frmExploited">
+                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                                    <p:outputLabel value="Fecha:" class="maxsize bordesuperior" for="fech"/>
+                                    <p:calendar id="fech" value="#{breederFormBean.exploitedSelled.explotationDate}" 
+                                                inputStyleClass="maxsize" required="true"/>
+                                    <p:outputLabel value="País:" class="maxsize bordesuperior" for="paisexp"/>
+                                    <p:selectOneMenu id="paisexp" value="#{breederFormBean.countryExploited}" converter="countryConverter"
+                                                     class="maxsize" widgetVar="paisexp" dynamic="false" required="true">                                                    
+                                        <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                                       itemLabel="#{c.name}" itemValue="#{c}" />                            
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Denominación:" class="maxsize bordesuperior" for="denexp"/>
+                                    <p:inputText id="denexp" value="#{breederFormBean.exploitedSelled.denomination}" class="maxsize"
+                                                 required="true"/>
+                                </p:panelGrid>
+                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgExploited').hide()" style="float: right"/>
+                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveExploitedSelled}" 
+                                                 oncomplete="if(args.saveexp){PF('dlgExploited').hide();}" process="@form" 
+                                                 update="mensajes allform:acordion:tablaIn allform:acordion:tablaOut allform:acordion:btnin allform:acordion:btnout @form" style="float: right">
+                                </p:commandButton>
+                            </h:form>
+                        </p:dialog>
+                    </p:tab>
+                    <p:tab title="Examen técnico de la variedad" id="exa">
+                        <p:outputLabel value="“Especificar, según el caso, el país y centro de investigación donde se ha realizado, se están realizando o se tiene previsto realizar las pruebas de distinción, homogeneidad y estabilidad.”" />
+                        <br/><br/>
+                        <p:selectOneRadio id="examt" value="#{breederFormBean.technicalQuiz}" layout="pageDirection" 
+                                          style="text-align: left" >
+                            <f:selectItem itemValue="PERFORMED" itemLabel="Ya se realizó"/>
+                            <f:selectItem itemValue="INPROCESS" itemLabel="Está en proceso de realizarse" />
+                            <f:selectItem itemValue="NOEXAMYET" itemLabel="Aún no se ha realizado, se realizará" />
+                            <p:ajax update="mensajes allform:acordion:panExam" listener="#{breederFormBean.onTechnicalExam}"/>
+                        </p:selectOneRadio>
+                        <p:panelGrid columns="1" id="panExam" style="#{(breederFormBean.vegetableForms.examPerformed || breederFormBean.vegetableForms.examInProcess || breederFormBean.vegetableForms.noExamYet) ?'display:block':'display:none'}">
+                            <p:outputLabel value="En (país):" class="maxsize bordesuperior" for="paisexap"/>
+                            <p:selectOneMenu id="paisexap" value="#{breederFormBean.countryQuiz}" converter="countryConverter"
+                                             widgetVar="paisex" dynamic="false" required="true"
+                                             styleClass="#{breederFormBean.showTab10Error and (breederFormBean.countryQuiz eq null || breederFormBean.countryQuiz.getId() lt 1) ? 'invalid-inputfield' : 'maxsize'}">
+                                <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                               itemLabel="#{c.name}" itemValue="#{c}" />                            
+                            </p:selectOneMenu>
+                        </p:panelGrid>
+                        <br/>
+                        <p:outputLabel value="¿Se cuenta con el depósito de muestra viva de la variedad?" class="maxsize"/>
+                        <p:selectOneRadio id="sampliv" value="#{breederFormBean.livingVarietySample}" layout="pageDirection" 
+                                          style="text-align: left"
+                                          styleClass="#{breederFormBean.showTab10Error and (breederFormBean.livingVarietySample eq null || breederFormBean.livingVarietySample.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <p:ajax update="mensajes allform:acordion:panLiv" listener="#{breederFormBean.onLivingSample}"/>
+                        </p:selectOneRadio>
+                        <br/>
+                        <p:panelGrid columns="1" id="panLiv" style="#{breederFormBean.vegetableForms.livingSample ?'display:block':'display:none'}">
+                            <p:outputLabel value="En caso de contar con depósito de muestra viva detalle" class="maxsize"/>
+                            <br/>
+                            <p:outputLabel value="País:" class="maxsize" for="paislivs"/>
+                            <p:selectOneMenu id="paislivs" value="#{breederFormBean.countryLivingSample}" converter="countryConverter"
+                                             class="maxsize" widgetVar="paislivs" dynamic="false" required="true"
+                                             styleClass="#{breederFormBean.showTab10Error and (breederFormBean.countryLivingSample eq null || breederFormBean.countryLivingSample.getId() lt 1) ? 'invalid-inputfield' : 'maxsize'}">
+                                <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                               itemLabel="#{c.name}" itemValue="#{c}" />                            
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Lugar exacto:" class="maxsize" for="samplac"/>
+                            <p:inputTextarea id="samplac" class="maxsize" value="#{breederFormBean.vegetableForms.samplePlace}" 
+                                             styleClass="#{breederFormBean.showTab10Error and (breederFormBean.vegetableForms.samplePlace eq null || breederFormBean.vegetableForms.samplePlace.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        </p:panelGrid>
+                    </p:tab>
+                    <p:tab title="Descripción técnica de la variedad" id="destec">
+                        <p:outputLabel value="Genealogía:" for="geneal"/>
+                        <span> origen genético (parentales/en el caso de variedades híbridas indique en primer lugar el componente madre y luego el componente padre) (Confidencial)</span>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.genealogy}" id="geneal"
+                                         styleClass="#{breederFormBean.showTab11Error and (breederFormBean.vegetableForms.genealogy eq null || breederFormBean.vegetableForms.genealogy.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <p:panel header="Metodología de obtención de la variedad vegetal (Cofindencial)" id="methodologypan">
+                            <p:outputLabel value="Método de mejoramiento vegetal"/>
+                            <span>(Marque el casillero que corresponda)</span>
+                            <p:selectManyCheckbox id="meths" value="#{breederFormBean.selectedMethodologies}" converter="methodologyConverter"
+                                                  layout="pageDirection"
+                                                  styleClass="#{breederFormBean.showTab11Error and breederFormBean.selectedMethodologies.size() == 0 ?'invalid-manycheck':''}">
+                                <f:selectItems value="#{breederFormBean.methodologies}"
+                                               var="m"
+                                               itemValue="#{m}"
+                                               itemLabel="#{m.name}" />
+                                <p:ajax update="mensajes allform:acordion:methodologypan" listener="#{breederFormBean.onMethodologiesSelected}"/>
+                            </p:selectManyCheckbox>                            
+                            <p:outputLabel value="Especies Autógamas:" for="esau" 
+                                           style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"/>
+                            <p:inputText value="#{breederFormBean.autogamousSpecies}" id="esau" class="maxsize" 
+                                         style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"
+                                         styleClass="#{breederFormBean.showTab11Error and (breederFormBean.autogamousSpecies eq null || breederFormBean.autogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+
+                            <p:outputLabel value="Especies Alógamas:" for="esalo" 
+                                           style="#{breederFormBean.allogamousSelected ? 'display:block' : 'display:none'}"/>
+                            <p:inputText value="#{breederFormBean.allogamousSpecies}" id="esalo" class="maxsize"
+                                         style="#{breederFormBean.allogamousSelected ? 'display:block' : 'display:none'}"
+                                         styleClass="#{breederFormBean.showTab11Error and (breederFormBean.allogamousSpecies eq null || breederFormBean.allogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+
+                            <p:outputLabel value="Historial del procesos de mejoramiento vegetal" for="history"/>
+                            <span>(Detallar en forma cronológica la historia del mejoramiento hasta la estabilización de la variedad cuya inscripción se pretende) (Confidencial)</span>
+                            <p:inputTextarea value="#{breederFormBean.vegetableForms.processHistory}" id="history" 
+                                             styleClass="#{breederFormBean.showTab11Error and (breederFormBean.vegetableForms.processHistory eq null || breederFormBean.vegetableForms.processHistory.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        </p:panel>                        
+                    </p:tab>
+                    <p:tab title="Información adicional de la variedad" id="infad">
+                        <p:outputLabel for="deschar" value="Descripción de características fisiológicas, fitosanitarias, fenológicas, físico-químicas, industriales o agronómicas, que sean pertinentes, esenciales o discriminatorios y permitan su identificación frente a sus análogos"/>
+                        <span>(De ser el caso)</span>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.featuresDescription}" id="deschar" class="maxsize"/>
+                        <p:outputLabel for="geomat" value="Procedencia geográfica del material genético que sirvió de base para la obtención de la variedad a ser protegida"/>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalMaterialOrigin}" id="geomat" class="maxsize"
+                                         styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.geographicalMaterialOrigin eq null || breederFormBean.vegetableForms.geographicalMaterialOrigin.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <p:outputLabel for="geovar" value="Procedencia geográfica de la variedad a ser protegida"/>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalVarietyOrigin}" id="geovar" class="maxsize"
+                                         styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.geographicalVarietyOrigin eq null || breederFormBean.vegetableForms.geographicalVarietyOrigin.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <p:outputLabel for="repmec" value="Mecanismo de reproducción, propagación o multiplicación"/>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.reproductionMechanism}" id="repmec" class="maxsize"
+                                         styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.reproductionMechanism eq null || breederFormBean.vegetableForms.reproductionMechanism.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <p:outputLabel value="Información adicional de la variedad que permita distinguirla de otras existentes, consideraciones que serán tomadas en cuenta para la ejecución del examen de Distinción, Homogeneidad y Estabilidad" for="addit"/>
+                        <span> (a. condiciones medioambientales: suelo, agua, luz, temperatura; b. manejo agronómico: nutrientes, labores culturales, medidas fitosanitarias)</span>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.additionalInformation}" id="addit" class="maxsize" 
+                                         styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.additionalInformation eq null || breederFormBean.vegetableForms.additionalInformation.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <br/><br/>
+                        <p:outputLabel value="Identificar si se trata de una variedad producto de material obtenido del patrimonio biológico y genético del país. En caso de serlo, deberá adjuntar una copia del permiso de acceso correspondiente, en concordancia con el inciso final del Art. 471 del Código Orgánico de Economía Social de los Conocimientos, Creatividad e Innovación:" for="idemat"/>
+                        <p:selectOneRadio id="idemat" value="#{breederFormBean.materialVarietyIdentification}" layout="pageDirection" 
+                                          style="text-align: left"
+                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.materialVarietyIdentification eq null || breederFormBean.materialVarietyIdentification.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />                            
+                        </p:selectOneRadio>
+                        <p:outputLabel value="Identificar si se trata de una variedad producto de un organismo genéticamente modificado, con el fin de que la autoridad competente informe sobre los riesgos a la salud humana, animal o vegetal, soberanía alimentaria, seguridad alimentaria y seguridad ambiental:" for="prodvar"/>
+                        <p:selectOneRadio id="prodvar" value="#{breederFormBean.productVarietyIdentification}" layout="pageDirection" 
+                                          style="text-align: left"
+                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.productVarietyIdentification eq null || breederFormBean.productVarietyIdentification.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
+                            <f:selectItem itemValue="NO" itemLabel="No" />                            
+                        </p:selectOneRadio>
+                    </p:tab>
+                    <p:tab title="Caracteres de la variedad" id="carvar">
+                        <p:outputLabel value="Caracteres de la variedad conforme a las directrices UPOV, directrices nacionales del SENADI o a falta de lo anterior, el solicitante señalará los caracteres pertinentes, esenciales o discriminatorios que permitan identificarla y diferenciarla:" class="maxsize"/>
+                        <br/><br/>
+                        <span>Nota aclaratoria: "INDICAR, SEGÚN LA ESPECIE, DE ACUERDO CON LA TABLA DE CARACTERÍSTICAS QUE CONSTA EN LOS PRINCIPIOS 
+                            RECTORES PARA LA EJECUCIÓN DEL EXAMEN PREPARADOS POR LA UPOV. (Señale el número que mejor corresponda al nivel de 
+                            expresión y la variedad a título de ejemplo)"</span>
+                        <br/><br/>
+                        <p:commandButton value="AGREGAR NUEVO" actionListener="#{breederFormBean.prepareNewCharacter}" process="@this"
+                                         update="mensajes allform:acordion:dlgCharacter allform:frmCharacter" 
+                                         oncomplete="if(args.newch){PF('dlgCharacter').show()}" id="btnchar"
+                                         styleClass="#{breederFormBean.showTab13Error and breederFormBean.varietiesCharacters.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
+                        <p:dataTable id="tablaChar" var="character" 
+                                     value="#{breederFormBean.varietiesCharacters}" widgetVar="tablaChar"
+                                     emptyMessage="No hay Datos para mostrar"                                              
+                                     binding="#{breederFormBean.characterData}"                                             
+                                     rows="20" style="width: 80%; text-align: center; margin: 0 auto;"
+                                     rowKey="#{character.id}" 
+                                     styleClass="#{breederFormBean.showTab13Error and breederFormBean.varietiesCharacters.size() == 0 ?'invalid-table btn_peque':'btn_peque'}">
+                            <p:column headerText="Caracteres" style="text-align: center;" >
+                                <h:outputText value="#{character.characters}" />                                    
+                            </p:column>
+                            <p:column headerText="Nivel de expresión" style="text-align: center;" >
+                                <h:outputText value="#{character.expressionLevel}" />
+                            </p:column>
+                            <p:column headerText="Variedad a título de ejemplo" style="text-align: center;" >
+                                <h:outputText value="#{character.sampleTitleVariety}" />
+                            </p:column>
+                            <p:column headerText="Nota" style="text-align: center;" >
+                                <h:outputText value="#{character.note}" />
+                            </p:column>
+                            <p:column headerText="Acciones" style="text-align: center;" >
+                                <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeVarietyCharacter}"
+                                               update="allform:acordion:tablaChar mensajes"
+                                               title="Remover Registro" process="@this" >
+                                    <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                </p:commandLink>
+                            </p:column>
+                        </p:dataTable>
+                        <p:dialog id="dlgCharacter" modal="true" resizable="true"
+                                  header="AGREGAR CARACTERES DE LA VARIEDAD" fitViewport="true" dynamic="false"
+                                  widgetVar="dlgCharacter" style="font-size: 16px !important; " showEffect="explode" 
+                                  hideEffect="explode" closeOnEscape="false" width="55%">
+                            <p:ajax event="close" update="dlgCharacter" resetValues="true" />
+                            <p:growl id="nuevochar" life="1000"/>
+                            <h:form id="frmCharacter">
+                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                                    <p:outputLabel value="Caracteres:" class="maxsize bordesuperior" for="charac"/>
+                                    <p:inputText id="charac" value="#{breederFormBean.varietyCharacters.characters}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Nivel de expresión" class="maxsize bordesuperior" for="expres"/>
+                                    <p:inputText id="expres" value="#{breederFormBean.varietyCharacters.expressionLevel}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Variedad a título de ejemplo:" class="maxsize bordesuperior" for="titlevar"/>
+                                    <p:inputText id="titlevar" value="#{breederFormBean.varietyCharacters.sampleTitleVariety}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Nota:" class="maxsize bordesuperior" for="notec"/>
+                                    <p:inputText id="notec" value="#{breederFormBean.varietyCharacters.note}" class="maxsize"
+                                                 required="true"/>
+                                </p:panelGrid>
+                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgCharacter').hide()" style="float: right"/>
+                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveVarietyCharacters}" 
+                                                 oncomplete="if(args.savechar){PF('dlgCharacter').hide();}" process="@form" 
+                                                 update="mensajes allform:acordion:tablaChar @form" style="float: right">
+                                </p:commandButton>
+                            </h:form>
+                        </p:dialog>
+                    </p:tab>
+                    <p:tab title="Comparación con variedades similares" id="compvar">
+                        <p:outputLabel value="Comparación con variedades similares, consideraciones que serán tomadas en cuenta para la ejecución del examen de Distinción, Homogeneidad y Estabilidad:" class="maxsize"/>
+                        <br/><br/>
+                        <span>Nota aclaratoria: "En caso de que los niveles de expresión de ambas variedades sean idénticos, sírvase indicar la amplitud de la diferencia."</span>
+                        <br/><br/>
+                        <p:commandButton value="AGREGAR NUEVO" actionListener="#{breederFormBean.prepareNewSimilary}" process="@this"
+                                         update="mensajes allform:acordion:dlgSimilary allform:frmSimilary" class="btn_peque"                                          
+                                         oncomplete="if(args.newsim){PF('dlgSimilary').show()}" id="btnsim"
+                                         styleClass="#{breederFormBean.showTab14Error and breederFormBean.similaritiesVariety.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
+                        <p:dataTable id="tablaSim" var="similary" 
+                                     value="#{breederFormBean.similaritiesVariety}" widgetVar="tablaSim"
+                                     emptyMessage="No hay Datos para mostrar"                                              
+                                     binding="#{breederFormBean.similaryData}"                                             
+                                     rows="20" style="width: 80%; text-align: center; margin: 0 auto;"
+                                     rowKey="#{similary.id}" 
+                                     styleClass="#{breederFormBean.showTab14Error and breederFormBean.similaritiesVariety.size() == 0 ?'invalid-table btn_peque':'btn_peque'}">
+                            <p:column headerText="Denominación de la variedad similar" style="text-align: center;" >
+                                <h:outputText value="#{similary.denomination}" />
+                            </p:column>
+                            <p:column headerText="Carácter por el que difiere la variedad similar" style="text-align: center;" >
+                                <h:outputText value="#{similary.differentCharacter}" />
+                            </p:column>
+                            <p:column headerText="Nivel de expresión de la variedad similar" style="text-align: center;" >
+                                <h:outputText value="#{similary.similaryExpressionLevel}" />
+                            </p:column>
+                            <p:column headerText="Nivel de expresión de la variedad en trámite de registro" style="text-align: center;" >
+                                <h:outputText value="#{similary.registerExpressionLevel}" />
+                            </p:column>
+                            <p:column headerText="Acciones" style="text-align: center;" >
+                                <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeSimilaryVariety}"
+                                               update="allform:acordion:tablaSim mensajes"
+                                               title="Remover Registro" process="@this" >
+                                    <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
+                                </p:commandLink>
+                            </p:column>
+                        </p:dataTable>
+                        <p:dialog id="dlgSimilary" modal="true" resizable="true"
+                                  header="AGREGAR COMPARACIÓN CON VARIEDADES SIMILARES" fitViewport="true" dynamic="false"
+                                  widgetVar="dlgSimilary" style="font-size: 16px !important; " showEffect="explode" 
+                                  hideEffect="explode" closeOnEscape="false" width="55%">
+                            <p:ajax event="close" update="dlgSimilary" resetValues="true" />
+                            <p:growl id="nuevosim" life="1000"/>
+                            <h:form id="frmSimilary">
+                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                                    <p:outputLabel value="Denominación de la variedad similar:" class="maxsize bordesuperior" for="denosim"/>
+                                    <p:inputText id="denosim" value="#{breederFormBean.similaryVariety.denomination}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Carácter por el que difiere la variedad similar:" class="maxsize bordesuperior" for="difiere"/>
+                                    <p:inputText id="difiere" value="#{breederFormBean.similaryVariety.differentCharacter}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Nivel de expresión de la variedad similar:" class="maxsize bordesuperior" for="levelsim"/>
+                                    <p:inputText id="levelsim" value="#{breederFormBean.similaryVariety.similaryExpressionLevel}" class="maxsize"
+                                                 required="true"/>
+                                    <p:outputLabel value="Nivel de expresión de la variedad en trámite de registro" class="maxsize bordesuperior" for="notec"/>
+                                    <p:inputText id="notec" value="#{breederFormBean.similaryVariety.registerExpressionLevel}" class="maxsize"
+                                                 required="true"/>
+                                </p:panelGrid>
+                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgSimilary').hide()" style="float: right"/>
+                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveSimilaryVariety}" 
+                                                 oncomplete="if(args.savesim){PF('dlgSimilary').hide();}" process="@form" 
+                                                 update="mensajes allform:acordion:tablaSim @form" style="float: right">
+                                </p:commandButton>
+                            </h:form>
+                        </p:dialog>
+                    </p:tab>                    
+                    <p:tab title="Documentos Adjuntos" id="docadd">
+                        <p:outputLabel value="Se adjuntan los siguientes formularios y documentos a la presente solicitud: Por favor, adjunte los documentos pertinentes:" />
+                        <p:dataList id="dtganx" var="anx" value="#{breederFormBean.annexes}" varStatus="st"
+                                    widgetVar="dtganx" binding="#{breederFormBean.annexeData}" 
+                                    styleClass="annex-list">
+                            <p:commandLink value="#{anx.fullName}"
+                                           style="display:block; margin-bottom:10px;"
+                                           actionListener="#{breederFormBean.prepareVegetableAnnexe}"
+                                           update="allform:acordion:dialogAnnex allform:acordion:frmAnnex"
+                                           oncomplete="if(args.newcu){PF('dialogAnnex').show();}" process="@this"
+                                           styleClass="#{anx.error ? 'invalid-annex' : ''}">
+
+                                <!-- Icono o marca si ya tiene archivo -->
+                                <!-- Ícono según si está cargado o no -->
+                                <i class="#{anx.currentFile != null 
+                                            ? 'pi pi-check-circle icon-green' 
+                                            : 'pi pi-circle icon-gray'}"
+                                   style="margin-left:8px;"></i>
+                            </p:commandLink>
+                        </p:dataList>
+
+                        <p:dialog id="dialogAnnex" modal="true" resizable="true"
+                                  header="#{breederFormBean.currentAnnex.fullName}" fitViewport="true" dynamic="false"
+                                  widgetVar="dialogAnnex" style="font-size: 16px !important; " showEffect="explode" 
+                                  hideEffect="explode" closeOnEscape="false" width="50%">
+                            <p:ajax event="close" update="dialogAnnex" resetValues="true" />
+                            <p:growl id="nuevoan" life="1000"/>
+                            <h:form id="frmAnnex" enctype="multipart/form-data">
+                                <p:outputLabel value="Debe adjuntar un archivo con extensión .pdf, de tamaño máximo de 16 MB."
+                                               style="font-weight: normal; font-size: 10px !important; color: gray;"/>
+                                <br/>
+                                <p:fileUpload skinSimple="true" mode="simple" label="ADJUNTAR" accept=".pdf" update="mensajes"                                                   
+                                              cancelButtonStyleClass="btn_cerrar" process="@this" uploadLabel="SUBIR" class="fileupcustom" 
+                                              value="#{breederFormBean.currentFile}" title="ADJUNTE EL ARCHIVO EN FORMATO .pdf" required="true"/>
+                                <p:outputLabel value="#{breederFormBean.currentAnnex.currentFile != null ?breederFormBean.currentAnnex.currentFile.fileName:''}" 
+                                               style="font-weight: normal;"/>
+                                <br/>
+                                <p:outputLabel value="Por favor especifíquese:" for="otrosdesc" rendered="#{breederFormBean.currentAnnex.name eq 'Otros'}"/>
+                                <p:inputText id="otrosdesc" value="#{breederFormBean.otherAnnexDesc}" required="true" class="maxsize" maxlength="255"
+                                             rendered="#{breederFormBean.currentAnnex.name eq 'Otros'}"/>
+                                <div style="text-align: center; margin: 0 auto;">
+                                    <p:commandButton value="GUARDAR" class="btn_peque" actionListener="#{breederFormBean.saveVegetableAnnexe}"
+                                                     process="@form" update="mensajes allform:acordion:dtganx otrosdesc" 
+                                                     oncomplete="if(args.saveanx){PF('dialogAnnex').hide();}"/>
+                                </div>                                
+                            </h:form>
+                        </p:dialog>
+
+                    </p:tab>
+                    <p:tab title="Descuento" id="desctab">
+
+                    </p:tab>
+                    <p:tab title="Declaraciones" id="declara">
+                        <ul class="lista-espaciada">
+                            <li>Se autoriza por la presente al SENADI a intercambiar con las Oficinas de Examen y otras autoridades competentes toda la información y material necesarios, referidos a la variedad, siempre que se salvaguarden los derechos del  solicitante.</li>
+                            <li>Yo (Nosotros) por la presente declaro (declaramos) que, a mi (nuestro) mejor entender, la información necesaria para el examen de la solicitud, facilitada en este formulario y sus anexos, es correcta, completa y de única responsabilidad del obtentor, el solicitante o apoderado.</li>
+                            <li>Yo (Nosotros) declaro (declaramos) por la presente que ninguna otra persona o personas, aparte de los citados en esta solicitud, han intervenido en la obtención de la variedad.</li>
+                            <li> 	El (los) signatario(s) declara(n) que, a su leal saber y entender, la variedad es nueva, distinta, homogénea y estable de acuerdo con la Decisión 345 y la Ley de Propiedad Intelectual. La información necesaria para el examen de la solicitud que se facilita en el presente formulario y sus anexos están de acuerdo con las condiciones del artículo 7 de la decisión 345 y son completas y exactas.  </li>
+                        </ul>
+                        <br/>
+                        <p:selectBooleanCheckbox value="#{breederFormBean.vegetableForms.electronicCommunicationConsent}" style="font-size: 14px !important; font-weight: bold"
+                                                 itemLabel="Yo (nosotros) acepto (aceptamos) recibir toda comunicación de forma electrónica (de ser el caso)."/>
+                    </p:tab>
+                </p:accordionPanel>
+                <p:dialog id="dlgPerson" modal="true" resizable="true"
+                          header="#{breederFormBean.personDialogTitle}" fitViewport="true" dynamic="false"
+                          widgetVar="dlgPerson" style="font-size: 16px !important; " showEffect="explode" 
+                          hideEffect="explode" closable="false" width="70%">
+                    <p:ajax event="close" update="dlgPerson" resetValues="true" />
+                    <p:growl id="nuevoreg" life="1000"/>
+                    <h:form id="frmPerson">
+                        <p:panelGrid columns="2" columnClasses="fifty-percent,fifty-percent" class="noBorders" id="solpanel" style="text-align: left">                                    
+                            <p:panelGrid columns="2"  id="tipodocs" class="noBorders" >                                        
+                                <p:fieldset legend="Natural">
+                                    <p:selectOneRadio id="natural" value="#{breederFormBean.tipoDocumentoNatural}" layout="pageDirection" 
+                                                      style="margin-top: -20px; text-align: left;" >
+                                        <f:selectItem itemValue="CI" itemLabel="Cédula"/>
+                                        <f:selectItem itemValue="PASSPORT" itemLabel="Pasaporte/DNI"/>
+                                        <f:selectItem itemValue="RUCN" itemLabel="RUC"/>
+                                        <p:ajax update="juridico solpanel" listener="#{breederFormBean.onNaturalSelected}"/>
+                                    </p:selectOneRadio>
+                                </p:fieldset>
+                                <p:fieldset legend="Jurídico" >
+                                    <p:selectOneRadio id="juridico" value="#{breederFormBean.tipoDocumentoJuridico}" layout="pageDirection" 
+                                                      style="margin-top: -20px; text-align: left">
+                                        <f:selectItem itemValue="RUCJ" itemLabel="RUC"/>
+                                        <f:selectItem itemValue="COMPANY" itemLabel="Empresa Extranjera/Sin Documento" />
+                                        <p:ajax update="natural solpanel" listener="#{breederFormBean.onJuridicoSelected}"/>
+                                    </p:selectOneRadio>
+                                </p:fieldset>
+                            </p:panelGrid>
+                            <p:panelGrid id="nationa" columns="1" style="width: 100%" class="panelCeldas noBorders">
+                                <p:outputLabel value="País de Nacionalidad:" for="pais" class="maxsize"/>
+                                <p:selectOneMenu id="pais" value="#{breederFormBean.country}" converter="countryConverter"
+                                                 class="maxsize" disabled="#{!breederFormBean.paisnac}" widgetVar="pais" dynamic="false">                                                    
+                                    <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                                   itemLabel="#{c.name}" itemValue="#{c}" />
+                                    <p:ajax listener="#{breederFormBean.onCountryChange}" update="province city" />
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Provincia de Residencia:" for="province" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
+                                <p:selectOneMenu id="province" value="#{breederFormBean.province}" converter="provinceConverter"
+                                                 class="maxsize" disabled="#{!breederFormBean.prov}" widgetVar="province" rendered="#{breederFormBean.ecuador}">
+                                    <f:selectItems value="#{breederFormBean.provinces}" var="p" 
+                                                   itemLabel="#{p.name}" itemValue="#{p}" />
+                                    <p:ajax listener="#{breederFormBean.onProvinceChange}" update="city" />
+                                </p:selectOneMenu>
+                            </p:panelGrid>
+                            <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders">
+                                <p:outputLabel value="Número de Documento:" for="docn" class="maxsize"/>
+                                <p:inputText id="docn" value="#{breederFormBean.person.identificationNumber}" readonly="#{!breederFormBean.doc}" 
+                                             class="maxsize" required="true" widgetVar="focusCedula">
+                                    <p:ajax event="blur" listener="#{breederFormBean.verificarDocumento}" 
+                                            update="mensajes @parent nationa addsol pais province city" />
+                                </p:inputText>
+                                <p:outputLabel value="Nombre:" for="nombre" class="maxsize"/>
+                                <p:inputText id="nombre" value="#{breederFormBean.person.name}" readonly="#{!breederFormBean.nombresol}" 
+                                             class="maxsize" maxlength="300" rendered="#{!breederFormBean.empresa}" required="true"/>
+                                <p:autoComplete id="pojo" value="#{breederFormBean.person}" inputStyleClass="maxsize" class="maxsize"
+                                                completeMethod="#{breederFormBean.completeCompany}" rendered="#{breederFormBean.empresa}"
+                                                var="person" itemLabel="#{person.name}" itemValue="#{person}" 
+                                                converter="#{personConverter}" forceSelection="true" scrollHeight="250">
+                                    <p:ajax event="itemSelect" listener="#{breederFormBean.onCompanySelect}" 
+                                            update="mensajes @parent nationa addsol pais province city"/>
+                                </p:autoComplete>
+                                <p:outputLabel value="Género:" for="nombre" class="maxsize" rendered="#{breederFormBean.genero}" />
+                                <p:selectOneRadio id="genero" value="#{breederFormBean.generoSolicitante}" layout="pageDirection" required="true"
+                                                  style="text-align: left;" styleClass="generoRadioGroup" rendered="#{breederFormBean.genero}">
+                                    <f:selectItem itemValue="MASCULINO" itemLabel="Masculino"/>
+                                    <f:selectItem itemValue="FEMENINO" itemLabel="Femenino"/>
+                                    <f:selectItem itemValue="OTRO" itemLabel="Otro"/>
+                                </p:selectOneRadio>
+                                <p:outputLabel value="Fecha de Nacimiento:" for="fechan" class="maxsize" 
+                                               rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
+                                <p:calendar id="fechan" pattern="yyyy-MM-dd" value="#{breederFormBean.person.dateBirth}" lang="es" locale="es"
+                                            label="Fecha de Nacimiento" style="font-size: 20px !important;" class="maxsize" required="#{breederFormBean.fechnac}"
+                                            placeholder="Fecha de Nacimiento" navigator="true" readonly="#{!breederFormBean.fechnac}" 
+                                            inputStyleClass="maxsize" rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
+                            </p:panelGrid>
+                            <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders panelToTop" id="addsol">
+                                <p:outputLabel value="Ciudad de Residencia:" for="city" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
+                                <p:selectOneMenu id="city" value="#{breederFormBean.city}" converter="cityConverter"
+                                                 class="maxsize" disabled="#{!breederFormBean.cit}" rendered="#{breederFormBean.ecuador}">
+                                    <f:selectItems value="#{breederFormBean.cities}" var="c" 
+                                                   itemLabel="#{c.name}" itemValue="#{c}" />
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Dirección de Residencia: " for="direc" class="maxsize" />
+                                <p:inputText id="direc" value="#{breederFormBean.person.address}" class="maxsize" maxlength="300" required="true"/>
+                                <p:outputLabel value="Email:" for="email" class="maxsize"/>
+                                <p:inputText id="email" value="#{breederFormBean.person.email}" class="maxsize" maxlength="200" required="true"/>
+                                <p:outputLabel value="Celular:" for="cel" class="maxsize"/>
+                                <p:inputText id="cel" value="#{breederFormBean.person.phone}" class="maxsize" maxlength="150" required="true"/>
+                            </p:panelGrid>
+                        </p:panelGrid>
+                        <div class="center-align">
+                            <p:commandButton value="GUARDAR" class="btn_peque" actionListener="#{breederFormBean.savePerson}" 
+                                             update="mensajes frmPerson allform:acordion allform:acordion:corresponde allform:acordion:personnot allform:acordion:tablaDeSolicitantes" process="@form" 
+                                             oncomplete="if(args.saveapp){PF('dlgPerson').hide();}"/>
+                            <p:commandButton value="CERRAR" actionListener="#{breederFormBean.closePersonDialog}" 
+                                             update="mensajes allform:acordion:corresponde allform:acordion:personnot"
+                                             class="btn_cerrar_peque" oncomplete="PF('dlgPerson').hide();" process="@this"/>
+                        </div>
+
+                    </h:form>
+                </p:dialog>
+                <br/>
+                <div class="sticky-footer-buttons">
+                    <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.prepareSaveVegetableForms}" 
+                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.savevf){PF('dlgConfirmar').show();}"/>
+                    <p:commandButton value="VISTA PREVIA" class="btn_buscar"/>
+                </div>
+                <p:dialog id="dlgConfirmar" modal="true" header="CONFIRMAR" widgetVar="dlgConfirmar" width="400">
+                    <p:outputLabel value="ESTÁ SEGURO DE GUARDAR EL FORMULARIO ACTUAL?" />
+                    <br/><br/>
+                    <p:commandButton value="CONTINUAR" class="btn_buscar"
+                                     onclick="PF('dlgConfirmar').hide(); PF('dlgFinalConfirm').show(); return false;" />
+                    <p:commandButton value="CANCELAR"
+                                     class="btn_cerrar"
+                                     onclick="PF('dlgConfirmar').hide()" />
+                </p:dialog>
+                <p:dialog id="dlgFinalConfirm" modal="true" header="CONFIRMACIÓN FINAL" widgetVar="dlgFinalConfirm" width="350">
+                    <p:outputLabel value="¿DESEA CONTINUAR Y GUARDAR DEFINITIVAMENTE?" />
+                    <br/><br/>
+                    <p:commandButton value="SÍ, GUARDAR"
+                                     class="btn_buscar"
+                                     actionListener="#{breederFormBean.saveVegetableForms}"
+                                     update="mensajes @form allform:accordion allform:tablaDeSolicitantes allform:acordion:priori allform:acordion:dtganx"
+                                     process="@this allform:acordion:taxbot allform:acordion:denvar allform:acordion:transfvar allform:acordion:infsol allform:acordion:priori allform:acordion:exa allform:acordion:destec allform:acordion:infad allform:acordion:docadd"
+                                     oncomplete="PF('dlgFinalConfirm').hide();if(args.doit){alert('guardar formulario');}else{scrollToActiveTab();}"
+                                     icon="ui-icon-check" />
+                    <p:commandButton value="NO" class="btn_cerrar" onclick="PF('dlgFinalConfirm').hide()" />
+                </p:dialog>
+                <p:tabView style="width: 90%; text-align: left; margin: 0 auto;" rendered="false">
+                    esto es para pruebas
+                </p:tabView>
+                <br/>
+
+            </div>
+
+            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <p:graphicImage name="/images/ajax-loader.gif" />
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="explode" hideEffect="explode">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes btn_peque"/>
+                <p:commandButton value="No" type="button"  styleClass="ui-confirmdialog-no btn_peque" />
+            </p:confirmDialog>
+            <br/>
+        </h:form>
+
+        <div id="footer"></div>
+
+        <p:idleMonitor timeout="#{1000*60*30}" id="idleSesion">
+            <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
+                    oncomplete="PF('idleDialog').show()" />
+        </p:idleMonitor>
+        <p:dialog header="Sesión Caducada" resizable="false"
+                  widgetVar="idleDialog" modal="true" closable="false" style="font-size: 12px">
+            <h:form id="sesionCaducaForm">
+                <div class="titlePage">
+                    <!--<h:outputText value="Sesión Caducada " />-->
+                    <p:commandButton styleClass="nav-link js-scroll-trigger"
+                                     actionListener="#{loginBean.logout}" 
+                                     oncomplete="logout(xhr, status, args)" class="btn_peque"
+                                     value="ACEPTAR" immediate="true" style="font-size: 12px; text-align: center; margin: 0 auto;"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- JavaScript libs are placed at the end of the document so the pages load faster -->
+
+        <!-- <script src="resources/assets/js/headroom.min.js"></script>
+        <script src="resources/assets/js/jQuery.headroom.min.js"></script>
+        <script src="resources/assets/js/template.js"></script> -->
+
+    </h:body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('body').addClass('loaded');
+                $('h1').css('color', '#222222');
+                $("#footer").load("footer.html");
+            }, 150);
+        });
+
+
+
+        //<![CDATA[
+
+        function scrollToActiveTab() {
+            try {
+                // pequeña espera para que JSF/PrimeFaces actualice el DOM
+                setTimeout(function () {
+                    // 1) Intentar acordeón PrimeFaces
+                    var accHeader = document.querySelector(".ui-accordion .ui-accordion-header.ui-state-active");
+                    if (accHeader) {
+                        scrollToElement(accHeader);
+                        return;
+                    }
+
+                    // 2) Intentar tabView PrimeFaces
+                    var tabPanel = document.querySelector(".ui-tabview .ui-tabs-panel:not([style*='display: none'])");
+                    if (tabPanel) {
+                        // si hay un header visible, preferimos scrollear al header
+                        var tabHeader = document.querySelector(".ui-tabview .ui-tabview-nav .ui-state-active");
+                        scrollToElement(tabHeader || tabPanel);
+                        return;
+                    }
+
+                    // 3) fallback: cualquier panel visible (útil si usas otro componente)
+                    var visiblePanel = document.querySelector("div:not([style*='display: none']) .ui-accordion-content, div:not([style*='display: none']) .ui-tabs-panel");
+                    if (visiblePanel) {
+                        scrollToElement(visiblePanel);
+                        return;
+                    }
+                    // Si nada encontrado, opcionalmente scrollear al top del acordeón
+                    var acc = document.querySelector(".ui-accordion");
+                    if (acc)
+                        scrollToElement(acc);
+                }, 200); // 200ms suele ser suficiente; aumenta si es necesario
+            } catch (e) {
+                console.error('scrollToActiveTab error:', e);
+            }
+        }
+
+        /** Scrollea al elemento o a su contenedor scrollable más cercano */
+        function scrollToElement(el) {
+            if (!el)
+                return;
+
+            // si el elemento ya está visible en viewport, no hacemos nada
+            var rect = el.getBoundingClientRect();
+            var inViewport = (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight));
+            if (inViewport) {
+                // si tiene un contenedor scrollable con overflow, aún debemos asegurar el scroll allí
+                var sc = findScrollParent(el);
+                if (sc && sc !== document.body && sc !== document.documentElement) {
+                    // desplazar el contenedor para que el elemento quede arriba
+                    var elOffset = el.offsetTop;
+                    var parentOffset = sc.scrollTop;
+                    sc.scrollTo({top: elOffset, behavior: 'smooth'});
+                }
+                return;
+            }
+
+            // Si tenemos un contenedor scrollable, desplazar ese; sinó usar window.scroll
+            var scrollParent = findScrollParent(el);
+            if (scrollParent && scrollParent !== document.body && scrollParent !== document.documentElement) {
+                // calcular offset relativo al contenedor
+                var elTop = el.getBoundingClientRect().top;
+                var parentTop = scrollParent.getBoundingClientRect().top;
+                var offset = scrollParent.scrollTop + (elTop - parentTop);
+                scrollParent.scrollTo({top: offset, behavior: 'smooth'});
+            } else {
+                // scrollear la ventana para que el elemento quede arriba
+                el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        }
+
+        /** Busca el padre 'scrollable' (overflow auto/scroll) */
+        function findScrollParent(node) {
+            if (!node)
+                return null;
+            var regex = /(auto|scroll)/;
+            var parent = node.parentElement;
+            while (parent) {
+                var style = window.getComputedStyle(parent);
+                if (regex.test(style.overflow + style.overflowY + style.overflowX)) {
+                    return parent;
+                }
+                parent = parent.parentElement;
+            }
+            return document.scrollingElement || document.documentElement;
+        }
+
+        function popupwindow(url, title, args) {
+            if (args.doit) {
+                //window.open(url, title, 'location=yes,height=400,width=400,scrollbars=yes,status=yes').focus();
+                window.open(url, title);
+            }
+        }
+        function otherpage(url) {
+            setTimeout(function () {
+                window.open(url, '_blank');
+            }, 0);
+        }
+        function samepage(url) {
+            setTimeout(function () {
+                window.location.href = url;
+            }, 0);
+        }
+        function logout(xhr, status, args) {
+            setTimeout(function () {
+                window.location = 'login.xhtml';
+            }, 500);
+        }
+        //]]>
+    </script>
+</html>
