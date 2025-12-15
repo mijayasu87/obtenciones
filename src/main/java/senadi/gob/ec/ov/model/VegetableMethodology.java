@@ -94,4 +94,9 @@ public class VegetableMethodology implements Serializable {
     public void setVegetableForms(VegetableForms vegetableForms) {
         this.vegetableForms = vegetableForms;
     }
+
+    @Override
+    public String toString() {
+        return getMethodology().getId().toString() + " - " + getVegetableForms().getId();
+    }
 }

@@ -59,15 +59,15 @@ public class VegetableForms implements Serializable {
     private String genericDenomination;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "denomination_type", nullable = false)
+    @Column(name = "denomination_type")
     private DenominationType denominationType;
 
-    @Column(name = "variety_transfer", nullable = false)
+    @Column(name = "variety_transfer")
     private Boolean varietyTransfer;
-    
+
     /*Sección cómo se ha transferido la variedad...*/
     @Enumerated(EnumType.STRING)
-    @Column(name = "variety_transfer_type", nullable = false)
+    @Column(name = "variety_transfer_type")
     private VarietyTransferType varietyTransferType;
 
     @Column(name = "variety_transfer_description")
@@ -76,20 +76,18 @@ public class VegetableForms implements Serializable {
     @Column(name = "geographic_origin")
     private Integer geographicOrigin;
     /*fin Sección cómo se ha transferido la variedad...*/
-    
-    
+
     @Column(name = "has_other_applications")
-    private Boolean hasOtherApplications = false;
-    
+    private Boolean hasOtherApplications;
+
     @Column(name = "priority_claim")
     private Boolean priorityClaim;
-    
+
     @Column(name = "in_territory")
     private Boolean inTerritory;
-    
+
     @Column(name = "out_territory")
     private Boolean outTerritory;
-    
 
     @Column(name = "exam_performed")
     private Boolean examPerformed;
@@ -99,15 +97,18 @@ public class VegetableForms implements Serializable {
 
     @Column(name = "no_exam_yet")
     private Boolean noExamYet;
-    
-    @Column(name = "country_living_sample")
-    private Integer countryLivingSample;
+
+    @Column(name = "country_exam")
+    private Integer countryExam;
 
     @Column(name = "living_sample")
     private Boolean livingSample;
 
     @Column(name = "sample_place")
     private String samplePlace;
+
+    @Column(name = "country_living_sample")
+    private Integer countryLivingSample;
 
     @Column(name = "genealogy")
     private String genealogy;
@@ -142,31 +143,31 @@ public class VegetableForms implements Serializable {
 
     @Column(name = "application_date")
     private Timestamp applicationDate;
-    
+
     @Column(name = "owner_id")
     private Integer ownerId;
-        
+
     @Enumerated(EnumType.STRING)
     @Column(name = "person_noti_direction")
     private PersonType personNotiDirection;
-    
+
     @Column(name = "electronic_communication_consent")
     private Boolean electronicCommunicationConsent;
-    
+
     @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.PERSIST)
     private VegetablePriority vegetablePriority;
-        
-    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.PERSIST)
-    private List<VegetableProtection> vegetableProtections = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.PERSIST)
-    private List<ExploitedSelled> exploitedSelleds = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.PERSIST)
-    private List<VarietyCharacters> varietiesCharacters = new ArrayList<>();;
 
-    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.PERSIST)
-    private List<SimilaryVariety> similaritiesVariety = new ArrayList<>();;
+    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VegetableProtection> vegetableProtections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExploitedSelled> exploitedSelleds = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VarietyCharacters> varietiesCharacters = new ArrayList<>();    
+
+    @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SimilaryVariety> similaritiesVariety = new ArrayList<>();    
     
     @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VegetableAnnexesData> annexesData = new ArrayList<>();
@@ -177,13 +178,13 @@ public class VegetableForms implements Serializable {
     @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PersonVegetable> personVegetables = new ArrayList<>();
 
-    
-    public VegetableForms(){
+    public VegetableForms() {
         botanicalTaxon = "";
         commonName = "";
         provitionalDesignation = "";
         varietyTransferDescription = "";
     }
+
     /**
      * @return the id
      */
@@ -810,10 +811,30 @@ public class VegetableForms implements Serializable {
     }
 
     /**
-     * @param electronicCommunicationConsent the electronicCommunicationConsent to set
+     * @param electronicCommunicationConsent the electronicCommunicationConsent
+     * to set
      */
     public void setElectronicCommunicationConsent(Boolean electronicCommunicationConsent) {
         this.electronicCommunicationConsent = electronicCommunicationConsent;
+    }
+
+    /**
+     * @return the countryExam
+     */
+    public Integer getCountryExam() {
+        return countryExam;
+    }
+
+    /**
+     * @param countryExam the countryExam to set
+     */
+    public void setCountryExam(Integer countryExam) {
+        this.countryExam = countryExam;
+    }
+
+    @Override
+    public String toString() {
+        return getId() + " - " + getBotanicalTaxon() + " - " + getCommonName();
     }
 
 }

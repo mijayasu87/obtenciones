@@ -4,9 +4,15 @@
  */
 package senadi.gob.ec.ov.bean;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -27,13 +33,24 @@ import senadi.gob.ec.ov.model.PersonVegetable;
 import senadi.gob.ec.ov.model.SimilaryVariety;
 import senadi.gob.ec.ov.model.VarietyCharacters;
 import senadi.gob.ec.ov.model.VegetableAnnexes;
+import senadi.gob.ec.ov.model.VegetableAnnexesData;
 import senadi.gob.ec.ov.model.VegetableForms;
+import senadi.gob.ec.ov.model.VegetableMethodology;
 import senadi.gob.ec.ov.model.VegetablePriority;
 import senadi.gob.ec.ov.model.VegetableProtection;
+import senadi.gob.ec.ov.model.embed.PersonVegetableId;
+import senadi.gob.ec.ov.model.embed.VegetableAnnexesDataId;
+import senadi.gob.ec.ov.model.embed.VegetableMethodologyId;
+import senadi.gob.ec.ov.model.enums.DenominationType;
 import senadi.gob.ec.ov.model.enums.ExplotationType;
+import senadi.gob.ec.ov.model.enums.PersonType;
 import senadi.gob.ec.ov.model.enums.ProtectionType;
+import senadi.gob.ec.ov.model.enums.Status;
+import senadi.gob.ec.ov.model.enums.VarietyTransferType;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Operations;
+import senadi.gob.ec.ov.util.Parameter;
+import senadi.gob.ec.ov.util.SFTPUtil;
 import senadi.gob.ec.ov.util.ValidarIdentificacion;
 
 /**
@@ -89,6 +106,7 @@ public class BreederFormBean implements Serializable {
     private LoginBean login;
 
     private String tipoNotificacion;
+
     private String personDialogTitle;
 
     private Integer activeIndex;
@@ -157,6 +175,8 @@ public class BreederFormBean implements Serializable {
     private UploadedFile currentFile;
     private String otherAnnexDesc;
 
+    private String formTitle;
+
     //validacion de formulario
     private boolean showApplicantsTableError = false;
     private boolean showObtentorsTableError = false;
@@ -187,15 +207,250 @@ public class BreederFormBean implements Serializable {
 
     private boolean showTab15Error = false;
 
-    public BreederFormBean() {
-        loadData();
-    }
+    private Integer action; //1: save, 2: preview, 3: finished, 4:delivered
 
-    private void loadData() {
+    private Integer editId;
+
+    private VegetableAnnexesData annexeAux;
+
+//    public BreederFormBean() {
+//        preloadEdit();
+//    }
+    public void preloadEdit() {
+        if (FacesContext.getCurrentInstance().isPostback()) {
+            return; // evitar recargar en submits
+        }
+
         Controller c = new Controller();
         login = c.getLogin();
         countries = c.getCountries();
         countries.add(0, new Country(-1, "-- Seleccione --", "SEL"));
+        methodologies = c.getMethodologies();
+        //marcamos los anexos que son obligatorios
+        annexes = new ArrayList<>();
+//        System.out.println("si se reinicia anexos");
+        annexes = c.getVegetableAnnexes();
+        for (int i = 0; i < annexes.size(); i++) {
+            annexes.get(i).setCurrentFile(null);
+            annexes.get(i).setFileContent(null);
+            annexes.get(i).setError(false);
+            annexes.get(i).setWithFile(false);
+            annexes.get(i).setIdAnnexes(null);
+            annexes.get(i).setIdVegatableForms(null);
+        }
+        annexes.get(1).setRequired(true);
+        annexes.get(3).setRequired(true);
+        annexes.get(5).setRequired(true);
+        annexes.get(6).setRequired(true);
+
+        if (editId != null) {
+            // 🔹 MODO EDICIÓN
+            vegetableForms = c.getVegetableFormsById(editId);
+
+            if (vegetableForms == null) {
+                Operations.mensaje(Operations.ERROR, "No se encontró el formulario con ID " + editId);
+                vegetableForms = new VegetableForms(); // fallback
+            } else {
+                if (login.getOwner().getId().equals(vegetableForms.getOwnerId())) {
+                    loadDataToEditForm(c);
+                } else {
+                    Operations.mensaje(Operations.ERROR, "EL REGISTRO QUE INTENTA EDITAR NO PERTENECE AL CASILLERO ACTUAL");
+                }
+            }
+
+        } else {
+            // 🔹 MODO NUEVO
+            loadDataToNewForm(c);
+        }
+    }
+
+    private void loadDataToEditForm(Controller c) {
+
+        List<PersonVegetable> persons = vegetableForms.getPersonVegetables();
+
+        //tab 1, tab 2, tab 3
+        applicants = new ArrayList<>();
+        obtentors = new ArrayList<>();
+        personsNotification = new ArrayList<>();
+        personVegetableNotification = new PersonVegetable();
+        for (int i = 0; i < persons.size(); i++) {
+            PersonVegetable peraux = persons.get(i);
+            switch (peraux.getPersonType()) {
+                case APPLICANT:
+                    applicants.add(c.getPersonById(peraux.getPerson().getId()));
+                    break;
+                case BREEDER:
+                    obtentors.add(c.getPersonById(peraux.getPerson().getId()));
+                    break;
+                default:
+                    switch (peraux.getPersonType()) {
+                        case APPLICANT_DIR:
+                            tipoNotificacion = "SOLICITANTE";
+                            break;
+                        case BREEDER_DIR:
+                            tipoNotificacion = "OBTENTOR";
+                            break;
+                        case ATTORNEY:
+                            tipoNotificacion = "APODERADO";
+                            break;
+                        default:
+                            tipoNotificacion = "REPRESENTANTE";
+                            break;
+                    }
+                    personVegetableNotification = peraux;
+                    personNotification = c.getPersonById(peraux.getPerson().getId());
+                    cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
+                    break;
+
+            }
+        }
+
+        //tab 4: se carga automáticamente
+        //tab 5
+        if (vegetableForms.getDenominationType() != null) {
+            denominationTypeSelected = vegetableForms.getDenominationType().toString();
+        }
+        //tab 6
+        if (vegetableForms.getVarietyTransfer() != null) {
+            varietyTransferObtentor = vegetableForms.getVarietyTransfer() ? "SI" : "NO";
+            if (varietyTransferObtentor.equals("SI")) {
+                if (vegetableForms.getVarietyTransferType() != null) {
+                    varietyTransferSelected = vegetableForms.getVarietyTransferType().toString();
+                    if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT") || varietyTransferSelected.equals("TRANSFER_RIGHTS")
+                            || varietyTransferSelected.equals("OTHER")) {
+                        withDescriptionVariety = true;
+                    } else {
+                        withDescriptionVariety = false;
+                    }
+                }
+                if (vegetableForms.getGeographicOrigin() != null && vegetableForms.getGeographicOrigin() > 0) {
+                    countryOrigin = c.getCountryById(vegetableForms.getGeographicOrigin());
+                }
+            }
+        }
+
+        //tab 7
+        vegetableProtections = new ArrayList<>();
+        if (vegetableForms.getHasOtherApplications() != null) {
+            previousRequest = vegetableForms.getHasOtherApplications() ? "SI" : "NO";
+            if (previousRequest.equals("SI")) {
+                vegetableProtections = vegetableForms.getVegetableProtections();
+            }
+        }
+        //tab 8
+        vegetablePriority = new VegetablePriority();
+        if (vegetableForms.getPriorityClaim() != null) {
+            priorityClaim = vegetableForms.getPriorityClaim() ? "SI" : "NO";
+            if (priorityClaim.equals("SI")) {
+                if (vegetableForms.getVegetablePriority() != null) {
+                    vegetablePriority = vegetableForms.getVegetablePriority();
+                    if (vegetablePriority.getCountryId() != null && vegetablePriority.getCountryId() > 0) {
+                        countryPriority = c.getCountryById(vegetablePriority.getCountryId());
+                    }
+                }
+            }
+        }
+        //tab 9
+        inExploitedSelleds = new ArrayList<>();
+        if (vegetableForms.getInTerritory() != null) {
+            interritory = vegetableForms.getInTerritory() ? "SI" : "NO";
+//            System.out.println("Interritory: " + interritory);
+            List<ExploitedSelled> exps = vegetableForms.getExploitedSelleds();
+            if (interritory.equals("SI")) {
+                for (int i = 0; i < exps.size(); i++) {
+                    if (exps.get(i).getExplotationType().equals(ExplotationType.IN_ANDEAN_SUBREGION)) {
+                        inExploitedSelleds.add(exps.get(i));
+                    }
+                }
+            }
+        }
+        outExploitedSelleds = new ArrayList<>();
+        if (vegetableForms.getOutTerritory() != null) {
+            outterritory = vegetableForms.getOutTerritory() ? "SI" : "NO";
+//            System.out.println("Outterritory: " + outterritory);
+            List<ExploitedSelled> exps = vegetableForms.getExploitedSelleds();
+            if (outterritory.equals("SI")) {
+                for (int i = 0; i < exps.size(); i++) {
+                    if (exps.get(i).getExplotationType().equals(ExplotationType.OUT_ANDEAN_SUBREGION)) {
+                        outExploitedSelleds.add(exps.get(i));
+                    }
+                }
+            }
+        }
+        //tab 10
+        if (vegetableForms.getExamPerformed() != null && vegetableForms.getExamInProcess() != null
+                && vegetableForms.getNoExamYet() != null) {
+            technicalQuiz = vegetableForms.getExamPerformed() ? "PERFORMED" : (vegetableForms.getExamInProcess() ? "INPROCESS" : (vegetableForms.getNoExamYet() ? "NOEXAMYET" : ""));
+            if (!technicalQuiz.trim().isEmpty()) {
+                if (vegetableForms.getCountryExam() != null && vegetableForms.getCountryExam() > 0) {
+                    countryQuiz = c.getCountryById(vegetableForms.getCountryExam());
+                }
+            }
+        }
+
+        if (vegetableForms.getLivingSample() != null) {
+            livingVarietySample = vegetableForms.getLivingSample() ? "SI" : "NO";
+            if (livingVarietySample.equals("SI")) {
+                if (vegetableForms.getCountryLivingSample() != null && vegetableForms.getCountryLivingSample() > 0) {
+                    countryLivingSample = c.getCountryById(vegetableForms.getCountryLivingSample());
+                }
+            }
+        }
+
+        //tab 11
+        selectedMethodologies = new ArrayList<>();
+        for (int i = 0; i < vegetableForms.getVegetableMethodologies().size(); i++) {
+            VegetableMethodology vmaux = vegetableForms.getVegetableMethodologies().get(i);
+            if (vmaux.getMethodology().getId() == 14) { // Especies Autógamas otros
+                autogamousSelected = true;
+                autogamousSpecies = vmaux.getDescription();
+            }
+            if (vmaux.getMethodology().getId() == 18) { // Especies Alógamas otros
+                allogamousSelected = true;
+                allogamousSpecies = vmaux.getDescription();
+            }
+            selectedMethodologies.add(vmaux.getMethodology());
+        }
+
+        //tab 12
+        if (vegetableForms.getMaterialVarietyIdentification() != null) {
+            materialVarietyIdentification = vegetableForms.getMaterialVarietyIdentification() ? "SI" : "NO";
+        }
+        if (vegetableForms.getProductVarietyIdentification() != null) {
+            productVarietyIdentification = vegetableForms.getProductVarietyIdentification() ? "SI" : "NO";
+        }
+
+        //tab 13
+        varietiesCharacters = new ArrayList<>();
+        for (int i = 0; i < vegetableForms.getVarietiesCharacters().size(); i++) {
+            varietiesCharacters.add(vegetableForms.getVarietiesCharacters().get(i));
+        }
+
+        //tab 14
+        similaritiesVariety = new ArrayList<>();
+        for (int i = 0; i < vegetableForms.getSimilaritiesVariety().size(); i++) {
+            similaritiesVariety.add(vegetableForms.getSimilaritiesVariety().get(i));
+        }
+
+        //tab 15
+        List<VegetableAnnexesData> veanx = vegetableForms.getAnnexesData();
+        for (int i = 0; i < annexes.size(); i++) {
+            for (int j = 0; j < veanx.size(); j++) {
+                if (annexes.get(i).getId().equals(veanx.get(j).getVegetableAnnexes().getId())) {
+                    annexes.get(i).setWithFile(true);
+                    annexes.get(i).setIdAnnexes(veanx.get(j).getId().getVegetableAnnexesId());
+                    annexes.get(i).setIdVegatableForms(veanx.get(j).getId().getVegetableFormId());
+//                    System.out.println("(" + (i + 1) + "," + (j + 1) + ") " + annexes.get(i).getName());
+                    break;
+                }
+            }
+        }
+
+        formTitle = "EDITAR REGISTRO DE OBTENCIONES VEGETALES";
+        activeIndex = 3;
+    }
+
+    private void loadDataToNewForm(Controller c) {
         applicants = new ArrayList<>();
         obtentors = new ArrayList<>();
         activeIndex = 0;
@@ -208,27 +463,18 @@ public class BreederFormBean implements Serializable {
         vegetableProtections = new ArrayList<>();
         inExploitedSelleds = new ArrayList<>();
         outExploitedSelleds = new ArrayList<>();
-        methodologies = c.getMethodologies();
+        selectedMethodologies = new ArrayList<>();
         varietiesCharacters = new ArrayList<>();
         similaritiesVariety = new ArrayList<>();
 
-        //marcamos los anexos que son obligatorios
-        annexes = c.getVegetableAnnexes();
-        for (int i = 0; i < annexes.size(); i++) {
-            annexes.get(i).setCurrentFile(null);
-            annexes.get(i).setError(false);
-        }
-        annexes.get(1).setRequired(true);
-        annexes.get(3).setRequired(true);
-        annexes.get(5).setRequired(true);
-        annexes.get(6).setRequired(true);
-
+//        currentFile = null;
         //Inicializo las variables por necesidad de los adjuntos
         personVegetableNotification = new PersonVegetable();
         vegetablePriority = new VegetablePriority();
 
         //se crea el objeto general
         vegetableForms = new VegetableForms();
+        formTitle = "REGISTRO DE OBTENCIONES VEGETALES";
     }
 
     public void prepareToNewPerson() {
@@ -379,8 +625,8 @@ public class BreederFormBean implements Serializable {
 
     public void onVarietySelected() {
         if (varietyTransferSelected != null) {
-            if (varietyTransferSelected.equals("CONTRACT_EMPLOY") || varietyTransferSelected.equals("TRANSFER_RIGHTS")
-                    || varietyTransferSelected.equals("ANOTHER")) {
+            if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT") || varietyTransferSelected.equals("TRANSFER_RIGHTS")
+                    || varietyTransferSelected.equals("OTHER")) {
                 withDescriptionVariety = true;
             } else {
                 withDescriptionVariety = false;
@@ -572,10 +818,36 @@ public class BreederFormBean implements Serializable {
 
     public void prepareSaveVegetableForms(ActionEvent ae) {
         if (vegetableForms != null) {
+            action = 1;
             PrimeFaces.current().ajax().addCallbackParam("savevf", true);
         } else {
             Operations.mensaje(Operations.ERROR, "HAY UN ERROR DESCONOCIDO EN EL FORMULARIO");
         }
+    }
+
+    public void preparePreviewVegetableForms(ActionEvent ae) {
+        if (vegetableForms != null) {
+            action = 2;
+            PrimeFaces.current().ajax().addCallbackParam("previewvf", true);
+        } else {
+            Operations.mensaje(Operations.ERROR, "HAY UN ERROR DESCONOCIDO EN EL FORMULARIO");
+        }
+    }
+
+    public boolean validarTaxon() {
+        if (vegetableForms.getBotanicalTaxon() == null || vegetableForms.getBotanicalTaxon().trim().isEmpty()) {
+            showTab4Error = true;
+            activeIndex = 3;
+            Operations.mensaje(Operations.ERROR, "DEBE ESPECIFICAR EL NOMBRE EN LATÍN DEL GÉNERO");
+            return false;
+        }
+        if (vegetableForms.getCommonName() == null || vegetableForms.getCommonName().trim().isEmpty()) {
+            showTab4Error = true;
+            activeIndex = 3;
+            Operations.mensaje(Operations.ERROR, "DEBE ESPECIFICAR EL NOMBRE COMÚN DEL TAXÓN BOTÁNICO");
+            return false;
+        }
+        return true;
     }
 
     public boolean validarCampos() {
@@ -598,16 +870,7 @@ public class BreederFormBean implements Serializable {
             Operations.mensaje(Operations.ERROR, "DEBE ESPECIFICAR LA DIRECCIÓN PARA LAS NOTIFICACIONES");
             return false;
         }
-        if (vegetableForms.getBotanicalTaxon() == null || vegetableForms.getBotanicalTaxon().trim().isEmpty()) {
-            showTab4Error = true;
-            activeIndex = 3;
-            Operations.mensaje(Operations.ERROR, "DEBE ESPECIFICAR EL NOMBRE EN LATÍN DEL GÉNERO");
-            return false;
-        }
-        if (vegetableForms.getCommonName() == null || vegetableForms.getCommonName().trim().isEmpty()) {
-            showTab4Error = true;
-            activeIndex = 3;
-            Operations.mensaje(Operations.ERROR, "DEBE ESPECIFICAR EL NOMBRE COMÚN DEL TAXÓN BOTÁNICO");
+        if (!validarTaxon()) {
             return false;
         }
         if (vegetableForms.getProvitionalDesignation() == null || vegetableForms.getProvitionalDesignation().trim().isEmpty()) {
@@ -629,6 +892,7 @@ public class BreederFormBean implements Serializable {
             Operations.mensaje(Operations.ERROR, "DEBE ESPECIFICAR EL TIPO DE DENOMINACIÓN");
             return false;
         }
+        //tab 6
         if (varietyTransferObtentor == null || varietyTransferObtentor.trim().isEmpty()) {
             showTab6Error = true;
             activeIndex = 5;
@@ -651,7 +915,7 @@ public class BreederFormBean implements Serializable {
                 return false;
             }
         }
-
+        //tab 7
         if (previousRequest == null || previousRequest.trim().isEmpty()) {
             showTab7Error = true;
             activeIndex = 6;
@@ -875,7 +1139,7 @@ public class BreederFormBean implements Serializable {
         if (annexes != null) {
             boolean missing = false;
             for (VegetableAnnexes a : annexes) {
-                if (a.isRequired() && a.getCurrentFile() == null) {
+                if (a.isRequired() && !a.isWithFile()) {
                     a.setError(true); // <- para pintarlo
                     missing = true;
                 } else {
@@ -889,47 +1153,619 @@ public class BreederFormBean implements Serializable {
                 return false;
             }
         }
+        removeErrors();
         return true;
+    }
+
+    public void generateAsociationPerson(List<Person> persons, PersonType personType,
+            String judicialLocker, String powerCode) {
+        Controller c = new Controller();
+
+        // Obtén los PersonVegetable actuales de este tipo
+        List<PersonVegetable> actuales = new ArrayList<>();
+        if (personType.equals(PersonType.APPLICANT_DIR) || personType.equals(PersonType.BREEDER_DIR)
+                || personType.equals(PersonType.LEGAL_REPRESENTATIVE) || personType.equals(PersonType.ATTORNEY)) {
+            for (int i = 0; i < vegetableForms.getPersonVegetables().size(); i++) {
+                if (personType.equals(PersonType.APPLICANT_DIR) || personType.equals(PersonType.BREEDER_DIR)
+                        || personType.equals(PersonType.LEGAL_REPRESENTATIVE) || personType.equals(PersonType.ATTORNEY)) {
+                    actuales.add(vegetableForms.getPersonVegetables().get(i));
+                }
+            }
+        } else {
+            for (int i = 0; i < vegetableForms.getPersonVegetables().size(); i++) {
+                if (vegetableForms.getPersonVegetables().get(i).getPersonType().equals(personType)) {
+                    actuales.add(vegetableForms.getPersonVegetables().get(i));
+                }
+            }
+        }
+
+        // Construye la lista de IDs que viene del formulario
+        Set<Integer> nuevosIds = persons.stream()
+                .map(Person::getId)
+                .collect(Collectors.toSet());
+
+        // Construye la lista de IDs actuales
+        Set<Integer> actualesIds = actuales.stream()
+                .map(pv -> pv.getPerson().getId())
+                .collect(Collectors.toSet());
+
+        System.out.println("nuevos ids: " + nuevosIds + ", actualesIds: " + actualesIds);
+        // Si son iguales, no hay cambios → salimos sin hacer nada
+        if (nuevosIds.equals(actualesIds)) {
+            System.out.println("No hay cambios en " + personType);
+            return;
+        } else {
+            System.out.println("Se encontraron cambios");
+            List<PersonVegetable> pervegaux = new ArrayList<>();
+            if (!vegetableForms.getPersonVegetables().isEmpty()) {
+                for (int i = 0; i < vegetableForms.getPersonVegetables().size(); i++) {
+                    for (int j = 0; j < actuales.size(); j++) {
+                        if (vegetableForms.getPersonVegetables().get(i).toString().equals(actuales.get(j).toString())) {//revisar aquí
+                            if (personType.equals(PersonType.APPLICANT_DIR) || personType.equals(PersonType.BREEDER_DIR)
+                                    || personType.equals(PersonType.LEGAL_REPRESENTATIVE) || personType.equals(PersonType.ATTORNEY)) {
+                                PersonType peraux = vegetableForms.getPersonVegetables().get(i).getPersonType();
+                                if (peraux.equals(PersonType.APPLICANT_DIR) || peraux.equals(PersonType.BREEDER_DIR)
+                                        || peraux.equals(PersonType.LEGAL_REPRESENTATIVE) || peraux.equals(PersonType.ATTORNEY)) {
+                                    System.out.println("Si encontré not: " + actuales.get(j).getPerson().getName());
+                                    pervegaux.add(actuales.get(j));
+                                    c.removePersonVegetable(vegetableForms.getPersonVegetables().get(i));
+                                    break;
+                                }
+                            } else {
+                                System.out.println("Si encontré " + actuales.get(j).getPerson().getName());
+                                pervegaux.add(actuales.get(j));
+                                c.removePersonVegetable(vegetableForms.getPersonVegetables().get(i));
+                                break;
+                            }
+                        }
+                    }
+                }
+                vegetableForms.getPersonVegetables().removeAll(pervegaux);//actuales
+                if (c.updateVegetableForms(vegetableForms)) {
+                    vegetableForms = c.getVegetableFormsById(vegetableForms.getId());
+                }
+            }
+        }
+
+        System.out.println(personType + "S: " + persons.size());
+        for (Person per : persons) {
+            System.out.println(personType + ": " + per.getName() + " - " + per.getIdentificationNumber());
+            if (!c.personExists(per)) {
+                per.setCreateDate(new Timestamp(System.currentTimeMillis()));
+                System.out.println("hay que crear a " + per.toString());
+                per = c.savePersonVF(per);
+            }
+            PersonVegetable personVegetable = new PersonVegetable();
+
+            PersonVegetableId pvId = new PersonVegetableId();
+            pvId.setVegetableFormId(vegetableForms.getId());
+            pvId.setPersonId(per.getId());
+            pvId.setPersonType(personType);
+
+            personVegetable.setId(pvId);
+
+            if (judicialLocker != null && !judicialLocker.trim().isEmpty()) {
+                personVegetable.setJudicialLocker(judicialLocker);
+            }
+            if (powerCode != null && !powerCode.trim().isEmpty()) {
+                personVegetable.setPowerCode(powerCode);
+            }
+
+            personVegetable.setVegetableForms(vegetableForms);
+            personVegetable.setPerson(per);
+            personVegetable.setPersonType(personType);
+
+//            System.out.println("per_veg: " + personVegetable.getPersonType());
+            per.getPersonVegetables().add(personVegetable);
+            vegetableForms.getPersonVegetables().add(personVegetable);
+        }
+    }
+
+    /**
+     * Guarda todos los datos proporcionados en el formulario en base de datos,
+     * también edita un formulario en caso de que ya exista
+     *
+     * @return true si se guardaron correctamente caso contrarios devuelve false
+     * si no se guardó
+     */
+    public boolean preliminarSave() {
+        Controller c = new Controller();
+        vegetableForms.setOwnerId(login.getOwner().getId());
+        vegetableForms.setCreateDate(new Timestamp(System.currentTimeMillis()));
+
+        //tab 5
+        if (denominationTypeSelected != null && !denominationTypeSelected.trim().isEmpty()) {
+            if (denominationTypeSelected.equals("FANTASY_NAME")) {
+                vegetableForms.setDenominationType(DenominationType.FANTASY_NAME);
+            } else {
+                vegetableForms.setDenominationType(DenominationType.CODE);
+            }
+        }
+        //tab 6
+        if (vegetableForms.getVarietyTransfer() != null && vegetableForms.getVarietyTransfer()) {
+            boolean flagvariety = false;
+            if (varietyTransferSelected != null && !varietyTransferSelected.trim().isEmpty()) {
+                if (varietyTransferSelected.equals("SUCCESSION")) {
+                    vegetableForms.setVarietyTransferType(VarietyTransferType.SUCCESSION);
+                } else if (varietyTransferSelected.equals("CONTRACT")) {
+                    vegetableForms.setVarietyTransferType(VarietyTransferType.CONTRACT);
+                } else if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT")) {
+                    vegetableForms.setVarietyTransferType(VarietyTransferType.EMPLOYMENT_CONTRACT);
+                    flagvariety = true;
+                } else if (varietyTransferSelected.equals("TRANSFER_RIGHTS")) {
+                    vegetableForms.setVarietyTransferType(VarietyTransferType.TRANSFER_RIGHTS);
+                    flagvariety = true;
+                } else {
+                    vegetableForms.setVarietyTransferType(VarietyTransferType.OTHER);
+                    flagvariety = true;
+                }
+                if (!flagvariety) {
+                    vegetableForms.setVarietyTransferDescription("");
+                }
+            }
+        }
+        if (countryOrigin != null && countryOrigin.getId() > 0) {
+            vegetableForms.setGeographicOrigin(countryOrigin.getId());
+        }
+
+        //tab 7
+        if (previousRequest != null && !previousRequest.trim().isEmpty()) {
+            if (previousRequest.equals("SI")) {
+                vegetableForms.setHasOtherApplications(true);
+            } else {
+                vegetableForms.setHasOtherApplications(false);
+            }
+        }
+
+        //tab 8
+        if (priorityClaim != null && !priorityClaim.trim().isEmpty()) {
+            if (priorityClaim.equals("SI")) {
+                vegetableForms.setPriorityClaim(true);
+            } else {
+                vegetableForms.setPriorityClaim(false);
+            }
+        }
+
+        if (interritory != null && !interritory.trim().isEmpty()) {
+            if (interritory.equals("SI")) {
+                vegetableForms.setInTerritory(true);
+            } else {
+                vegetableForms.setInTerritory(false);
+            }
+        }
+
+        if (outterritory != null && !outterritory.trim().isEmpty()) {
+            if (outterritory.equals("SI")) {
+                vegetableForms.setOutTerritory(true);
+            } else {
+                vegetableForms.setOutTerritory(false);
+            }
+        }
+        if (technicalQuiz != null && !technicalQuiz.trim().isEmpty()) {
+            if (technicalQuiz.equals("PERFORMED")) {
+                vegetableForms.setExamPerformed(true);
+                vegetableForms.setExamInProcess(false);
+                vegetableForms.setNoExamYet(false);
+            } else if (technicalQuiz.equals("INPROCESS")) {
+                vegetableForms.setExamPerformed(false);
+                vegetableForms.setExamInProcess(true);
+                vegetableForms.setNoExamYet(false);
+            } else {
+                vegetableForms.setExamPerformed(false);
+                vegetableForms.setExamInProcess(false);
+                vegetableForms.setNoExamYet(true);
+            }
+            if (countryQuiz != null && countryQuiz.getId() > 0) {
+                vegetableForms.setCountryExam(countryQuiz.getId());
+            }
+        }
+        if (livingVarietySample != null && !livingVarietySample.trim().isEmpty()) {
+            if (livingVarietySample.equals("SI")) {
+                vegetableForms.setLivingSample(true);
+                if (countryLivingSample != null && countryLivingSample.getId() > 0) {
+                    vegetableForms.setCountryLivingSample(countryLivingSample.getId());
+                }
+            } else {
+                vegetableForms.setLivingSample(false);
+                vegetableForms.setSamplePlace("");
+            }
+        }
+        if (materialVarietyIdentification != null && !materialVarietyIdentification.trim().isEmpty()) {
+            if (materialVarietyIdentification.equals("SI")) {
+                vegetableForms.setMaterialVarietyIdentification(true);
+            } else {
+                vegetableForms.setMaterialVarietyIdentification(false);
+            }
+        }
+        if (productVarietyIdentification != null && !productVarietyIdentification.trim().isEmpty()) {
+            if (productVarietyIdentification.equals("SI")) {
+                vegetableForms.setProductVarietyIdentification(true);
+            } else {
+                vegetableForms.setProductVarietyIdentification(false);
+            }
+        }
+
+        //cambia el estado de acuerdo al botón presionado
+        if (action == 1) {
+            vegetableForms.setStatus(Status.SAVED);
+        } else if (action == 2) {
+            vegetableForms.setStatus(Status.PREVIEW);
+        }
+
+        //guardamos el formulario
+        if (vegetableForms.getId() != null) {
+            System.out.println("**************** editar formulario ****************");
+            if (vegetableProtections != null && !vegetableProtections.isEmpty()) {
+                System.out.println(vegetableProtections.removeIf(p -> p.getVegetableForms() == null));
+            }
+            if (c.updateVegetableForms(vegetableForms)) {
+                vegetableForms = c.getVegetableFormsById(vegetableForms.getId());
+            }
+        } else {
+            vegetableForms = c.saveVegetableForms(vegetableForms);
+        }
+
+        if (vegetableForms.getId() != null) {
+
+            generateAsociationPerson(applicants, PersonType.APPLICANT, "", "");
+            generateAsociationPerson(obtentors, PersonType.BREEDER, "", "");
+
+            if (personNotification != null && personNotification.getIdentificationNumber() != null) {
+                List<Person> personsNotifications = new ArrayList<>();
+                personsNotifications.add(personNotification);
+                if (tipoNotificacion.equals("SOLICITANTE")) {
+                    generateAsociationPerson(personsNotifications, PersonType.APPLICANT_DIR, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                } else if (tipoNotificacion.equals("OBTENTOR")) {
+                    generateAsociationPerson(personsNotifications, PersonType.BREEDER_DIR, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                } else if (tipoNotificacion.equals("REPRESENTANTE")) {
+                    generateAsociationPerson(personsNotifications, PersonType.LEGAL_REPRESENTATIVE, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                } else {
+                    generateAsociationPerson(personsNotifications, PersonType.ATTORNEY, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                }
+            }
+            System.out.println("has other applications - now: " + vegetableForms.getHasOtherApplications());
+            if (vegetableForms.getHasOtherApplications() != null && vegetableForms.getHasOtherApplications()) {
+                if (vegetableForms.getVegetableProtections() != null && !vegetableForms.getVegetableProtections().isEmpty()) {
+                    // 🔥 Eliminar objetos que llegan sin padre — son temporales del UI y causan el error                                        
+                    vegetableForms.getVegetableProtections().clear();
+                }
+
+                if (vegetableProtections != null && !vegetableProtections.isEmpty()) {
+                    for (VegetableProtection protection : vegetableProtections) {
+                        protection.setVegetableForms(vegetableForms);
+                        vegetableForms.getVegetableProtections().add(protection);
+                    }
+                }
+            }
+
+            //tab 8: priority            
+            if (vegetableForms.getPriorityClaim() != null && vegetableForms.getPriorityClaim()) {
+                if (vegetablePriority != null) {
+                    if (countryPriority != null && countryPriority.getId() > 0) {
+                        if (vegetableForms.getVegetablePriority().getId() != null) {
+                            vegetableForms.getVegetablePriority().setCountryId(countryPriority.getId());
+                        } else {
+                            vegetablePriority.setCountryId(countryPriority.getId());
+                        }
+                    }
+                    vegetablePriority.setVegetableForms(vegetableForms);
+                    vegetableForms.setVegetablePriority(vegetablePriority);
+                }
+            }
+
+            //tab 9: exploitedselled
+            if (vegetableForms.getInTerritory() != null && vegetableForms.getInTerritory()) {
+
+                if (vegetableForms.getExploitedSelleds() != null && !vegetableForms.getExploitedSelleds().isEmpty()) {
+                    vegetableForms.getExploitedSelleds().clear();
+                }
+
+                if (inExploitedSelleds != null && !inExploitedSelleds.isEmpty()) {
+                    for (ExploitedSelled inexp : inExploitedSelleds) {
+                        inexp.setVegetableForms(vegetableForms);
+                        vegetableForms.getExploitedSelleds().add(inexp);
+                    }
+                }
+            }
+
+            if (vegetableForms.getOutTerritory() != null && vegetableForms.getOutTerritory()) {
+                if (outExploitedSelleds != null && !outExploitedSelleds.isEmpty()) {
+                    for (ExploitedSelled outexp : outExploitedSelleds) {
+                        outexp.setVegetableForms(vegetableForms);
+                        vegetableForms.getExploitedSelleds().add(outexp);
+                    }
+                }
+            }
+
+            //tab 11: metodología
+            if (selectedMethodologies != null && !selectedMethodologies.isEmpty()) {
+                // Obtener los VegetableMehodology actuales de este tipo
+                List<VegetableMethodology> actuales = new ArrayList<>();
+
+                for (int i = 0; i < vegetableForms.getVegetableMethodologies().size(); i++) {
+                    actuales.add(vegetableForms.getVegetableMethodologies().get(i));
+
+                }
+
+                // Construye la lista de IDs que viene del formulario
+                Set<Integer> nuevosIds = selectedMethodologies.stream()
+                        .map(Methodology::getId)
+                        .collect(Collectors.toSet());
+
+                // Construye la lista de IDs actuales
+                Set<Integer> actualesIds = actuales.stream()
+                        .map(pv -> pv.getMethodology().getId())
+                        .collect(Collectors.toSet());
+
+                System.out.println("nuevos ids met: " + nuevosIds + ", actualesIds met: " + actualesIds);
+                // Si son iguales, no hay cambios → salimos sin hacer nada
+                if (nuevosIds.equals(actualesIds)) {
+                    System.out.println("No hay cambios en las metodologías");
+                } else {
+                    System.out.println("Se encontraron cambios");
+                    List<VegetableMethodology> vegmetsgaux = new ArrayList<>();
+                    if (!vegetableForms.getVegetableMethodologies().isEmpty()) {
+                        for (int i = 0; i < vegetableForms.getVegetableMethodologies().size(); i++) {
+                            for (int j = 0; j < actuales.size(); j++) {
+                                if (vegetableForms.getVegetableMethodologies().get(i).toString().equals(actuales.get(j).toString())) {//revisar aquí
+                                    System.out.println("Si encontré met: " + actuales.get(j).getMethodology().getName());
+                                    vegmetsgaux.add(actuales.get(j));
+                                    c.removeVegetableMethodology(vegetableForms.getVegetableMethodologies().get(i));
+                                    break;
+                                }
+                            }
+                        }
+                        vegetableForms.getVegetableMethodologies().removeAll(vegmetsgaux);//actuales
+                        if (c.updateVegetableForms(vegetableForms)) {
+                            vegetableForms = c.getVegetableFormsById(vegetableForms.getId());
+                        }
+                    }
+                }
+
+                for (Methodology selectedMethodology : selectedMethodologies) {
+                    VegetableMethodology method = new VegetableMethodology();
+
+                    VegetableMethodologyId vmi = new VegetableMethodologyId();
+                    vmi.setMethodologyId(selectedMethodology.getId());
+                    vmi.setVegetableFormId(vegetableForms.getId());
+
+                    method.setId(vmi);
+
+                    if (selectedMethodology.getId() == 14) {
+                        if (autogamousSpecies != null && !autogamousSpecies.trim().isEmpty()) {
+                            method.setDescription(autogamousSpecies);
+                        }
+                    }
+                    if (selectedMethodology.getId() == 18) {
+                        if (allogamousSpecies != null && !allogamousSpecies.trim().isEmpty()) {
+                            method.setDescription(allogamousSpecies);
+                        }
+                    }
+
+                    method.setMethodology(selectedMethodology);
+                    method.setVegetableForms(vegetableForms);
+
+                    selectedMethodology.getVegetableMethodologies().add(method);
+                    vegetableForms.getVegetableMethodologies().add(method);
+                }
+            }
+
+            //tab 13
+            if (vegetableForms.getVarietiesCharacters() != null && !vegetableForms.getVarietiesCharacters().isEmpty()) {
+                vegetableForms.getVarietiesCharacters().clear();
+            }
+            if (varietiesCharacters != null && !varietiesCharacters.isEmpty()) {
+                for (VarietyCharacters character : varietiesCharacters) {
+                    character.setVegetableForms(vegetableForms);
+                    vegetableForms.getVarietiesCharacters().add(character);
+                }
+            }
+
+            //tab 14
+            if (vegetableForms.getSimilaritiesVariety() != null && !vegetableForms.getSimilaritiesVariety().isEmpty()) {
+                vegetableForms.getSimilaritiesVariety().clear();
+            }
+            if (similaritiesVariety != null && !similaritiesVariety.isEmpty()) {
+                for (SimilaryVariety similary : similaritiesVariety) {
+                    similary.setVegetableForms(vegetableForms);
+                    vegetableForms.getSimilaritiesVariety().add(similary);
+                }
+            }
+
+            //tab 15 Anexos
+            // 1) Cargar actuales (desde vegetableForms ya cargado)
+            List<VegetableAnnexesData> actuales = new ArrayList<>(vegetableForms.getAnnexesData());
+
+            // 2) IDs actuales en BD
+            Set<Integer> actualesIds = actuales.stream()
+                    .map(vad -> vad.getVegetableAnnexes().getId())
+                    .collect(Collectors.toSet());
+
+            // 3) IDs seleccionados ahora en UI (annexes con withFile == true OR con fileContent != null)
+            Set<Integer> selectedIds = annexes.stream()
+                    .filter(a -> a.isWithFile() || a.getFileContent() != null)
+                    .map(VegetableAnnexes::getId)
+                    .collect(Collectors.toSet());
+
+            System.out.println("actualesIds: " + actualesIds);
+            System.out.println("selectedIds: " + selectedIds);
+
+            // 4) Calcula cuáles fueron eliminados (existían antes y ya no están)
+            Set<Integer> removedIds = new HashSet<>(actualesIds);
+            removedIds.removeAll(selectedIds);
+
+            // 5) Calcula cuáles son nuevos (están seleccionados ahora y no estaban antes)
+            Set<Integer> addedIds = new HashSet<>(selectedIds);
+            addedIds.removeAll(actualesIds);
+
+            // 6) IDs que se mantienen (por si quieres algo extra)
+            Set<Integer> keptIds = new HashSet<>(selectedIds);
+            keptIds.retainAll(actualesIds);
+
+            System.out.println("removedIds: " + removedIds);
+            System.out.println("addedIds: " + addedIds);
+            System.out.println("keptIds: " + keptIds);
+
+            // 7) BORRAR explícitamente los que fueron removidos
+            for (Integer annId : removedIds) {
+                // busca el VegetableAnnexesData correspondiente en 'actuales'
+                VegetableAnnexesData vad = actuales.stream()
+                        .filter(x -> x.getVegetableAnnexes().getId().equals(annId))
+                        .findFirst().orElse(null);
+
+                if (vad != null) {
+                    System.out.println("Eliminando VAD idAnnex=" + annId);
+
+                    if (eliminarArchivoFisico(vad)) {
+                        c.removeVegetableAnnexesData(vad); // tu DAO / Controller
+                        // también quitar de la colección local por si la usas más abajo
+                        actuales.remove(vad);
+                    }
+                }
+            }
+
+            // 8) Ahora reconstruir la colección administrada vegetableForms.getAnnexesData()
+            //    Empezamos vaciando (si se quiere), o limpiar y luego añadir los que quedan + nuevos
+            vegetableForms.getAnnexesData().clear();
+
+            // 9) Añadir los que se mantienen (keptIds), reutilizando los 'actuales' que quedan
+            for (Integer annId : keptIds) {
+                VegetableAnnexesData vad = actuales.stream()
+                        .filter(x -> x.getVegetableAnnexes().getId().equals(annId))
+                        .findFirst().orElse(null);
+                if (vad != null) {
+                    vegetableForms.getAnnexesData().add(vad);
+                }
+            }
+
+            // 10) Crear y añadir los nuevos (addedIds)
+            for (Integer annId : addedIds) {
+                VegetableAnnexes annexe = annexes.stream()
+                        .filter(a -> a.getId().equals(annId))
+                        .findFirst().orElse(null);
+                if (annexe == null) {
+                    continue; // protección
+                }
+                // crea nuevo VAD (usa tu método)
+                VegetableAnnexesData vad = crearNuevoAnnexData(annexe, vegetableForms);
+
+                // subir archivo (si corresponde) ya lo hace el crearNuevoAnnexData
+                vegetableForms.getAnnexesData().add(vad);
+            }
+
+            if (c.updateVegetableForms(vegetableForms)) {
+                if(action == 2){
+                    //aquí hacer el reporte de vista previa
+                    
+                }
+                Operations.mensaje(Operations.INFORMACION, "SE HA GUARDADO CORRECTAMENTE EL REGISTRO");
+                return true;
+            } else {
+                Operations.mensaje(Operations.ERROR, "HUBO UN ERROR AL INTENTAR GUARDAR LOS SOLICITANTES");
+                return false;
+            }
+
+        } else {
+            Operations.mensaje(Operations.ERROR, "NO SE HA PODIDO GUARDAR EL REGISTRO");
+            return false;
+        }
+    }
+
+    private boolean eliminarArchivoFisico(VegetableAnnexesData vad) {
+        try {
+            String fileName = vad.getFileName();
+            Integer formId = vad.getVegetableForms().getId();
+
+            SFTPUtil sftp = new SFTPUtil();
+            if (sftp.eliminarArchivoEnServidorRemoto(fileName, formId)) {
+                System.out.println("Archivo eliminado del filesystem: " + fileName);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("⚠ Error eliminando archivo del filesystem: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private VegetableAnnexesData crearNuevoAnnexData(VegetableAnnexes annexe, VegetableForms vegetableForms) {
+
+        VegetableAnnexesData vad = new VegetableAnnexesData();
+
+        VegetableAnnexesDataId vaid = new VegetableAnnexesDataId();
+        vaid.setVegetableAnnexesId(annexe.getId());
+        vaid.setVegetableFormId(vegetableForms.getId());
+
+        vad.setId(vaid);
+
+        vad.setFileName("annexe_" + vegetableForms.getId() + "_" + annexe.getId() + "_" + System.currentTimeMillis() + ".pdf");
+
+        if (annexe.getId() == 13) {
+            if (otherAnnexDesc != null && !otherAnnexDesc.trim().isEmpty()) {
+                vad.setAnotherAnnexe(otherAnnexDesc);
+            }
+        }
+
+        // Guardar archivo
+        SFTPUtil sftp = new SFTPUtil();
+        ByteArrayInputStream input = new ByteArrayInputStream(annexe.getFileContent());
+        sftp.guardarArchivoEnServidorRemoto(input, vegetableForms.getId(), vad.getFileName());
+
+        vad.setVegetableAnnexes(annexe);
+        vad.setVegetableForms(vegetableForms);
+
+        return vad;
     }
 
     public void saveVegetableForms(ActionEvent ae) {
         if (vegetableForms != null) {
-            if (validarCampos()) {
-                showApplicantsTableError = false;
-                showObtentorsTableError = false;
-                showTipoNotificacionError = false;
-                showTab4Error = false;
-                showTab5Error = false;
-
-                showTab6Error = false;
-                showTab6Vartr = false;
-
-                showTab7Error = false;
-                showTab7Prote = false;
-
-                showTab8Error = false;
-                showTab8Prior = false;
-
-                showTab9Error = false;
-
-                showTab10Error = false;
-
-                showTab11Error = false;
-
-                showTab12Error = false;
-
-                showTab13Error = false;
-
-                showTab14Error = false;
-                showTab15Error = false;
+            if (action == 1) {
+                if (validarTaxon()) {
+                    removeErrors();
+                    if (preliminarSave()) {
+                        PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                    }
+                }
+            } else if (action == 2) {
+                if (validarCampos()) {
+                    preliminarSave();
+                    PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                }
             }
-
-            System.out.println("realizar el guardado del formulario");
-            PrimeFaces.current().ajax().addCallbackParam("doit", true);
-
         } else {
             Operations.mensaje(Operations.ERROR, "NO SE RECONOCE EL FORMULARIO ACTUAL");
         }
+    }
+
+    public void removeErrors() {
+        showApplicantsTableError = false;
+        showObtentorsTableError = false;
+        showTipoNotificacionError = false;
+        showTab4Error = false;
+        showTab5Error = false;
+
+        showTab6Error = false;
+        showTab6Vartr = false;
+
+        showTab7Error = false;
+        showTab7Prote = false;
+
+        showTab8Error = false;
+        showTab8Prior = false;
+
+        showTab9Error = false;
+
+        showTab10Error = false;
+
+        showTab11Error = false;
+
+        showTab12Error = false;
+
+        showTab13Error = false;
+
+        showTab14Error = false;
+        showTab15Error = false;
     }
 
     public void savePerson(ActionEvent ae) {
@@ -1031,16 +1867,38 @@ public class BreederFormBean implements Serializable {
         }
     }
 
-    public void saveVegetableAnnexe(ActionEvent ae) {
+    public void removeVegetableAnnexe(ActionEvent ae) {
+        if (currentAnnex != null && !currentAnnex.getName().trim().isEmpty()) {
+            currentAnnex.setCurrentFile(null);
+            currentAnnex.setFileContent(null);
+            currentAnnex.setWithFile(false);
+            for (int i = 0; i < annexes.size(); i++) {
+                if (annexes.get(i).getId().equals(currentAnnex.getId())) {
+                    annexes.set(i, currentAnnex);
+                }
+            }
+            PrimeFaces.current().ajax().addCallbackParam("remanx", true);
+            Operations.mensaje(Operations.INFORMACION, "SE HA REMOVIDO EL ANEXO SATISFACTORIAMENTE");
+        } else {
+            Operations.mensaje(Operations.ERROR, "ERROR AL REMOVER ANEXO");
+        }
+    }
+
+    public void saveVegetableAnnexe(ActionEvent ae) throws IOException {
         if (currentAnnex != null && !currentAnnex.getName().trim().isEmpty()) {
             if (currentFile != null && !currentFile.getFileName().trim().isEmpty()) {
                 if (currentFile.getSize() < (16 * 1024 * 1024)) {
                     currentAnnex.setCurrentFile(currentFile);
+                    InputStream input = currentFile.getInputStream();
+                    currentAnnex.setFileContent(input.readAllBytes());
+                    currentAnnex.setWithFile(true);
+
                     for (int i = 0; i < annexes.size(); i++) {
                         if (annexes.get(i).getId().equals(currentAnnex.getId())) {
                             annexes.set(i, currentAnnex);
                         }
                     }
+
                     readAnnexes();
                     PrimeFaces.current().ajax().addCallbackParam("saveanx", true);
                 } else {
@@ -1114,13 +1972,13 @@ public class BreederFormBean implements Serializable {
     }
 
     public void removeApplicant(ActionEvent ae) {
-        System.out.println("lleeeeeeeego remove");
         person = (Person) applicantData.getRowData();
         if (person != null && person.getId() != null) {
             applicants.remove(person);
             if (applicants.isEmpty()) {
                 showApplicantsTableError = true;
             }
+            activeIndex = 0;
             Operations.mensaje(Operations.INFORMACION, "SE HA REMOVIDO DE LA TABLA EL SOLICITANTE " + person.getName());
         } else {
             Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL SOLICITANTE SELECCIONADO");
@@ -1134,6 +1992,7 @@ public class BreederFormBean implements Serializable {
             if (obtentors.isEmpty()) {
                 showObtentorsTableError = true;
             }
+            activeIndex = 1;
             Operations.mensaje(Operations.INFORMACION, "SE HA REMOVIDO DE LA TABLA EL OBTENTOR " + person.getName());
         } else {
             Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL OBTENTOR SELECCIONADO");
@@ -1448,7 +2307,6 @@ public class BreederFormBean implements Serializable {
 
     public void saveProtection(ActionEvent ae) {
         if (vegetableProtection != null) {
-
             switch (protectionType) {
                 case "DERECHO OBTENTOR":
                     vegetableProtection.setProtectionType(ProtectionType.THROUGH_BREEDER_RIGHT);
@@ -1460,9 +2318,9 @@ public class BreederFormBean implements Serializable {
                     vegetableProtection.setProtectionType(ProtectionType.CULTIVAR_REGISTRY);
                     break;
             }
-
             if (countrySubmission != null && countrySubmission.getId() > 0) {
                 vegetableProtection.setSubmissionCountryId(countrySubmission.getId());
+                vegetableProtection.setVegetableForms(vegetableForms);
                 vegetableProtections.add(vegetableProtection);
                 showTab7Prote = false;
                 PrimeFaces.current().ajax().addCallbackParam("savepro", true);
@@ -1544,7 +2402,17 @@ public class BreederFormBean implements Serializable {
     public void prepareVegetableAnnexe(ActionEvent ae) {
         currentAnnex = (VegetableAnnexes) annexeData.getRowData();
         if (currentAnnex != null && currentAnnex.getId() != null) {
-            currentFile = currentAnnex.getCurrentFile();
+            if (currentAnnex.getCurrentFile() != null) {
+                currentFile = currentAnnex.getCurrentFile();
+            } else if (currentAnnex.getIdAnnexes() != null && currentAnnex.getIdVegatableForms() != null) {
+                Controller c = new Controller();
+                annexeAux = c.getVegetableAnnexesDataByIds(currentAnnex.getIdAnnexes(), currentAnnex.getIdVegatableForms());
+                if (currentAnnex.getId() == 13) {
+                    otherAnnexDesc = annexeAux.getAnotherAnnexe();
+                }
+//                System.out.println("Si, ya existe en annexesdata");
+            }
+
             PrimeFaces.current().ajax().addCallbackParam("newcu", true);
         } else {
             Operations.mensaje(Operations.ERROR, "NO SE RECONOCE LA OPCIÓN SELECCIONADA");
@@ -1558,6 +2426,18 @@ public class BreederFormBean implements Serializable {
         } catch (Exception e) {
             Operations.mensaje(Operations.ERROR, "Error al cargar el PDF");
         }
+    }
+
+    public void validateAnnexe(VegetableAnnexesData vaux) {
+        if (vaux.getId() != null) {
+            if (vaux.getFileName() != null && !vaux.getFileName().trim().isEmpty()) {
+                PrimeFaces.current().ajax().addCallbackParam("viewan", true);
+                PrimeFaces.current().ajax().addCallbackParam("filean", Parameter.RUTA_URL + vaux.getId().getVegetableFormId() + "/" + vaux.getFileName());
+            }
+        } else {
+            Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL ANEXO");
+        }
+
     }
 
     /**
@@ -3066,5 +3946,61 @@ public class BreederFormBean implements Serializable {
      */
     public void setShowTab15Error(boolean showTab15Error) {
         this.showTab15Error = showTab15Error;
+    }
+
+    /**
+     * @return the action
+     */
+    public Integer getAction() {
+        return action;
+    }
+
+    /**
+     * @param action the action to set
+     */
+    public void setAction(Integer action) {
+        this.action = action;
+    }
+
+    /**
+     * @return the formTitle
+     */
+    public String getFormTitle() {
+        return formTitle;
+    }
+
+    /**
+     * @param formTitle the formTitle to set
+     */
+    public void setFormTitle(String formTitle) {
+        this.formTitle = formTitle;
+    }
+
+    /**
+     * @return the editId
+     */
+    public Integer getEditId() {
+        return editId;
+    }
+
+    /**
+     * @param editId the editId to set
+     */
+    public void setEditId(Integer editId) {
+        this.editId = editId;
+    }
+
+    /**
+     * @return the annexeAux
+     */
+    public VegetableAnnexesData getAnnexeAux() {
+        return annexeAux;
+    }
+
+    /**
+     * @param annexeAux the annexeAux to set
+     */
+    public void setAnnexeAux(VegetableAnnexesData annexeAux) {
+        this.annexeAux = annexeAux;
     }
 }

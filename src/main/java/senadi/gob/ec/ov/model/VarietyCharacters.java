@@ -12,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -41,7 +40,8 @@ public class VarietyCharacters implements Serializable{
     @Column(name = "note")
     private String note;
 
-    @ManyToOne    
+    @ManyToOne
+    @JoinColumn(name = "vegetable_forms_id", nullable = false)
     private VegetableForms vegetableForms;
     /**
      * @return the id

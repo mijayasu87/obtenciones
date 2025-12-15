@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import senadi.gob.ec.ov.model.enums.PersonType;
 
 /**
  *
@@ -21,12 +22,16 @@ public class PersonVegetableId implements Serializable {
 
     @Column(name = "person_id")
     private Integer personId;
+    
+     @Column(name = "person_type", length = 30)
+    private String personType;
 
     public PersonVegetableId() {}
 
-    public PersonVegetableId(Integer vegetableFormId, Integer personId) {
+    public PersonVegetableId(Integer vegetableFormId, Integer personId, PersonType personType) {
         this.vegetableFormId = vegetableFormId;
         this.personId = personId;
+        this.personType = personType.name();
     }
 
     // Getters y setters
@@ -42,11 +47,38 @@ public class PersonVegetableId implements Serializable {
         if (!(o instanceof PersonVegetableId)) return false;
         PersonVegetableId that = (PersonVegetableId) o;
         return Objects.equals(vegetableFormId, that.vegetableFormId) &&
-               Objects.equals(personId, that.personId);
+               Objects.equals(personId, that.personId) &&
+               Objects.equals(personType, that.personType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(vegetableFormId, personId);
+        return Objects.hash(vegetableFormId, personId, personType);
+    }
+
+    /**
+     * @return the personType
+     */
+    public String getPersonType() {
+        return personType;
+    }
+    /**
+     * @param personType the personType to set
+     */
+    public void setPersonType(String personType) {
+        this.personType = personType;
+    }
+    
+    public void setPersonType(PersonType personType) {
+        this.personType = personType.name();
+    }
+
+    public PersonType getPersonTypeEnum() {
+        return PersonType.valueOf(this.personType);
+    }
+    
+    @Override
+    public String toString(){
+        return "("+getPersonId()+","+getVegetableFormId()+","+getPersonType()+")";
     }
 }

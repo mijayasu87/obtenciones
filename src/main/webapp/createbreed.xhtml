@@ -39,6 +39,10 @@ and open the template in the editor.
             <div class="loader-section section-left"></div>
             <div class="loader-section section-right"></div>
         </div>
+        <f:metadata>
+            <f:viewParam name="editId" value="#{breederFormBean.editId}" />
+            <f:event type="preRenderView" listener="#{breederFormBean.preloadEdit}" />
+        </f:metadata>
         <p:growl id="mensajes" showDetail="true" life="4000"/>
         <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
             <div class="menu" >
@@ -61,7 +65,7 @@ and open the template in the editor.
             </div>
             <br/>
             <div style="text-align: center !important; margin: 0 auto !important;">
-                <p:outputLabel value="REGISTRO DE OBTENCIONES VEGETALES" style="font-size: 20px; color: black"/>
+                <p:outputLabel value="#{breederFormBean.formTitle}" style="font-size: 20px; color: black"/>
 
                 <p:accordionPanel multiple="false" widgetVar="basic" style="width: 80%; text-align: left; margin: 0 auto;" 
                                   id="acordion" activeIndex="#{breederFormBean.activeIndex}">
@@ -69,7 +73,7 @@ and open the template in the editor.
                         <p:commandButton value="AGREGAR SOLICITANTE" class="btn_peque" style="margin-left: 10%" 
                                          oncomplete="if(args.newperson){PF('dlgPerson').show();}" 
                                          actionListener="#{breederFormBean.prepareNewApplicant}" process="@this" 
-                                         update="allform:dlgPerson allform:frmPerson"
+                                         update="dlgPerson frmPerson"
                                          styleClass="#{breederFormBean.showApplicantsTableError and breederFormBean.applicants.size() == 0 ?'invalid-table btn_peque':'btn_peque'}"/>
                         <p:dataTable id="tablaDeSolicitantes" var="person"
                                      value="#{breederFormBean.applicants}" widgetVar="tablaDeSolicitantes"
@@ -81,7 +85,8 @@ and open the template in the editor.
                                      rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
                                      style="width: 80%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
                                      styleClass="#{breederFormBean.showApplicantsTableError and breederFormBean.applicants.size() == 0 ?'invalid-table':''}"
-                                     rowKey="#{person.id}">
+                                     rowKey="#{person.id}"                                     
+                                     >
 
                             <p:column headerText="Nombre" style="text-align: center;" >
                                 <h:outputText value="#{person.name}" />
@@ -100,7 +105,7 @@ and open the template in the editor.
                             </p:column>
                             <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >                                
                                 <p:commandLink class="link" title="Editar person" actionListener="#{breederFormBean.prepareEditApplicant}"
-                                               oncomplete="if(args.editperson){PF('dlgPerson').show();}" process="@this" update="allform:dlgPerson allform:frmPerson">
+                                               oncomplete="if(args.editperson){PF('dlgPerson').show();}" process="@this" update="dlgPerson frmPerson">
                                     <i id="edit_action" class="material-icons md-10" style="font-size: 20px">edit</i>
                                 </p:commandLink>
                                 <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeApplicant}"
@@ -116,7 +121,7 @@ and open the template in the editor.
                         <p:commandButton value="AGREGAR OBTENTOR" class="btn_peque" style="margin-left: 10%" 
                                          oncomplete="if(args.newperson){PF('dlgPerson').show();}" 
                                          actionListener="#{breederFormBean.prepareNewObtentor}" process="@this" 
-                                         update="allform:dlgPerson allform:frmPerson"
+                                         update="dlgPerson frmPerson"
                                          styleClass="#{breederFormBean.showObtentorsTableError and breederFormBean.obtentors.size() == 0 ?'invalid-table btn_peque':'btn_peque'}"/>
                         <p:dataTable id="tablaDeObtentores" var="person"
                                      value="#{breederFormBean.obtentors}" widgetVar="tablaDeObtentores"
@@ -147,7 +152,7 @@ and open the template in the editor.
                             </p:column>
                             <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >
                                 <p:commandLink class="link" title="Editar person" actionListener="#{breederFormBean.prepareEditObtentor}"
-                                               oncomplete="if(args.editperson){PF('dlgPerson').show();}" process="@this" update="allform:dlgPerson allform:frmPerson">
+                                               oncomplete="if(args.editperson){PF('dlgPerson').show();}" process="@this" update="dlgPerson frmPerson">
                                     <i id="edit_action" class="material-icons md-10" style="font-size: 20px">edit</i>
                                 </p:commandLink>
                                 <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeObtentor}"
@@ -169,7 +174,7 @@ and open the template in the editor.
                             <f:selectItem itemValue="OBTENTOR" itemLabel="Obtentor (Si es diferente del / de los solicitante (s))" />
                             <f:selectItem itemValue="REPRESENTANTE" itemLabel="Representante legal" />
                             <f:selectItem itemValue="APODERADO" itemLabel="Apoderado" />
-                            <p:ajax update="mensajes corresponde personnot allform:dlgSolNot frmSolNot tablaDeSolNot allform:dlgPerson allform:frmPerson" 
+                            <p:ajax update="mensajes corresponde personnot dlgSolNot frmSolNot tablaDeSolNot dlgPerson frmPerson" 
                                     listener="#{breederFormBean.onNotificationSelected}" oncomplete="if(args.pernotsel){PF('dlgSolNot').show();}else if(args.perdial){PF('dlgPerson').show();}"/>
                         </p:selectOneRadio>
 
@@ -193,53 +198,7 @@ and open the template in the editor.
                             <p:outputLabel value="Código Poder: " class="maxsize bordesuperior"/>
                             <p:inputText value="#{breederFormBean.personVegetableNotification.powerCode}" class="maxsize bordesuperior" maxlength="30"/>
 
-                        </p:panelGrid>
-                        <p:dialog id="dlgSolNot" modal="true" resizable="true"
-                                  header="SELECCIONE UNA PERSONA DE LA LISTA" fitViewport="true" dynamic="false"
-                                  widgetVar="dlgSolNot" style="font-size: 16px !important; " showEffect="explode" 
-                                  hideEffect="explode" closeOnEscape="false" width="70%">
-                            <p:ajax event="close" update="dlgSolNot" resetValues="true" />
-                            <p:growl id="nuevosol" life="1000"/>
-                            <h:form id="frmSolNot">
-                                <p:dataTable id="tablaDeSolNot" var="person"
-                                             value="#{breederFormBean.personsNotification}" widgetVar="tablaDeSolNot"
-                                             emptyMessage="No hay Datos para mostrar"                                              
-                                             binding="#{breederFormBean.personNotificationData}"
-                                             paginator="true"
-                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                             rows="20"
-                                             rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
-                                             style="border: black !important; width: 100%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
-                                             rowKey="#{person.id}">
-
-                                    <p:column headerText="Nombre" style="text-align: center;" >
-                                        <h:outputText value="#{person.name}" />
-                                    </p:column>
-                                    <p:column headerText="Tipo" style="text-align: center; width: 10%" >
-                                        <h:outputText value="#{breederFormBean.getIdentificationType(person.identificationType)}" />
-                                    </p:column>
-                                    <p:column headerText="Documento" style="text-align: center; width: 10%" >
-                                        <h:outputText value="#{person.identificationNumber}" />
-                                    </p:column>
-                                    <p:column headerText="País de Nacionalidad" style="text-align: center; width: 10%" >
-                                        <h:outputText value="#{person.nationality}" />
-                                    </p:column>
-                                    <p:column headerText="Dirección" style="text-align: center;" >
-                                        <h:outputText value="#{person.address}" />
-                                    </p:column>
-                                    <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >
-                                        <p:commandLink class="link" title="Seleccionar solicitante" actionListener="#{breederFormBean.selectedPersonNotification}"
-                                                       oncomplete="if(args.pernot){PF('dlgSolNot').hide();}" process="@this" 
-                                                       update="mensajes dirnot allform:acordion:personnot">
-                                            <i class="pi pi-check" style="font-size: 2rem"></i>
-                                        </p:commandLink>                                        
-                                    </p:column>
-                                </p:dataTable>
-                                <p:commandButton value="CERRAR" actionListener="#{breederFormBean.closeApplicantNotDialog}" process="@this" 
-                                                 class="btn_cerrar" update="mensajes allform:acordion:corresponde allform:acordion:personnot" style="float: right" 
-                                                 oncomplete="PF('dlgSolNot').hide();"/>
-                            </h:form>
-                        </p:dialog>
+                        </p:panelGrid>                        
                     </p:tab>
                     <p:tab title="Taxón botánico" id="taxbot">
                         <p:outputLabel value="Nombre en latín del género, la especie o la subespecie a los que pertenece la variedad* Taxón botánico*:" class="maxsize"
@@ -258,7 +217,7 @@ and open the template in the editor.
                         <br/><br/>
                         <p>Deberían corroborarse las referencias del obtentor entre registros: en todos los procedimientos oficiales debe utilizarse la misma referencia del obtentor.</p>
                         <p><strong>Referencia del obtentor*:</strong></p>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.provitionalDesignation}" id="provdes"
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.provitionalDesignation}" id="provdes" maxlength="255"
                                          styleClass="#{(breederFormBean.showTab5Error and breederFormBean.vegetableForms.provitionalDesignation.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <br/><br/>
                         <p:outputLabel value="Denominación genérica propuesta de la variedad *:" class="maxsize" for="genden"/>
@@ -266,7 +225,7 @@ and open the template in the editor.
                         <p>La denominación deberá ser escrita en mayúsculas y deberá ser la misma en caso de estar registrada en otro país.</p>
 
                         <p>Denominación de la variedad*:</p>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.genericDenomination}" id="genden"
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.genericDenomination}" id="genden" maxlength="255"
                                          styleClass="#{(breederFormBean.showTab5Error and breederFormBean.vegetableForms.genericDenomination.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <br/><br/>
                         <p:outputLabel value="La denominación puede ser un «nombre de fantasía» o un «CÓDIGO»*:" class="maxsize"/>
@@ -276,7 +235,7 @@ and open the template in the editor.
                         <p:selectOneRadio id="dentypesel" value="#{breederFormBean.denominationTypeSelected}" layout="pageDirection" 
                                           style="text-align: left" 
                                           styleClass="#{breederFormBean.showTab5Error and (breederFormBean.denominationTypeSelected eq null || breederFormBean.denominationTypeSelected.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
-                            <f:selectItem itemValue="FANTASY" itemLabel="Nombre de fantasía"/>
+                            <f:selectItem itemValue="FANTASY_NAME" itemLabel="Nombre de fantasía"/>
                             <f:selectItem itemValue="CODE" itemLabel="Código" />                            
                         </p:selectOneRadio>
                     </p:tab>                    
@@ -298,14 +257,14 @@ and open the template in the editor.
                                               styleClass="#{breederFormBean.showTab6Vartr and (breederFormBean.varietyTransferSelected eq null || breederFormBean.varietyTransferSelected.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
                                 <f:selectItem itemValue="SUCCESSION" itemLabel="Sucesión"/>
                                 <f:selectItem itemValue="CONTRACT" itemLabel="Contrato" />
-                                <f:selectItem itemValue="CONTRACT_EMPLOY" itemLabel="Contrato de trabajo (Indique la legislación nacional pertinente)" />
+                                <f:selectItem itemValue="EMPLOYMENT_CONTRACT" itemLabel="Contrato de trabajo (Indique la legislación nacional pertinente)" />
                                 <f:selectItem itemValue="TRANSFER_RIGHTS" itemLabel="Cesión de derechos (si el solicitante y el obtentor no son la misma persona).
                                               Si el solicitante y el obtentor no son la misma persona, adjunte toda la documentación relativa a la cesión de derechos" />
-                                <f:selectItem itemValue="ANOTHER" itemLabel="Otra (Especifique)" />                            
+                                <f:selectItem itemValue="OTHER" itemLabel="Otra (Especifique)" />                            
                                 <p:ajax update="mensajes vartrandes" listener="#{breederFormBean.onVarietySelected}"/>
                             </p:selectOneRadio>
                             <p:inputTextarea id="vartrandes" value="#{breederFormBean.vegetableForms.varietyTransferDescription}" class="maxsize " 
-                                             style="#{breederFormBean.withDescriptionVariety ? 'display:block' : 'display:none'}"
+                                             style="#{breederFormBean.withDescriptionVariety ? 'display:block' : 'display:none'}" maxlength="255"
                                              styleClass="#{(breederFormBean.vegetableForms.varietyTransferDescription.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                             <br/>
                             <p:outputLabel value="Origen geográfico de la variedad*:" class="maxsize" for="paisorigen"/>
@@ -400,60 +359,7 @@ and open the template in the editor.
                                     </p:column>
                                 </p:dataTable>
                             </p:panel>                            
-                        </p:panelGrid>
-
-                        <p:dialog id="dlgProtection" modal="true" resizable="true"
-                                  header="REGISTRAR SOLICITUD ANTERIOR" fitViewport="true" dynamic="false"
-                                  widgetVar="dlgProtection" style="font-size: 16px !important; " showEffect="explode" 
-                                  hideEffect="explode" closeOnEscape="false" width="55%">
-                            <p:ajax event="close" update="dlgProtection" resetValues="true" />
-                            <p:growl id="nuevopro" life="1000"/>
-                            <h:form id="frmProtection">
-                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
-                                    <p:outputLabel value="Tipo de protección:" class="maxsize bordesuperior" for="hasother"/>
-                                    <p:selectOneRadio id="hasother" value="#{breederFormBean.protectionType}"  
-                                                      style="text-align: left; margin-left: 10px;" required="true">
-                                        <f:selectItem itemValue="DERECHO OBTENTOR" itemLabel="Protección mediante Derecho de Obtentor"/>
-                                        <f:selectItem itemValue="PATENTE" itemLabel="Protección mediante Patente" />
-                                        <f:selectItem itemValue="CULTIVARES" itemLabel="Registro de cultivares" />
-                                    </p:selectOneRadio>
-                                    <p:outputLabel value="País de Presentación:" class="maxsize bordesuperior" for="paispres"/>
-                                    <p:selectOneMenu id="paispres" value="#{breederFormBean.countrySubmission}" converter="countryConverter"
-                                                     class="maxsize" widgetVar="paispre" dynamic="false" required="true">                                                    
-                                        <f:selectItems value="#{breederFormBean.countries}" var="c" 
-                                                       itemLabel="#{c.name}" itemValue="#{c}" />                            
-                                    </p:selectOneMenu>
-                                    <p:outputLabel value="Fecha de Presentación:" class="maxsize bordesuperior" for="subdate"/>
-                                    <p:calendar id="subdate" value="#{breederFormBean.vegetableProtection.submissionDate}"
-                                                inputStyleClass="maxsize" required="true"/>
-                                    <p:outputLabel value="Número de solicitud:" class="maxsize bordesuperior" for="apnu"/>
-                                    <p:inputText id="apnu" value="#{breederFormBean.vegetableProtection.applicationNumber}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Número de registro:" class="maxsize bordesuperior" for="regn"/>
-                                    <p:inputText id="regn" value="#{breederFormBean.vegetableProtection.registerNumber}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Estado / Situación:" class="maxsize bordesuperior" for="essit"/>                                    
-                                    <p:selectOneMenu id="essit" value="#{breederFormBean.vegetableProtection.status}" 
-                                                     class="maxsize" widgetVar="essit" dynamic="false" required="true">
-                                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
-                                        <f:selectItem itemLabel="A = en trámite" itemValue="A" />
-                                        <f:selectItem itemLabel="B = rechazada" itemValue="A" />
-                                        <f:selectItem itemLabel="C = retirada" itemValue="A" />
-                                        <f:selectItem itemLabel="D = aceptada" itemValue="A" />
-                                        <f:selectItem itemLabel="E = otros" itemValue="A" />
-                                    </p:selectOneMenu>
-                                    <p:outputLabel value="Denominación de la variedad y referencia del obtentor:" class="maxsize bordesuperior" for="denop"/>
-                                    <p:inputText id="denop" value="#{breederFormBean.vegetableProtection.denomination}" class="maxsize"
-                                                 required="true"/>
-                                </p:panelGrid>
-                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgProtection').hide()" style="float: right"/>
-                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveProtection}" 
-                                                 oncomplete="if(args.savepro){PF('dlgProtection').hide();}" process="@form" 
-                                                 update="mensajes allform:acordion:tablaDeSolAnteriores @form" style="float: right">
-
-                                </p:commandButton>
-                            </h:form>
-                        </p:dialog>
+                        </p:panelGrid>                       
                     </p:tab>
                     <p:tab title="Prioridad" id="priori">
                         <p>La reivindicación de prioridad deberá basarse en la primera solicitud de protección de la variedad en cuestión, 
@@ -526,17 +432,17 @@ and open the template in the editor.
                         <p>El solicitante deberá haber adoptado las precauciones pertinentes para garantizar 
                             que no se produzcan ventas ni cesiones equivalentes antes del plazo permitido.</p>
 
-                        <p:outputLabel value="En el territorio de la Subregión Andina:" class="maxsize" for="interr"/>
+                        <p:outputLabel value="En el territorio de la Subregión Andina: *" class="maxsize" for="interr"/>
                         <p:selectOneRadio id="interr" value="#{breederFormBean.interritory}" 
                                           style="text-align: left; margin-left: 15px;" 
                                           styleClass="#{breederFormBean.showTab9Error and (breederFormBean.interritory eq null || breederFormBean.interritory.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
                             <f:selectItem itemValue="SI" itemLabel="Sí"/>
                             <f:selectItem itemValue="NO" itemLabel="No" />
-                            <p:ajax update="mensajes allform:acordion:panin" listener="#{breederFormBean.onInTerritory}"/>
+                            <p:ajax update="mensajes allform:acordion:panin " listener="#{breederFormBean.onInTerritory}"/>
                         </p:selectOneRadio>
                         <p:panelGrid id="panin" columns="1" style="#{breederFormBean.vegetableForms.inTerritory ? 'display:block': 'display:none'}">
                             <p:commandButton value="AGREGAR EN TERRITORIO" actionListener="#{breederFormBean.prepareNewInExploited}" process="@this"
-                                             update="mensajes allform:acordion:dlgExploited allform:frmExploited" class="btn_peque" 
+                                             update="mensajes dlgExploited frmExploited" class="btn_peque" 
                                              style="#{breederFormBean.inExploitedSelleds.size() != 0?'display:none':'display:block'}"
                                              oncomplete="if(args.newexplo){PF('dlgExploited').show()}" id="btnin"
                                              styleClass="#{breederFormBean.showTab9Error and breederFormBean.inExploitedSelleds.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
@@ -567,7 +473,7 @@ and open the template in the editor.
                             </p:dataTable>
                         </p:panelGrid>
                         <br/>
-                        <p:outputLabel value="Fuera del territorio de la Subregión Andina:" class="maxsize"/>
+                        <p:outputLabel value="Fuera del territorio de la Subregión Andina: *" class="maxsize"/>
                         <p:selectOneRadio id="outterr" value="#{breederFormBean.outterritory}" 
                                           style="text-align: left; margin-left: 15px;" 
                                           styleClass="#{breederFormBean.showTab9Error and (breederFormBean.outterritory eq null || breederFormBean.outterritory.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
@@ -577,7 +483,7 @@ and open the template in the editor.
                         </p:selectOneRadio>
                         <p:panelGrid id="panout" columns="1" style="#{breederFormBean.vegetableForms.outTerritory ? 'display:block': 'display:none'}">
                             <p:commandButton value="AGREGAR FUERA DEL TERRITORIO" actionListener="#{breederFormBean.prepareNewOutExploited}" process="@this"
-                                             update="mensajes allform:acordion:dlgExploited allform:frmExploited" class="btn_peque" 
+                                             update="mensajes dlgExploited frmExploited" class="btn_peque" 
                                              style="#{breederFormBean.outExploitedSelleds.size() != 0?'display:none':'display:block'}"
                                              oncomplete="if(args.newexplo){PF('dlgExploited').show()}" id="btnout"
                                              styleClass="#{breederFormBean.showTab9Error and breederFormBean.outExploitedSelleds.size()== 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
@@ -606,35 +512,7 @@ and open the template in the editor.
                                     </p:commandLink>
                                 </p:column>
                             </p:dataTable>
-                        </p:panelGrid>
-                        <p:dialog id="dlgExploited" modal="true" resizable="true"
-                                  header="#{breederFormBean.exploitedDilogTitle}" fitViewport="true" dynamic="false"
-                                  widgetVar="dlgExploited" style="font-size: 16px !important; " showEffect="explode" 
-                                  hideEffect="explode" closeOnEscape="false" width="55%">
-                            <p:ajax event="close" update="dlgExploited" resetValues="true" />
-                            <p:growl id="nuevoexp" life="1000"/>
-                            <h:form id="frmExploited">
-                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
-                                    <p:outputLabel value="Fecha:" class="maxsize bordesuperior" for="fech"/>
-                                    <p:calendar id="fech" value="#{breederFormBean.exploitedSelled.explotationDate}" 
-                                                inputStyleClass="maxsize" required="true"/>
-                                    <p:outputLabel value="País:" class="maxsize bordesuperior" for="paisexp"/>
-                                    <p:selectOneMenu id="paisexp" value="#{breederFormBean.countryExploited}" converter="countryConverter"
-                                                     class="maxsize" widgetVar="paisexp" dynamic="false" required="true">                                                    
-                                        <f:selectItems value="#{breederFormBean.countries}" var="c" 
-                                                       itemLabel="#{c.name}" itemValue="#{c}" />                            
-                                    </p:selectOneMenu>
-                                    <p:outputLabel value="Denominación:" class="maxsize bordesuperior" for="denexp"/>
-                                    <p:inputText id="denexp" value="#{breederFormBean.exploitedSelled.denomination}" class="maxsize"
-                                                 required="true"/>
-                                </p:panelGrid>
-                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgExploited').hide()" style="float: right"/>
-                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveExploitedSelled}" 
-                                                 oncomplete="if(args.saveexp){PF('dlgExploited').hide();}" process="@form" 
-                                                 update="mensajes allform:acordion:tablaIn allform:acordion:tablaOut allform:acordion:btnin allform:acordion:btnout @form" style="float: right">
-                                </p:commandButton>
-                            </h:form>
-                        </p:dialog>
+                        </p:panelGrid>                        
                     </p:tab>
                     <p:tab title="Examen técnico de la variedad" id="exa">
                         <p:outputLabel value="“Especificar, según el caso, el país y centro de investigación donde se ha realizado, se están realizando o se tiene previsto realizar las pruebas de distinción, homogeneidad y estabilidad.”" />
@@ -675,7 +553,7 @@ and open the template in the editor.
                                 <f:selectItems value="#{breederFormBean.countries}" var="c" 
                                                itemLabel="#{c.name}" itemValue="#{c}" />                            
                             </p:selectOneMenu>
-                            <p:outputLabel value="Lugar exacto:" class="maxsize" for="samplac"/>
+                            <p:outputLabel value="Lugar exacto: *" class="maxsize" for="samplac"/>
                             <p:inputTextarea id="samplac" class="maxsize" value="#{breederFormBean.vegetableForms.samplePlace}" 
                                              styleClass="#{breederFormBean.showTab10Error and (breederFormBean.vegetableForms.samplePlace eq null || breederFormBean.vegetableForms.samplePlace.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         </p:panelGrid>
@@ -695,20 +573,21 @@ and open the template in the editor.
                                                var="m"
                                                itemValue="#{m}"
                                                itemLabel="#{m.name}" />
-                                <p:ajax update="mensajes allform:acordion:methodologypan" listener="#{breederFormBean.onMethodologiesSelected}"/>
-                            </p:selectManyCheckbox>                            
-                            <p:outputLabel value="Especies Autógamas:" for="esau" 
-                                           style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"/>
-                            <p:inputText value="#{breederFormBean.autogamousSpecies}" id="esau" class="maxsize" 
-                                         style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"
-                                         styleClass="#{breederFormBean.showTab11Error and (breederFormBean.autogamousSpecies eq null || breederFormBean.autogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                                <p:ajax update="mensajes allform:acordion:especiespan" listener="#{breederFormBean.onMethodologiesSelected}"/>
+                            </p:selectManyCheckbox>
+                            <p:panel id="especiespan" class="noBorders" style="#{(breederFormBean.autogamousSelected or breederFormBean.allogamousSelected) ?'display:block' : 'display:none'}">
+                                <p:outputLabel value="Especies Autógamas:" for="esau" 
+                                               style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"/>
+                                <p:inputText value="#{breederFormBean.autogamousSpecies}" id="esau" class="maxsize" 
+                                             style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"
+                                             styleClass="#{breederFormBean.showTab11Error and (breederFormBean.autogamousSpecies eq null || breederFormBean.autogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
 
-                            <p:outputLabel value="Especies Alógamas:" for="esalo" 
-                                           style="#{breederFormBean.allogamousSelected ? 'display:block' : 'display:none'}"/>
-                            <p:inputText value="#{breederFormBean.allogamousSpecies}" id="esalo" class="maxsize"
-                                         style="#{breederFormBean.allogamousSelected ? 'display:block' : 'display:none'}"
-                                         styleClass="#{breederFormBean.showTab11Error and (breederFormBean.allogamousSpecies eq null || breederFormBean.allogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
-
+                                <p:outputLabel value="Especies Alógamas:" for="esalo" 
+                                               style="#{breederFormBean.allogamousSelected ? 'display:block' : 'display:none'}"/>
+                                <p:inputText value="#{breederFormBean.allogamousSpecies}" id="esalo" class="maxsize"
+                                             style="#{breederFormBean.allogamousSelected ? 'display:block' : 'display:none'}"
+                                             styleClass="#{breederFormBean.showTab11Error and (breederFormBean.allogamousSpecies eq null || breederFormBean.allogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                            </p:panel>                            
                             <p:outputLabel value="Historial del procesos de mejoramiento vegetal" for="history"/>
                             <span>(Detallar en forma cronológica la historia del mejoramiento hasta la estabilización de la variedad cuya inscripción se pretende) (Confidencial)</span>
                             <p:inputTextarea value="#{breederFormBean.vegetableForms.processHistory}" id="history" 
@@ -756,7 +635,7 @@ and open the template in the editor.
                             expresión y la variedad a título de ejemplo)"</span>
                         <br/><br/>
                         <p:commandButton value="AGREGAR NUEVO" actionListener="#{breederFormBean.prepareNewCharacter}" process="@this"
-                                         update="mensajes allform:acordion:dlgCharacter allform:frmCharacter" 
+                                         update="mensajes dlgCharacter frmCharacter" 
                                          oncomplete="if(args.newch){PF('dlgCharacter').show()}" id="btnchar"
                                          styleClass="#{breederFormBean.showTab13Error and breederFormBean.varietiesCharacters.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
                         <p:dataTable id="tablaChar" var="character" 
@@ -785,35 +664,7 @@ and open the template in the editor.
                                     <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
                                 </p:commandLink>
                             </p:column>
-                        </p:dataTable>
-                        <p:dialog id="dlgCharacter" modal="true" resizable="true"
-                                  header="AGREGAR CARACTERES DE LA VARIEDAD" fitViewport="true" dynamic="false"
-                                  widgetVar="dlgCharacter" style="font-size: 16px !important; " showEffect="explode" 
-                                  hideEffect="explode" closeOnEscape="false" width="55%">
-                            <p:ajax event="close" update="dlgCharacter" resetValues="true" />
-                            <p:growl id="nuevochar" life="1000"/>
-                            <h:form id="frmCharacter">
-                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
-                                    <p:outputLabel value="Caracteres:" class="maxsize bordesuperior" for="charac"/>
-                                    <p:inputText id="charac" value="#{breederFormBean.varietyCharacters.characters}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Nivel de expresión" class="maxsize bordesuperior" for="expres"/>
-                                    <p:inputText id="expres" value="#{breederFormBean.varietyCharacters.expressionLevel}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Variedad a título de ejemplo:" class="maxsize bordesuperior" for="titlevar"/>
-                                    <p:inputText id="titlevar" value="#{breederFormBean.varietyCharacters.sampleTitleVariety}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Nota:" class="maxsize bordesuperior" for="notec"/>
-                                    <p:inputText id="notec" value="#{breederFormBean.varietyCharacters.note}" class="maxsize"
-                                                 required="true"/>
-                                </p:panelGrid>
-                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgCharacter').hide()" style="float: right"/>
-                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveVarietyCharacters}" 
-                                                 oncomplete="if(args.savechar){PF('dlgCharacter').hide();}" process="@form" 
-                                                 update="mensajes allform:acordion:tablaChar @form" style="float: right">
-                                </p:commandButton>
-                            </h:form>
-                        </p:dialog>
+                        </p:dataTable>                        
                     </p:tab>
                     <p:tab title="Comparación con variedades similares" id="compvar">
                         <p:outputLabel value="Comparación con variedades similares, consideraciones que serán tomadas en cuenta para la ejecución del examen de Distinción, Homogeneidad y Estabilidad:" class="maxsize"/>
@@ -821,7 +672,7 @@ and open the template in the editor.
                         <span>Nota aclaratoria: "En caso de que los niveles de expresión de ambas variedades sean idénticos, sírvase indicar la amplitud de la diferencia."</span>
                         <br/><br/>
                         <p:commandButton value="AGREGAR NUEVO" actionListener="#{breederFormBean.prepareNewSimilary}" process="@this"
-                                         update="mensajes allform:acordion:dlgSimilary allform:frmSimilary" class="btn_peque"                                          
+                                         update="mensajes dlgSimilary frmSimilary" class="btn_peque"                                          
                                          oncomplete="if(args.newsim){PF('dlgSimilary').show()}" id="btnsim"
                                          styleClass="#{breederFormBean.showTab14Error and breederFormBean.similaritiesVariety.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
                         <p:dataTable id="tablaSim" var="similary" 
@@ -850,35 +701,7 @@ and open the template in the editor.
                                     <i id="delete_action" class="material-icons md-12" style="font-size: 20px;">delete</i>
                                 </p:commandLink>
                             </p:column>
-                        </p:dataTable>
-                        <p:dialog id="dlgSimilary" modal="true" resizable="true"
-                                  header="AGREGAR COMPARACIÓN CON VARIEDADES SIMILARES" fitViewport="true" dynamic="false"
-                                  widgetVar="dlgSimilary" style="font-size: 16px !important; " showEffect="explode" 
-                                  hideEffect="explode" closeOnEscape="false" width="55%">
-                            <p:ajax event="close" update="dlgSimilary" resetValues="true" />
-                            <p:growl id="nuevosim" life="1000"/>
-                            <h:form id="frmSimilary">
-                                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
-                                    <p:outputLabel value="Denominación de la variedad similar:" class="maxsize bordesuperior" for="denosim"/>
-                                    <p:inputText id="denosim" value="#{breederFormBean.similaryVariety.denomination}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Carácter por el que difiere la variedad similar:" class="maxsize bordesuperior" for="difiere"/>
-                                    <p:inputText id="difiere" value="#{breederFormBean.similaryVariety.differentCharacter}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Nivel de expresión de la variedad similar:" class="maxsize bordesuperior" for="levelsim"/>
-                                    <p:inputText id="levelsim" value="#{breederFormBean.similaryVariety.similaryExpressionLevel}" class="maxsize"
-                                                 required="true"/>
-                                    <p:outputLabel value="Nivel de expresión de la variedad en trámite de registro" class="maxsize bordesuperior" for="notec"/>
-                                    <p:inputText id="notec" value="#{breederFormBean.similaryVariety.registerExpressionLevel}" class="maxsize"
-                                                 required="true"/>
-                                </p:panelGrid>
-                                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgSimilary').hide()" style="float: right"/>
-                                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveSimilaryVariety}" 
-                                                 oncomplete="if(args.savesim){PF('dlgSimilary').hide();}" process="@form" 
-                                                 update="mensajes allform:acordion:tablaSim @form" style="float: right">
-                                </p:commandButton>
-                            </h:form>
-                        </p:dialog>
+                        </p:dataTable>                        
                     </p:tab>                    
                     <p:tab title="Documentos Adjuntos" id="docadd">
                         <p:outputLabel value="Se adjuntan los siguientes formularios y documentos a la presente solicitud: Por favor, adjunte los documentos pertinentes:" />
@@ -888,46 +711,18 @@ and open the template in the editor.
                             <p:commandLink value="#{anx.fullName}"
                                            style="display:block; margin-bottom:10px;"
                                            actionListener="#{breederFormBean.prepareVegetableAnnexe}"
-                                           update="allform:acordion:dialogAnnex allform:acordion:frmAnnex"
+                                           update="dialogAnnex frmAnnex"
                                            oncomplete="if(args.newcu){PF('dialogAnnex').show();}" process="@this"
                                            styleClass="#{anx.error ? 'invalid-annex' : ''}">
 
                                 <!-- Icono o marca si ya tiene archivo -->
                                 <!-- Ícono según si está cargado o no -->
-                                <i class="#{anx.currentFile != null 
+                                <i class="#{anx.withFile
                                             ? 'pi pi-check-circle icon-green' 
                                             : 'pi pi-circle icon-gray'}"
                                    style="margin-left:8px;"></i>
                             </p:commandLink>
                         </p:dataList>
-
-                        <p:dialog id="dialogAnnex" modal="true" resizable="true"
-                                  header="#{breederFormBean.currentAnnex.fullName}" fitViewport="true" dynamic="false"
-                                  widgetVar="dialogAnnex" style="font-size: 16px !important; " showEffect="explode" 
-                                  hideEffect="explode" closeOnEscape="false" width="50%">
-                            <p:ajax event="close" update="dialogAnnex" resetValues="true" />
-                            <p:growl id="nuevoan" life="1000"/>
-                            <h:form id="frmAnnex" enctype="multipart/form-data">
-                                <p:outputLabel value="Debe adjuntar un archivo con extensión .pdf, de tamaño máximo de 16 MB."
-                                               style="font-weight: normal; font-size: 10px !important; color: gray;"/>
-                                <br/>
-                                <p:fileUpload skinSimple="true" mode="simple" label="ADJUNTAR" accept=".pdf" update="mensajes"                                                   
-                                              cancelButtonStyleClass="btn_cerrar" process="@this" uploadLabel="SUBIR" class="fileupcustom" 
-                                              value="#{breederFormBean.currentFile}" title="ADJUNTE EL ARCHIVO EN FORMATO .pdf" required="true"/>
-                                <p:outputLabel value="#{breederFormBean.currentAnnex.currentFile != null ?breederFormBean.currentAnnex.currentFile.fileName:''}" 
-                                               style="font-weight: normal;"/>
-                                <br/>
-                                <p:outputLabel value="Por favor especifíquese:" for="otrosdesc" rendered="#{breederFormBean.currentAnnex.name eq 'Otros'}"/>
-                                <p:inputText id="otrosdesc" value="#{breederFormBean.otherAnnexDesc}" required="true" class="maxsize" maxlength="255"
-                                             rendered="#{breederFormBean.currentAnnex.name eq 'Otros'}"/>
-                                <div style="text-align: center; margin: 0 auto;">
-                                    <p:commandButton value="GUARDAR" class="btn_peque" actionListener="#{breederFormBean.saveVegetableAnnexe}"
-                                                     process="@form" update="mensajes allform:acordion:dtganx otrosdesc" 
-                                                     oncomplete="if(args.saveanx){PF('dialogAnnex').hide();}"/>
-                                </div>                                
-                            </h:form>
-                        </p:dialog>
-
                     </p:tab>
                     <p:tab title="Descuento" id="desctab">
 
@@ -944,111 +739,15 @@ and open the template in the editor.
                                                  itemLabel="Yo (nosotros) acepto (aceptamos) recibir toda comunicación de forma electrónica (de ser el caso)."/>
                     </p:tab>
                 </p:accordionPanel>
-                <p:dialog id="dlgPerson" modal="true" resizable="true"
-                          header="#{breederFormBean.personDialogTitle}" fitViewport="true" dynamic="false"
-                          widgetVar="dlgPerson" style="font-size: 16px !important; " showEffect="explode" 
-                          hideEffect="explode" closable="false" width="70%">
-                    <p:ajax event="close" update="dlgPerson" resetValues="true" />
-                    <p:growl id="nuevoreg" life="1000"/>
-                    <h:form id="frmPerson">
-                        <p:panelGrid columns="2" columnClasses="fifty-percent,fifty-percent" class="noBorders" id="solpanel" style="text-align: left">                                    
-                            <p:panelGrid columns="2"  id="tipodocs" class="noBorders" >                                        
-                                <p:fieldset legend="Natural">
-                                    <p:selectOneRadio id="natural" value="#{breederFormBean.tipoDocumentoNatural}" layout="pageDirection" 
-                                                      style="margin-top: -20px; text-align: left;" >
-                                        <f:selectItem itemValue="CI" itemLabel="Cédula"/>
-                                        <f:selectItem itemValue="PASSPORT" itemLabel="Pasaporte/DNI"/>
-                                        <f:selectItem itemValue="RUCN" itemLabel="RUC"/>
-                                        <p:ajax update="juridico solpanel" listener="#{breederFormBean.onNaturalSelected}"/>
-                                    </p:selectOneRadio>
-                                </p:fieldset>
-                                <p:fieldset legend="Jurídico" >
-                                    <p:selectOneRadio id="juridico" value="#{breederFormBean.tipoDocumentoJuridico}" layout="pageDirection" 
-                                                      style="margin-top: -20px; text-align: left">
-                                        <f:selectItem itemValue="RUCJ" itemLabel="RUC"/>
-                                        <f:selectItem itemValue="COMPANY" itemLabel="Empresa Extranjera/Sin Documento" />
-                                        <p:ajax update="natural solpanel" listener="#{breederFormBean.onJuridicoSelected}"/>
-                                    </p:selectOneRadio>
-                                </p:fieldset>
-                            </p:panelGrid>
-                            <p:panelGrid id="nationa" columns="1" style="width: 100%" class="panelCeldas noBorders">
-                                <p:outputLabel value="País de Nacionalidad:" for="pais" class="maxsize"/>
-                                <p:selectOneMenu id="pais" value="#{breederFormBean.country}" converter="countryConverter"
-                                                 class="maxsize" disabled="#{!breederFormBean.paisnac}" widgetVar="pais" dynamic="false">                                                    
-                                    <f:selectItems value="#{breederFormBean.countries}" var="c" 
-                                                   itemLabel="#{c.name}" itemValue="#{c}" />
-                                    <p:ajax listener="#{breederFormBean.onCountryChange}" update="province city" />
-                                </p:selectOneMenu>
-                                <p:outputLabel value="Provincia de Residencia:" for="province" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
-                                <p:selectOneMenu id="province" value="#{breederFormBean.province}" converter="provinceConverter"
-                                                 class="maxsize" disabled="#{!breederFormBean.prov}" widgetVar="province" rendered="#{breederFormBean.ecuador}">
-                                    <f:selectItems value="#{breederFormBean.provinces}" var="p" 
-                                                   itemLabel="#{p.name}" itemValue="#{p}" />
-                                    <p:ajax listener="#{breederFormBean.onProvinceChange}" update="city" />
-                                </p:selectOneMenu>
-                            </p:panelGrid>
-                            <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders">
-                                <p:outputLabel value="Número de Documento:" for="docn" class="maxsize"/>
-                                <p:inputText id="docn" value="#{breederFormBean.person.identificationNumber}" readonly="#{!breederFormBean.doc}" 
-                                             class="maxsize" required="true" widgetVar="focusCedula">
-                                    <p:ajax event="blur" listener="#{breederFormBean.verificarDocumento}" 
-                                            update="mensajes @parent nationa addsol pais province city" />
-                                </p:inputText>
-                                <p:outputLabel value="Nombre:" for="nombre" class="maxsize"/>
-                                <p:inputText id="nombre" value="#{breederFormBean.person.name}" readonly="#{!breederFormBean.nombresol}" 
-                                             class="maxsize" maxlength="300" rendered="#{!breederFormBean.empresa}" required="true"/>
-                                <p:autoComplete id="pojo" value="#{breederFormBean.person}" inputStyleClass="maxsize" class="maxsize"
-                                                completeMethod="#{breederFormBean.completeCompany}" rendered="#{breederFormBean.empresa}"
-                                                var="person" itemLabel="#{person.name}" itemValue="#{person}" 
-                                                converter="#{personConverter}" forceSelection="true" scrollHeight="250">
-                                    <p:ajax event="itemSelect" listener="#{breederFormBean.onCompanySelect}" 
-                                            update="mensajes @parent nationa addsol pais province city"/>
-                                </p:autoComplete>
-                                <p:outputLabel value="Género:" for="nombre" class="maxsize" rendered="#{breederFormBean.genero}" />
-                                <p:selectOneRadio id="genero" value="#{breederFormBean.generoSolicitante}" layout="pageDirection" required="true"
-                                                  style="text-align: left;" styleClass="generoRadioGroup" rendered="#{breederFormBean.genero}">
-                                    <f:selectItem itemValue="MASCULINO" itemLabel="Masculino"/>
-                                    <f:selectItem itemValue="FEMENINO" itemLabel="Femenino"/>
-                                    <f:selectItem itemValue="OTRO" itemLabel="Otro"/>
-                                </p:selectOneRadio>
-                                <p:outputLabel value="Fecha de Nacimiento:" for="fechan" class="maxsize" 
-                                               rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
-                                <p:calendar id="fechan" pattern="yyyy-MM-dd" value="#{breederFormBean.person.dateBirth}" lang="es" locale="es"
-                                            label="Fecha de Nacimiento" style="font-size: 20px !important;" class="maxsize" required="#{breederFormBean.fechnac}"
-                                            placeholder="Fecha de Nacimiento" navigator="true" readonly="#{!breederFormBean.fechnac}" 
-                                            inputStyleClass="maxsize" rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
-                            </p:panelGrid>
-                            <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders panelToTop" id="addsol">
-                                <p:outputLabel value="Ciudad de Residencia:" for="city" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
-                                <p:selectOneMenu id="city" value="#{breederFormBean.city}" converter="cityConverter"
-                                                 class="maxsize" disabled="#{!breederFormBean.cit}" rendered="#{breederFormBean.ecuador}">
-                                    <f:selectItems value="#{breederFormBean.cities}" var="c" 
-                                                   itemLabel="#{c.name}" itemValue="#{c}" />
-                                </p:selectOneMenu>
-                                <p:outputLabel value="Dirección de Residencia: " for="direc" class="maxsize" />
-                                <p:inputText id="direc" value="#{breederFormBean.person.address}" class="maxsize" maxlength="300" required="true"/>
-                                <p:outputLabel value="Email:" for="email" class="maxsize"/>
-                                <p:inputText id="email" value="#{breederFormBean.person.email}" class="maxsize" maxlength="200" required="true"/>
-                                <p:outputLabel value="Celular:" for="cel" class="maxsize"/>
-                                <p:inputText id="cel" value="#{breederFormBean.person.phone}" class="maxsize" maxlength="150" required="true"/>
-                            </p:panelGrid>
-                        </p:panelGrid>
-                        <div class="center-align">
-                            <p:commandButton value="GUARDAR" class="btn_peque" actionListener="#{breederFormBean.savePerson}" 
-                                             update="mensajes frmPerson allform:acordion allform:acordion:corresponde allform:acordion:personnot allform:acordion:tablaDeSolicitantes" process="@form" 
-                                             oncomplete="if(args.saveapp){PF('dlgPerson').hide();}"/>
-                            <p:commandButton value="CERRAR" actionListener="#{breederFormBean.closePersonDialog}" 
-                                             update="mensajes allform:acordion:corresponde allform:acordion:personnot"
-                                             class="btn_cerrar_peque" oncomplete="PF('dlgPerson').hide();" process="@this"/>
-                        </div>
 
-                    </h:form>
-                </p:dialog>
                 <br/>
                 <div class="sticky-footer-buttons">
                     <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.prepareSaveVegetableForms}" 
                                      process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.savevf){PF('dlgConfirmar').show();}"/>
-                    <p:commandButton value="VISTA PREVIA" class="btn_buscar"/>
+                    <p:commandButton value="VISTA PREVIA" class="btn_buscar" actionListener="#{breederFormBean.preparePreviewVegetableForms}"
+                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.previewvf){PF('dlgConfirmar').show();}"/>
+                    <p:commandButton value="GENERAR COMPROBANTE" class="btn_buscar" rendered="#{breederFormBean.vegetableForms.status eq 'PREVIEW'}"
+                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.previewvf){PF('dlgConfirmar').show();}"/>
                 </div>
                 <p:dialog id="dlgConfirmar" modal="true" header="CONFIRMAR" widgetVar="dlgConfirmar" width="400">
                     <p:outputLabel value="ESTÁ SEGURO DE GUARDAR EL FORMULARIO ACTUAL?" />
@@ -1065,9 +764,9 @@ and open the template in the editor.
                     <p:commandButton value="SÍ, GUARDAR"
                                      class="btn_buscar"
                                      actionListener="#{breederFormBean.saveVegetableForms}"
-                                     update="mensajes @form allform:accordion allform:tablaDeSolicitantes allform:acordion:priori allform:acordion:dtganx"
-                                     process="@this allform:acordion:taxbot allform:acordion:denvar allform:acordion:transfvar allform:acordion:infsol allform:acordion:priori allform:acordion:exa allform:acordion:destec allform:acordion:infad allform:acordion:docadd"
-                                     oncomplete="PF('dlgFinalConfirm').hide();if(args.doit){alert('guardar formulario');}else{scrollToActiveTab();}"
+                                     update="mensajes @form"
+                                     process="@form"
+                                     oncomplete="PF('dlgFinalConfirm').hide();if(args.doit){setTimeout(function(){window.location='breederform.xhtml';}, 1000);}else{scrollToActiveTab();}"
                                      icon="ui-icon-check" />
                     <p:commandButton value="NO" class="btn_cerrar" onclick="PF('dlgFinalConfirm').hide()" />
                 </p:dialog>
@@ -1090,6 +789,331 @@ and open the template in the editor.
             </p:confirmDialog>
             <br/>
         </h:form>
+
+        <p:dialog id="dlgPerson" modal="true" resizable="true"
+                  header="#{breederFormBean.personDialogTitle}" fitViewport="true" dynamic="false"
+                  widgetVar="dlgPerson" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closable="false" width="70%">
+            <p:ajax event="close" update="dlgPerson" resetValues="true" />
+            <p:growl id="nuevoreg" life="1000"/>
+            <h:form id="frmPerson">
+                <p:panelGrid columns="2" columnClasses="fifty-percent,fifty-percent" class="noBorders" id="solpanel" style="text-align: left">                                    
+                    <p:panelGrid columns="2"  id="tipodocs" class="noBorders" >                                        
+                        <p:fieldset legend="Natural">
+                            <p:selectOneRadio id="natural" value="#{breederFormBean.tipoDocumentoNatural}" layout="pageDirection" 
+                                              style="margin-top: -20px; text-align: left;" >
+                                <f:selectItem itemValue="CI" itemLabel="Cédula"/>
+                                <f:selectItem itemValue="PASSPORT" itemLabel="Pasaporte/DNI"/>
+                                <f:selectItem itemValue="RUCN" itemLabel="RUC"/>
+                                <p:ajax update="juridico solpanel" listener="#{breederFormBean.onNaturalSelected}"/>
+                            </p:selectOneRadio>
+                        </p:fieldset>
+                        <p:fieldset legend="Jurídico" >
+                            <p:selectOneRadio id="juridico" value="#{breederFormBean.tipoDocumentoJuridico}" layout="pageDirection" 
+                                              style="margin-top: -20px; text-align: left">
+                                <f:selectItem itemValue="RUCJ" itemLabel="RUC"/>
+                                <f:selectItem itemValue="COMPANY" itemLabel="Empresa Extranjera/Sin Documento" />
+                                <p:ajax update="natural solpanel" listener="#{breederFormBean.onJuridicoSelected}"/>
+                            </p:selectOneRadio>
+                        </p:fieldset>
+                    </p:panelGrid>
+                    <p:panelGrid id="nationa" columns="1" style="width: 100%" class="panelCeldas noBorders">
+                        <p:outputLabel value="País de Nacionalidad:" for="pais" class="maxsize"/>
+                        <p:selectOneMenu id="pais" value="#{breederFormBean.country}" converter="countryConverter"
+                                         class="maxsize" disabled="#{!breederFormBean.paisnac}" widgetVar="pais" dynamic="false">                                                    
+                            <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                           itemLabel="#{c.name}" itemValue="#{c}" />
+                            <p:ajax listener="#{breederFormBean.onCountryChange}" update="province city" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Provincia de Residencia:" for="province" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
+                        <p:selectOneMenu id="province" value="#{breederFormBean.province}" converter="provinceConverter"
+                                         class="maxsize" disabled="#{!breederFormBean.prov}" widgetVar="province" rendered="#{breederFormBean.ecuador}">
+                            <f:selectItems value="#{breederFormBean.provinces}" var="p" 
+                                           itemLabel="#{p.name}" itemValue="#{p}" />
+                            <p:ajax listener="#{breederFormBean.onProvinceChange}" update="city" />
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders">
+                        <p:outputLabel value="Número de Documento:" for="docn" class="maxsize"/>
+                        <p:inputText id="docn" value="#{breederFormBean.person.identificationNumber}" readonly="#{!breederFormBean.doc}" 
+                                     class="maxsize" required="true" widgetVar="focusCedula">
+                            <p:ajax event="blur" listener="#{breederFormBean.verificarDocumento}" 
+                                    update="mensajes @parent nationa addsol pais province city" />
+                        </p:inputText>
+                        <p:outputLabel value="Nombre:" for="nombre" class="maxsize"/>
+                        <p:inputText id="nombre" value="#{breederFormBean.person.name}" readonly="#{!breederFormBean.nombresol}" 
+                                     class="maxsize" maxlength="300" rendered="#{!breederFormBean.empresa}" required="true"/>
+                        <p:autoComplete id="pojo" value="#{breederFormBean.person}" inputStyleClass="maxsize" class="maxsize"
+                                        completeMethod="#{breederFormBean.completeCompany}" rendered="#{breederFormBean.empresa}"
+                                        var="person" itemLabel="#{person.name}" itemValue="#{person}" 
+                                        converter="#{personConverter}" forceSelection="true" scrollHeight="250">
+                            <p:ajax event="itemSelect" listener="#{breederFormBean.onCompanySelect}" 
+                                    update="mensajes @parent nationa addsol pais province city"/>
+                        </p:autoComplete>
+                        <p:outputLabel value="Género:" for="nombre" class="maxsize" rendered="#{breederFormBean.genero}" />
+                        <p:selectOneRadio id="genero" value="#{breederFormBean.generoSolicitante}" layout="pageDirection" required="true"
+                                          style="text-align: left;" styleClass="generoRadioGroup" rendered="#{breederFormBean.genero}">
+                            <f:selectItem itemValue="MASCULINO" itemLabel="Masculino"/>
+                            <f:selectItem itemValue="FEMENINO" itemLabel="Femenino"/>
+                            <f:selectItem itemValue="OTRO" itemLabel="Otro"/>
+                        </p:selectOneRadio>
+                        <p:outputLabel value="Fecha de Nacimiento:" for="fechan" class="maxsize" 
+                                       rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
+                        <p:calendar id="fechan" pattern="yyyy-MM-dd" value="#{breederFormBean.person.dateBirth}" lang="es" locale="es"
+                                    label="Fecha de Nacimiento" style="font-size: 20px !important;" class="maxsize" required="#{breederFormBean.fechnac}"
+                                    placeholder="Fecha de Nacimiento" navigator="true" readonly="#{!breederFormBean.fechnac}" 
+                                    inputStyleClass="maxsize" rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
+                    </p:panelGrid>
+                    <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders panelToTop" id="addsol">
+                        <p:outputLabel value="Ciudad de Residencia:" for="city" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
+                        <p:selectOneMenu id="city" value="#{breederFormBean.city}" converter="cityConverter"
+                                         class="maxsize" disabled="#{!breederFormBean.cit}" rendered="#{breederFormBean.ecuador}">
+                            <f:selectItems value="#{breederFormBean.cities}" var="c" 
+                                           itemLabel="#{c.name}" itemValue="#{c}" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Dirección de Residencia: " for="direc" class="maxsize" />
+                        <p:inputText id="direc" value="#{breederFormBean.person.address}" class="maxsize" maxlength="300" required="true"/>
+                        <p:outputLabel value="Email:" for="email" class="maxsize"/>
+                        <p:inputText id="email" value="#{breederFormBean.person.email}" class="maxsize" maxlength="200" required="true"/>
+                        <p:outputLabel value="Celular:" for="cel" class="maxsize"/>
+                        <p:inputText id="cel" value="#{breederFormBean.person.phone}" class="maxsize" maxlength="150" required="true"/>
+                    </p:panelGrid>
+                </p:panelGrid>
+                <div class="center-align">
+                    <p:commandButton value="GUARDAR" class="btn_peque" actionListener="#{breederFormBean.savePerson}" 
+                                     update="mensajes frmPerson allform:acordion allform:acordion:corresponde allform:acordion:personnot allform:acordion:tablaDeSolicitantes" process="@form" 
+                                     oncomplete="if(args.saveapp){PF('dlgPerson').hide();}"/>
+                    <p:commandButton value="CERRAR" actionListener="#{breederFormBean.closePersonDialog}" 
+                                     update="mensajes allform:acordion:corresponde allform:acordion:personnot"
+                                     class="btn_cerrar_peque" oncomplete="PF('dlgPerson').hide();" process="@this"/>
+                </div>
+
+            </h:form>
+        </p:dialog>
+
+        <p:dialog id="dlgSolNot" modal="true" resizable="true"
+                  header="SELECCIONE UNA PERSONA DE LA LISTA" fitViewport="true" dynamic="false"
+                  widgetVar="dlgSolNot" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closeOnEscape="false" width="70%">
+            <p:ajax event="close" update="dlgSolNot" resetValues="true" />
+            <p:growl id="nuevosol" life="1000"/>
+            <h:form id="frmSolNot">
+                <p:dataTable id="tablaDeSolNot" var="person"
+                             value="#{breederFormBean.personsNotification}" widgetVar="tablaDeSolNot"
+                             emptyMessage="No hay Datos para mostrar"                                              
+                             binding="#{breederFormBean.personNotificationData}"
+                             paginator="true"
+                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             rows="20"
+                             rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
+                             style="border: black !important; width: 100%; text-align: center; margin: 0 auto; font-size: 16px !important;" 
+                             rowKey="#{person.id}">
+
+                    <p:column headerText="Nombre" style="text-align: center;" >
+                        <h:outputText value="#{person.name}" />
+                    </p:column>
+                    <p:column headerText="Tipo" style="text-align: center; width: 10%" >
+                        <h:outputText value="#{breederFormBean.getIdentificationType(person.identificationType)}" />
+                    </p:column>
+                    <p:column headerText="Documento" style="text-align: center; width: 10%" >
+                        <h:outputText value="#{person.identificationNumber}" />
+                    </p:column>
+                    <p:column headerText="País de Nacionalidad" style="text-align: center; width: 10%" >
+                        <h:outputText value="#{person.nationality}" />
+                    </p:column>
+                    <p:column headerText="Dirección" style="text-align: center;" >
+                        <h:outputText value="#{person.address}" />
+                    </p:column>
+                    <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >
+                        <p:commandLink class="link" title="Seleccionar solicitante" actionListener="#{breederFormBean.selectedPersonNotification}"
+                                       oncomplete="if(args.pernot){PF('dlgSolNot').hide();}" process="@this" 
+                                       update="mensajes dirnot allform:acordion:personnot">
+                            <i class="pi pi-check" style="font-size: 2rem"></i>
+                        </p:commandLink>                                        
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="CERRAR" actionListener="#{breederFormBean.closeApplicantNotDialog}" process="@this" 
+                                 class="btn_cerrar" update="mensajes allform:acordion:corresponde allform:acordion:personnot" style="float: right" 
+                                 oncomplete="PF('dlgSolNot').hide();"/>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog id="dlgProtection" modal="true" resizable="true"
+                  header="REGISTRAR SOLICITUD ANTERIOR" fitViewport="true" dynamic="false"
+                  widgetVar="dlgProtection" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closeOnEscape="false" width="55%">
+            <p:ajax event="close" update="dlgProtection" resetValues="true" />
+            <p:growl id="nuevopro" life="1000"/>
+            <h:form id="frmProtection">
+                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                    <p:outputLabel value="Tipo de protección:" class="maxsize bordesuperior" for="hasother"/>
+                    <p:selectOneRadio id="hasother" value="#{breederFormBean.protectionType}"  
+                                      style="text-align: left; margin-left: 10px;" required="true">
+                        <f:selectItem itemValue="DERECHO OBTENTOR" itemLabel="Protección mediante Derecho de Obtentor"/>
+                        <f:selectItem itemValue="PATENTE" itemLabel="Protección mediante Patente" />
+                        <f:selectItem itemValue="CULTIVARES" itemLabel="Registro de cultivares" />
+                    </p:selectOneRadio>
+                    <p:outputLabel value="País de Presentación:" class="maxsize bordesuperior" for="paispres"/>
+                    <p:selectOneMenu id="paispres" value="#{breederFormBean.countrySubmission}" converter="countryConverter"
+                                     class="maxsize" widgetVar="paispre" dynamic="false" required="true">                                                    
+                        <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                       itemLabel="#{c.name}" itemValue="#{c}" />                            
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Fecha de Presentación:" class="maxsize bordesuperior" for="subdate"/>
+                    <p:calendar id="subdate" value="#{breederFormBean.vegetableProtection.submissionDate}"
+                                inputStyleClass="maxsize" required="true"/>
+                    <p:outputLabel value="Número de solicitud:" class="maxsize bordesuperior" for="apnu"/>
+                    <p:inputText id="apnu" value="#{breederFormBean.vegetableProtection.applicationNumber}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Número de registro:" class="maxsize bordesuperior" for="regn"/>
+                    <p:inputText id="regn" value="#{breederFormBean.vegetableProtection.registerNumber}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Estado / Situación:" class="maxsize bordesuperior" for="essit"/>                                    
+                    <p:selectOneMenu id="essit" value="#{breederFormBean.vegetableProtection.status}" 
+                                     class="maxsize" widgetVar="essit" dynamic="false" required="true">
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItem itemLabel="A = en trámite" itemValue="A" />
+                        <f:selectItem itemLabel="B = rechazada" itemValue="B" />
+                        <f:selectItem itemLabel="C = retirada" itemValue="C" />
+                        <f:selectItem itemLabel="D = aceptada" itemValue="D" />
+                        <f:selectItem itemLabel="E = otros" itemValue="E" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Denominación de la variedad y referencia del obtentor:" class="maxsize bordesuperior" for="denop"/>
+                    <p:inputText id="denop" value="#{breederFormBean.vegetableProtection.denomination}" class="maxsize"
+                                 required="true"/>
+                </p:panelGrid>
+                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgProtection').hide()" style="float: right"/>
+                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveProtection}" 
+                                 oncomplete="if(args.savepro){PF('dlgProtection').hide();}" process="@form" 
+                                 update="mensajes allform:acordion:tablaDeSolAnteriores @form" style="float: right">
+
+                </p:commandButton>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog id="dlgExploited" modal="true" resizable="true"
+                  header="#{breederFormBean.exploitedDilogTitle}" fitViewport="true" dynamic="false"
+                  widgetVar="dlgExploited" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closeOnEscape="false" width="55%">
+            <p:ajax event="close" update="dlgExploited" resetValues="true" />
+            <p:growl id="nuevoexp" life="1000"/>
+            <h:form id="frmExploited">
+                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                    <p:outputLabel value="Fecha:" class="maxsize bordesuperior" for="fech"/>
+                    <p:calendar id="fech" value="#{breederFormBean.exploitedSelled.explotationDate}" 
+                                inputStyleClass="maxsize" required="true"/>
+                    <p:outputLabel value="País:" class="maxsize bordesuperior" for="paisexp"/>
+                    <p:selectOneMenu id="paisexp" value="#{breederFormBean.countryExploited}" converter="countryConverter"
+                                     class="maxsize" widgetVar="paisexp" dynamic="false" required="true">                                                    
+                        <f:selectItems value="#{breederFormBean.countries}" var="c" 
+                                       itemLabel="#{c.name}" itemValue="#{c}" />                            
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Denominación:" class="maxsize bordesuperior" for="denexp"/>
+                    <p:inputText id="denexp" value="#{breederFormBean.exploitedSelled.denomination}" class="maxsize"
+                                 required="true"/>
+                </p:panelGrid>
+                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgExploited').hide()" style="float: right"/>
+                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveExploitedSelled}" 
+                                 oncomplete="if(args.saveexp){PF('dlgExploited').hide();}" process="@form" 
+                                 update="mensajes allform:acordion:tablaIn allform:acordion:tablaOut allform:acordion:btnin allform:acordion:btnout @form" style="float: right">
+                </p:commandButton>
+            </h:form>
+        </p:dialog>
+        <p:dialog id="dlgCharacter" modal="true" resizable="true"
+                  header="AGREGAR CARACTERES DE LA VARIEDAD" fitViewport="true" dynamic="false"
+                  widgetVar="dlgCharacter" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closeOnEscape="false" width="55%">
+            <p:ajax event="close" update="dlgCharacter" resetValues="true" />
+            <p:growl id="nuevochar" life="1000"/>
+            <h:form id="frmCharacter">
+                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                    <p:outputLabel value="Caracteres:" class="maxsize bordesuperior" for="charac"/>
+                    <p:inputText id="charac" value="#{breederFormBean.varietyCharacters.characters}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Nivel de expresión" class="maxsize bordesuperior" for="expres"/>
+                    <p:inputText id="expres" value="#{breederFormBean.varietyCharacters.expressionLevel}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Variedad a título de ejemplo:" class="maxsize bordesuperior" for="titlevar"/>
+                    <p:inputText id="titlevar" value="#{breederFormBean.varietyCharacters.sampleTitleVariety}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Nota:" class="maxsize bordesuperior" for="notec"/>
+                    <p:inputText id="notec" value="#{breederFormBean.varietyCharacters.note}" class="maxsize"
+                                 required="true"/>
+                </p:panelGrid>
+                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgCharacter').hide()" style="float: right"/>
+                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveVarietyCharacters}" 
+                                 oncomplete="if(args.savechar){PF('dlgCharacter').hide();}" process="@form" 
+                                 update="mensajes allform:acordion:tablaChar @form" style="float: right">
+                </p:commandButton>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog id="dlgSimilary" modal="true" resizable="true"
+                  header="AGREGAR COMPARACIÓN CON VARIEDADES SIMILARES" fitViewport="true" dynamic="false"
+                  widgetVar="dlgSimilary" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closeOnEscape="false" width="55%">
+            <p:ajax event="close" update="dlgSimilary" resetValues="true" />
+            <p:growl id="nuevosim" life="1000"/>
+            <h:form id="frmSimilary">
+                <p:panelGrid columns="2" columnClasses="twenty-percent, seventy-seven-percent">
+                    <p:outputLabel value="Denominación de la variedad similar:" class="maxsize bordesuperior" for="denosim"/>
+                    <p:inputText id="denosim" value="#{breederFormBean.similaryVariety.denomination}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Carácter por el que difiere la variedad similar:" class="maxsize bordesuperior" for="difiere"/>
+                    <p:inputText id="difiere" value="#{breederFormBean.similaryVariety.differentCharacter}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Nivel de expresión de la variedad similar:" class="maxsize bordesuperior" for="levelsim"/>
+                    <p:inputText id="levelsim" value="#{breederFormBean.similaryVariety.similaryExpressionLevel}" class="maxsize"
+                                 required="true"/>
+                    <p:outputLabel value="Nivel de expresión de la variedad en trámite de registro" class="maxsize bordesuperior" for="notec"/>
+                    <p:inputText id="notec" value="#{breederFormBean.similaryVariety.registerExpressionLevel}" class="maxsize"
+                                 required="true"/>
+                </p:panelGrid>
+                <p:commandButton value="CERRAR" class="btn_cerrar" oncomplete="PF('dlgSimilary').hide()" style="float: right"/>
+                <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.saveSimilaryVariety}" 
+                                 oncomplete="if(args.savesim){PF('dlgSimilary').hide();}" process="@form" 
+                                 update="mensajes allform:acordion:tablaSim @form" style="float: right">
+                </p:commandButton>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog id="dialogAnnex" modal="true" resizable="true"
+                  header="#{breederFormBean.currentAnnex.fullName}" fitViewport="true" dynamic="false"
+                  widgetVar="dialogAnnex" style="font-size: 16px !important; " showEffect="explode" 
+                  hideEffect="explode" closeOnEscape="false" width="50%">
+            <p:ajax event="close" update="dialogAnnex" resetValues="true" />
+            <p:growl id="nuevoan" life="1000"/>
+            <h:form id="frmAnnex" enctype="multipart/form-data">
+                <p:outputLabel value="Debe adjuntar un archivo con extensión .pdf, de tamaño máximo de 16 MB."
+                               style="font-weight: normal; font-size: 10px !important; color: gray;"/>
+                <br/>
+                <p:fileUpload skinSimple="true" mode="simple" label="ADJUNTAR" accept=".pdf" update="mensajes"
+                              cancelButtonStyleClass="btn_cerrar" process="@this" uploadLabel="SUBIR" class="fileupcustom" 
+                              value="#{breederFormBean.currentFile}" title="ADJUNTE EL ARCHIVO EN FORMATO .pdf" 
+                              rendered="#{!breederFormBean.currentAnnex.withFile}"/>
+                <p:outputLabel value="#{breederFormBean.currentAnnex.currentFile != null ?breederFormBean.currentAnnex.currentFile.fileName:''}" 
+                               style="font-weight: normal;" rendered="#{breederFormBean.currentAnnex.currentFile != null}"/>                
+                <p:commandLink id="notlink" value="#{breederFormBean.currentAnnex.withFile ?breederFormBean.annexeAux.fileName:''}" style="color: #0089ec; font-size: 14px;" process="@this"
+                               title="Visualizar Documento" actionListener="#{breederFormBean.validateAnnexe(breederFormBean.annexeAux)}"
+                               oncomplete="if(args.viewan){otherpage(args.filean)};" update="mensajes" 
+                               rendered="#{breederFormBean.currentAnnex.currentFile eq null}"/>
+                <br/>
+                <p:outputLabel value="Por favor especifíquese:" for="otrosdesc" rendered="#{breederFormBean.currentAnnex.name eq 'Otros'}"/>
+                <p:inputText id="otrosdesc" value="#{breederFormBean.otherAnnexDesc}" required="true" class="maxsize" maxlength="255"
+                             rendered="#{breederFormBean.currentAnnex.name eq 'Otros'}"/>
+                <div style="text-align: center; margin: 0 auto;">
+                    <p:commandButton value="REMOVER" class="btn_cerrar_peque" rendered="#{breederFormBean.currentAnnex.withFile}"
+                                     style="margin-left: 10px;" actionListener="#{breederFormBean.removeVegetableAnnexe}" process="@this"
+                                     update="mensajes allform:acordion:dtganx otrosdesc" 
+                                     oncomplete="if(args.remanx){PF('dialogAnnex').hide();}"/>
+                    <p:commandButton value="GUARDAR" class="btn_peque" actionListener="#{breederFormBean.saveVegetableAnnexe}"
+                                     process="@form" update="mensajes allform:acordion:dtganx otrosdesc" 
+                                     oncomplete="if(args.saveanx){PF('dialogAnnex').hide();}" 
+                                     rendered="#{!breederFormBean.currentAnnex.withFile}"/>
+                </div>                                
+            </h:form>
+        </p:dialog>
+
 
         <div id="footer"></div>
 

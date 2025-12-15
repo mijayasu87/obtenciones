@@ -109,6 +109,39 @@ public class PersonDAO {
             return new ArrayList<>();
         }
     }
+    
+    public List<Person> getPersonsByIds(String ids){
+        String query = "Select p.*,c.* from person as p "
+                + "inner join countries as c on c.id = p.nationality "
+                + "where p.id in ("+ids+")";
+        try {
+            Connection con = Operations.doConnectionToFormularios();
+            PreparedStatement pst = con.prepareStatement(query);
+            ResultSet rs = pst.executeQuery();
+            List<Person> persons = new ArrayList<>();
+            while (rs.next()) {
+                Person person = new Person();
+                person.setId(rs.getInt("p.id"));
+                person.setAddress(rs.getString("p.address"));
+                person.setCityAddress(rs.getInt("p.city_address"));
+                person.setDateBirth(rs.getDate("p.date_birth"));
+                person.setEmail(rs.getString("p.email"));
+                person.setGender(rs.getString("p.gender"));
+                person.setIdentificationNumber(rs.getString("p.identification_number"));
+                person.setIdentificationType(rs.getString("p.identification_type"));
+                person.setName(rs.getString("p.name"));
+                person.setCountryId(rs.getInt("p.nationality"));
+                person.setPhone(rs.getString("p.phone"));
+                person.setNationality(rs.getString("c.name"));
+                persons.add(person);
+            }
+            con.close();
+            return persons;
+        } catch (Exception ex) {
+            System.out.println("error en obtener datos person por ids " + ids + ": " + ex);
+            return new ArrayList<>();
+        }
+    }
 
     public Person getPersonByIdentificationAndType(String identification, String type) {
         String query = "Select p.*,c.* from person as p "

@@ -88,4 +88,9 @@ public class VegetableAnnexesData implements Serializable{
     public void setVegetableForms(VegetableForms vegetableForms) {
         this.vegetableForms = vegetableForms;
     }
+    
+    @Override
+    public String toString(){
+        return getVegetableForms().getId()+" - "+getVegetableAnnexes().getId();
+    }
 }

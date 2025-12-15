@@ -13,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -54,6 +55,7 @@ public class VegetableProtection implements Serializable{
     private ProtectionType protectionType;
     
     @ManyToOne
+    @JoinColumn(name = "vegetable_forms_id", nullable = false)
     private VegetableForms vegetableForms;
 
     /**

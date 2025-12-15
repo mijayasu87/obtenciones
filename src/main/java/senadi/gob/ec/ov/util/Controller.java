@@ -17,12 +17,21 @@ import senadi.gob.ec.ov.bean.solicitudes.OwnersDAO;
 import senadi.gob.ec.ov.bean.solicitudes.PersonDAO;
 import senadi.gob.ec.ov.bean.solicitudes.Province;
 import senadi.gob.ec.ov.dao.MethodologyDAO;
+import senadi.gob.ec.ov.dao.PersonVDAO;
+import senadi.gob.ec.ov.dao.PersonVegetableDAO;
 import senadi.gob.ec.ov.dao.VegetableAnnexesDAO;
+import senadi.gob.ec.ov.dao.VegetableAnnexesDataDAO;
 import senadi.gob.ec.ov.dao.VegetableFormsDAO;
+import senadi.gob.ec.ov.dao.VegetableMethodolyDAO;
+import senadi.gob.ec.ov.dao.VegetableProtectionDAO;
 import senadi.gob.ec.ov.model.Methodology;
 import senadi.gob.ec.ov.model.Person;
+import senadi.gob.ec.ov.model.PersonVegetable;
 import senadi.gob.ec.ov.model.VegetableAnnexes;
+import senadi.gob.ec.ov.model.VegetableAnnexesData;
 import senadi.gob.ec.ov.model.VegetableForms;
+import senadi.gob.ec.ov.model.VegetableMethodology;
+import senadi.gob.ec.ov.model.VegetableProtection;
 
 /**
  *
@@ -181,14 +190,14 @@ public class Controller {
                 VegetableAnnexes annexe = new VegetableAnnexes();
                 annexe.setName(annexes_name[i]);
                 annexe.setFullName(annexes_full_name[i]);
-                if(!saveVegetableAnnexe(annexe)){
+                if (!saveVegetableAnnexe(annexe)) {
                     return false;
                 }
             }
             return true;
-        }else{
+        } else {
             return true;
-        }       
+        }
     }
 
     public boolean saveMethodology(Methodology methodology) {
@@ -201,14 +210,146 @@ public class Controller {
             return false;
         }
     }
-    
-    public boolean saveVegetableAnnexe(VegetableAnnexes annexe){
+
+    public boolean saveVegetableAnnexe(VegetableAnnexes annexe) {
         VegetableAnnexesDAO vd = new VegetableAnnexesDAO(annexe);
         try {
             vd.persist();
             return true;
         } catch (Exception ex) {
-            System.err.println("Error al guardar Anexo "+annexe.getName()+": "+ex);
+            System.err.println("Error al guardar Anexo " + annexe.getName() + ": " + ex);
+            return false;
+        }
+    }
+
+    public VegetableForms saveVegetableForms(VegetableForms vegetableForms) {
+        VegetableFormsDAO vd = new VegetableFormsDAO(vegetableForms);
+        try {
+            vd.persist();
+            return vd.getInstancia();
+        } catch (Exception ex) {
+            System.err.println("No se ha podido guardar vegetable_forms: " + ex);
+            return new VegetableForms();
+        }
+    }
+
+    public boolean updateVegetableForms(VegetableForms vegetableForms) {
+        VegetableFormsDAO vd = new VegetableFormsDAO(vegetableForms);
+        try {
+            if (!vd.getEntityManager().contains(vegetableForms)) {
+                System.out.println("merge update vegetableforms");
+                vegetableForms = vd.getEntityManager().merge(vegetableForms);
+                vd = new VegetableFormsDAO(vegetableForms);
+            }
+            vd.update();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("No se ha podido editar vegetable_forms de id " + vegetableForms.getId() + ": " + ex);
+            return false;
+        }
+    }
+
+    public boolean personExists(Person person) {
+        PersonVDAO pd = new PersonVDAO(person);
+        return pd.personExists(person);
+    }
+
+    public Person savePersonVF(Person person) {
+        PersonVDAO pd = new PersonVDAO(person);
+        try {
+            pd.persist();
+            return pd.getInstancia();
+        } catch (Exception ex) {
+            System.err.println("No se pudo guardar la person con id: " + person.getId());
+            return new Person();
+        }
+    }
+
+    public PersonVegetable savePersonVegetable(PersonVegetable personVegetable) {
+        PersonVegetableDAO pd = new PersonVegetableDAO(personVegetable);
+        try {
+            pd.persist();
+            return pd.getInstancia();
+        } catch (Exception ex) {
+            System.err.println("No se pudo guardar el person vegetable: " + ex);
+            return new PersonVegetable();
+        }
+    }
+
+    public VegetableForms getVegetableFormsById(Integer id) {
+        VegetableFormsDAO vd = new VegetableFormsDAO(null);
+        return vd.getVegetableFormsById(id);
+    }
+
+    public List<Person> getPersonsById(String ids) {
+        PersonDAO pd = new PersonDAO();
+        return pd.getPersonsByIds(ids);
+    }
+
+    public VegetableAnnexesData getVegetableAnnexesDataByIds(Integer idannexedata, Integer idVegetableForms) {
+        VegetableAnnexesDAO vd = new VegetableAnnexesDAO(null);
+        return vd.getVegetableAnnexesDataByIds(idannexedata, idVegetableForms);
+    }
+
+    public boolean removePersonVegetable(PersonVegetable person) {
+        PersonVegetableDAO pd = new PersonVegetableDAO(person);
+        try {
+            if (!pd.getEntityManager().contains(person)) {
+                System.out.println("merge remove person vegetable");
+                person = pd.getEntityManager().merge(person);
+                pd = new PersonVegetableDAO(person);
+            }
+            pd.remove();
+            return true;
+
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public boolean removeVegetableMethodology(VegetableMethodology methodology) {
+        VegetableMethodolyDAO vd = new VegetableMethodolyDAO(methodology);
+        try {
+            if (!vd.getEntityManager().contains(methodology)) {
+                System.out.println("merge remove vegetable methodology");
+                methodology = vd.getEntityManager().merge(methodology);
+                vd = new VegetableMethodolyDAO(methodology);
+            }
+            vd.remove();
+            return true;
+
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public boolean removeVegetableAnnexesData(VegetableAnnexesData annexe) {
+        VegetableAnnexesDataDAO vd = new VegetableAnnexesDataDAO(annexe);
+        try {
+            if (!vd.getEntityManager().contains(annexe)) {
+                System.out.println("merge remove vegetable annexe data");
+                annexe = vd.getEntityManager().merge(annexe);
+                vd = new VegetableAnnexesDataDAO(annexe);
+            }
+            vd.remove();
+            return true;
+
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public boolean removeVegetableProtection(VegetableProtection protection) {
+        VegetableProtectionDAO vd = new VegetableProtectionDAO(protection);
+        try {
+            if (!vd.getEntityManager().contains(protection)) {
+                System.out.println("merge remove protection");
+                protection = vd.getEntityManager().merge(protection);
+                vd = new VegetableProtectionDAO(protection);
+            }
+            vd.remove();
+            return true;
+        } catch (Exception ex) {
             return false;
         }
     }

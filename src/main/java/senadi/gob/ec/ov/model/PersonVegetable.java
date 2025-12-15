@@ -40,14 +40,14 @@ public class PersonVegetable implements Serializable {
     private Person person;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "person_type", nullable = false, length = 30)
+    @Column(name = "person_type", nullable = false, insertable = false, updatable = false)
     private PersonType personType;
-    
+
     @Column(name = "judicial_locker", length = 30)
     private String judicialLocker;
-    
+
     @Column(name = "power_code", length = 30)
-    private String powerCode;        
+    private String powerCode;
 
     // Getters y setters
     public PersonVegetableId getId() {
@@ -72,6 +72,9 @@ public class PersonVegetable implements Serializable {
 
     public void setPersonType(PersonType personType) {
         this.personType = personType;
+        if (id != null) {
+            id.setPersonType(personType);
+        }
     }
 
     /**
@@ -114,5 +117,10 @@ public class PersonVegetable implements Serializable {
      */
     public void setPowerCode(String powerCode) {
         this.powerCode = powerCode;
+    }
+    
+    @Override
+    public String toString(){
+        return getPersonType().toString()+" - "+getPerson().getId();
     }
 }

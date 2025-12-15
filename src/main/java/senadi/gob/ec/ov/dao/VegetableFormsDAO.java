@@ -26,9 +26,21 @@ public class VegetableFormsDAO extends DAOAbstractM<VegetableForms> {
     }
         
     public List<VegetableForms> getVegetableFormsByOwnerId(Integer id){
-        Query query = this.getEntityManager().createQuery("Select v from VegetableForms v where v.id = :id order by v.id desc");
+        Query query = this.getEntityManager().createQuery("Select v from VegetableForms v where v.ownerId = :id order by v.id desc");
         query.setParameter("id", id);
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
         return query.getResultList();
+    }
+    
+    public VegetableForms getVegetableFormsById(Integer id){
+        Query query = this.getEntityManager().createQuery("Select v from VegetableForms v where v.id = :id");
+        query.setParameter("id", id);
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        List<VegetableForms> vfs = query.getResultList();
+        if(vfs.isEmpty()){
+            return new VegetableForms();
+        }else{
+            return vfs.get(0);
+        }
     }
 }

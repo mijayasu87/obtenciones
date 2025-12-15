@@ -35,11 +35,11 @@ public class Person implements Serializable {
     @Column(name = "create_date")
     private Timestamp createDate;
     
-    @Transient
-    private String identificationType;
+    @Column(name = "identification_number")
+    private String identificationNumber;
     
     @Transient
-    private String identificationNumber;
+    private String identificationType;        
     
     @Transient
     private String address;

@@ -47,6 +47,18 @@ public class VegetableAnnexes implements Serializable {
     
     @Transient
     private UploadedFile currentFile;
+    
+    @Transient
+    private byte[] fileContent;
+    
+    @Transient
+    private boolean withFile;
+    
+    @Transient
+    private Integer idAnnexes;
+    
+    @Transient
+    private Integer idVegatableForms;
 
     @OneToMany(mappedBy = "vegetableAnnexes", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VegetableAnnexesData> annexesData = new ArrayList<>();
@@ -148,4 +160,61 @@ public class VegetableAnnexes implements Serializable {
     public void setError(boolean error) {
         this.error = error;
     }
+
+    /**
+     * @return the fileContent
+     */
+    public byte[] getFileContent() {
+        return fileContent;
+    }
+
+    /**
+     * @param fileContent the fileContent to set
+     */
+    public void setFileContent(byte[] fileContent) {
+        this.fileContent = fileContent;
+    }
+
+    /**
+     * @return the withFile
+     */
+    public boolean isWithFile() {
+        return withFile;
+    }
+
+    /**
+     * @param withFile the withFile to set
+     */
+    public void setWithFile(boolean withFile) {
+        this.withFile = withFile;
+    }
+
+    /**
+     * @return the idAnnexes
+     */
+    public Integer getIdAnnexes() {
+        return idAnnexes;
+    }
+
+    /**
+     * @param idAnnexes the idAnnexes to set
+     */
+    public void setIdAnnexes(Integer idAnnexes) {
+        this.idAnnexes = idAnnexes;
+    }
+
+    /**
+     * @return the idVegatableForms
+     */
+    public Integer getIdVegatableForms() {
+        return idVegatableForms;
+    }
+
+    /**
+     * @param idVegatableForms the idVegatableForms to set
+     */
+    public void setIdVegatableForms(Integer idVegatableForms) {
+        this.idVegatableForms = idVegatableForms;
+    }
+
 }

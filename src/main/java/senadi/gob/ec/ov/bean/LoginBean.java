@@ -29,6 +29,8 @@ public class LoginBean implements Serializable {
     private String grupoActivo;
             
     private Owners owner;
+    
+    private Integer idVegetableForms;
 
     public LoginBean() {
         shake = true;
@@ -148,6 +150,20 @@ public class LoginBean implements Serializable {
      */
     public void setOwner(Owners owner) {
         this.owner = owner;
+    }
+
+    /**
+     * @return the idVegetableForms
+     */
+    public Integer getIdVegetableForms() {
+        return idVegetableForms;
+    }
+
+    /**
+     * @param idVegetableForms the idVegetableForms to set
+     */
+    public void setIdVegetableForms(Integer idVegetableForms) {
+        this.idVegetableForms = idVegetableForms;
     }
     
 }

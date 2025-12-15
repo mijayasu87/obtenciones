@@ -37,7 +37,7 @@ and open the template in the editor.
             <div id="loader"></div>        
             <div class="loader-section section-left"></div>
             <div class="loader-section section-right"></div>
-        </div>
+        </div>        
         <p:growl id="mensajes" showDetail="true" life="4000"/>
         <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
             <div class="menu">
@@ -75,17 +75,16 @@ and open the template in the editor.
                              rows="20"
                              rowsPerPageTemplate="20,50,100,150,200,250,300"                                 
                              style="border: black !important" 
-                             rowKey="#{vegetable.id}">                       
+                             rowKey="#{vegetable.id}"
+                             rowIndexVar="index">
+                    <p:column headerText="#" style="text-align: center; width: 5%">
+                        #{vegetableFormBean.vegetablesFormses.size() - index}
+                    </p:column>
                     <p:column headerText="Trámite" style="text-align: center;" filterBy="#{vegetable.applicationNumber}" >
                         <h:outputText value="#{vegetable.applicationNumber}" />
                     </p:column>
                     <p:column headerText="Fecha Creación" style="text-align: center;" filterBy="#{vegetable.createDate}" >
                         <h:outputText value="#{vegetable.createDate}" >
-                            <f:convertDateTime pattern="yyyy-MM-dd" timeZone="America/Guayaquil"/>
-                        </h:outputText>
-                    </p:column>
-                    <p:column headerText="Fecha Presentación" style="text-align: center;" filterBy="#{vegetable.applicationDate}" >
-                        <h:outputText value="#{vegetable.applicationDate}" >
                             <f:convertDateTime pattern="yyyy-MM-dd" timeZone="America/Guayaquil"/>
                         </h:outputText>
                     </p:column>
@@ -95,10 +94,38 @@ and open the template in the editor.
                     <p:column headerText="Designación Provisional" style="text-align: center;" filterBy="#{vegetable.provitionalDesignation}" >
                         <h:outputText value="#{vegetable.provitionalDesignation}" />
                     </p:column>
+                    <p:column headerText="Fecha Presentación" style="text-align: center;" filterBy="#{vegetable.applicationDate}" >
+                        <h:outputText value="#{vegetable.applicationDate}" >
+                            <f:convertDateTime pattern="yyyy-MM-dd" timeZone="America/Guayaquil"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >                                
+                        <p:commandLink class="link" title="Editar Formulario" actionListener="#{vegetableFormBean.prepareEditRecord}"
+                                       oncomplete="if(args.viewr){window.location=args.pagveg;}" process="@this" update="mensajes"
+                                       rendered="#{vegetable.status eq 'SAVED' or vegetable.status eq 'PREVIEW'}">
+                            <i id="edit_action" class="material-icons md-10" style="font-size: 20px">edit</i>
+                        </p:commandLink>
+                        <p:commandLink class="link" title="Inicio de Proceso" 
+                                       oncomplete="alert('ver pdf');" process="@this" update="mensajes"
+                                       rendered="#{vegetable.status eq 'FINISHED'}" >                            
+                            <i class="pi pi-play" style="font-size: 2rem"></i>
+                        </p:commandLink>
+                        <p:commandLink class="link" title="Visualizar Formulario" 
+                                       actionListener="#{vegetableFormBean.viewFormulario}"
+                                       oncomplete="popupwindow('breedertest', '_blank', args);" 
+                                       process="@this" 
+                                       update="mensajes"                                       
+                                       rendered="#{vegetable.status != 'SAVED'}" >                            
+                            <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
+                        </p:commandLink>
+                        <p:commandLink class="link" title="Botón de Pago" 
+                                       oncomplete="alert('botón de pago');" process="@this" update="mensajes"
+                                       rendered="#{vegetable.status eq 'FINISHED'}" >                            
+                            <i class="pi pi-credit-card" style="font-size: 2rem"></i>
+                        </p:commandLink>
+
+                    </p:column>
                 </p:dataTable>
-
-
-
             </p:panelGrid>                      
 
             <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
