@@ -19,14 +19,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.export.ExporterInput;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import senadi.gob.ec.ov.model.Person;
+import senadi.gob.ec.ov.model.PersonVegetable;
+import senadi.gob.ec.ov.model.VegetableForms;
+import senadi.gob.ec.ov.model.enums.PersonType;
+import senadi.gob.ec.ov.table.PersonTableModel;
+import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Parameter;
-
 
 /**
  *
@@ -38,7 +43,7 @@ public class Report implements Serializable {
 
     public Report() {
         try {
-            
+
             Class.forName("com.mysql.jdbc.Driver"); //se carga el driver
             String url = "jdbc:mysql://" + Parameter.HOST_DB + "/" + Parameter.DATABASE + "?serverTimezone=GMT-5&autoReconnect=true&useSSL=false";
             conn = DriverManager.getConnection(url, Parameter.USER_DB, Parameter.PASSWORD_DB);
@@ -69,13 +74,55 @@ public class Report implements Serializable {
             parametro.put("id", idVegetableForms);
             parametro.put("SUBREPORT_DIR", path + "/");
 
+            //aquí estoy obteniendo la lista de personas
+            Controller c = new Controller();
+            List<Person> applicants = new ArrayList<>();
+            List<Person> obtentors = new ArrayList<>();
+            List<Person> personn = new ArrayList<>();
+            VegetableForms vf = c.getVegetableFormsById(idVegetableForms);
+            int conta = 1;
+            int conto = 1;
+            int contn = 1;
+            for (int i = 0; i < vf.getPersonVegetables().size(); i++) {
+                PersonVegetable pv = vf.getPersonVegetables().get(i);
+                Person peraux = c.getPersonById(pv.getPerson().getId());
+                if (peraux.getCityAddress() != null && peraux.getCityAddress() > 0) {
+                    peraux.setProvince(c.getProvinceIdByProvinceId(c.getProvinceIdByCityId(peraux.getCityAddress())).getName());
+                    peraux.setCity(c.getCityByCityId(peraux.getCityAddress()).getName());
+                }
+                switch (pv.getPersonType()) {
+                    case APPLICANT:
+                        peraux.setPersonNumber(conta+"");
+                        applicants.add(peraux);
+                        conta++;
+                        break;
+                    case BREEDER:
+                        peraux.setPersonNumber(conto+"");
+                        obtentors.add(peraux);
+                        conto++;
+                        break;
+                    default:
+                        peraux.setPersonNumber(conto+"");
+                        personn.add(peraux);
+                        contn++;
+                        break;
+                }
+            }
+            
+            
+            JRBeanCollectionDataSource applicantsDS = new JRBeanCollectionDataSource(applicants);
+            JRBeanCollectionDataSource obtentorsDS = new JRBeanCollectionDataSource(obtentors);
+            JRBeanCollectionDataSource personnDS = new JRBeanCollectionDataSource(obtentors);
+            //fin lista de personas
+
+            parametro.put("applicants", applicantsDS);
+            parametro.put("obtentors", obtentorsDS);
+            parametro.put("personn", personnDS);
+
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
             if (jasperPrint.getPages().isEmpty()) {
                 return null;
             }
-            
-            List<Person> applicants = new ArrayList<>();
-            
 
             DefaultJasperReportsContext context = DefaultJasperReportsContext.getInstance();
 
@@ -99,5 +146,5 @@ public class Report implements Serializable {
             System.out.println("Error print breeder_form: " + ex);
             return null;
         }
-    } 
+    }
 }

@@ -64,7 +64,16 @@ public class Person implements Serializable {
     
     @Transient
     private String gender;
-
+    
+    @Transient
+    private String province;
+    
+    @Transient
+    private String city;
+    
+    @Transient
+    private String personNumber;
+    
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PersonVegetable> personVegetables = new ArrayList<>();
 
@@ -274,5 +283,47 @@ public class Person implements Serializable {
     @Override
     public String toString(){
         return getName()+" -- "+getIdentificationNumber();
+    }
+
+    /**
+     * @return the province
+     */
+    public String getProvince() {
+        return province;
+    }
+
+    /**
+     * @param province the province to set
+     */
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    /**
+     * @return the city
+     */
+    public String getCity() {
+        return city;
+    }
+
+    /**
+     * @param city the city to set
+     */
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    /**
+     * @return the personNumber
+     */
+    public String getPersonNumber() {
+        return personNumber;
+    }
+
+    /**
+     * @param personNumber the personNumber to set
+     */
+    public void setPersonNumber(String personNumber) {
+        this.personNumber = personNumber;
     }
 }

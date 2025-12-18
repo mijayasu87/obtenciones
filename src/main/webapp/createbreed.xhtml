@@ -597,19 +597,19 @@ and open the template in the editor.
                     <p:tab title="Información adicional de la variedad" id="infad">
                         <p:outputLabel for="deschar" value="Descripción de características fisiológicas, fitosanitarias, fenológicas, físico-químicas, industriales o agronómicas, que sean pertinentes, esenciales o discriminatorios y permitan su identificación frente a sus análogos"/>
                         <span>(De ser el caso)</span>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.featuresDescription}" id="deschar" class="maxsize"/>
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.featuresDescription}" id="deschar" class="maxsize" maxlength="255"/>
                         <p:outputLabel for="geomat" value="Procedencia geográfica del material genético que sirvió de base para la obtención de la variedad a ser protegida"/>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalMaterialOrigin}" id="geomat" class="maxsize"
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalMaterialOrigin}" id="geomat" class="maxsize" maxlength="255"
                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.geographicalMaterialOrigin eq null || breederFormBean.vegetableForms.geographicalMaterialOrigin.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <p:outputLabel for="geovar" value="Procedencia geográfica de la variedad a ser protegida"/>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalVarietyOrigin}" id="geovar" class="maxsize"
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalVarietyOrigin}" id="geovar" class="maxsize" maxlength="255"
                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.geographicalVarietyOrigin eq null || breederFormBean.vegetableForms.geographicalVarietyOrigin.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <p:outputLabel for="repmec" value="Mecanismo de reproducción, propagación o multiplicación"/>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.reproductionMechanism}" id="repmec" class="maxsize"
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.reproductionMechanism}" id="repmec" class="maxsize" maxlength="255"
                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.reproductionMechanism eq null || breederFormBean.vegetableForms.reproductionMechanism.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <p:outputLabel value="Información adicional de la variedad que permita distinguirla de otras existentes, consideraciones que serán tomadas en cuenta para la ejecución del examen de Distinción, Homogeneidad y Estabilidad" for="addit"/>
                         <span> (a. condiciones medioambientales: suelo, agua, luz, temperatura; b. manejo agronómico: nutrientes, labores culturales, medidas fitosanitarias)</span>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.additionalInformation}" id="addit" class="maxsize" 
+                        <p:inputTextarea value="#{breederFormBean.vegetableForms.additionalInformation}" id="addit" class="maxsize" maxlength="255"
                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.additionalInformation eq null || breederFormBean.vegetableForms.additionalInformation.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <br/><br/>
                         <p:outputLabel value="Identificar si se trata de una variedad producto de material obtenido del patrimonio biológico y genético del país. En caso de serlo, deberá adjuntar una copia del permiso de acceso correspondiente, en concordancia con el inciso final del Art. 471 del Código Orgánico de Economía Social de los Conocimientos, Creatividad e Innovación:" for="idemat"/>
