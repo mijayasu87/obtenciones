@@ -154,7 +154,7 @@ public class VegetableForms implements Serializable {
     @Column(name = "electronic_communication_consent")
     private Boolean electronicCommunicationConsent;
 
-    @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private VegetablePriority vegetablePriority;
 
     @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -177,6 +177,9 @@ public class VegetableForms implements Serializable {
 
     @OneToMany(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PersonVegetable> personVegetables = new ArrayList<>();
+    
+    @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Declaration declaration;
 
     public VegetableForms() {
         botanicalTaxon = "";
@@ -835,6 +838,20 @@ public class VegetableForms implements Serializable {
     @Override
     public String toString() {
         return getId() + " - " + getBotanicalTaxon() + " - " + getCommonName();
+    }
+
+    /**
+     * @return the declaration
+     */
+    public Declaration getDeclaration() {
+        return declaration;
+    }
+
+    /**
+     * @param declaration the declaration to set
+     */
+    public void setDeclaration(Declaration declaration) {
+        this.declaration = declaration;
     }
 
 }

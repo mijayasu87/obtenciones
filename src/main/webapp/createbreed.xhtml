@@ -69,7 +69,7 @@ and open the template in the editor.
 
                 <p:accordionPanel multiple="false" widgetVar="basic" style="width: 80%; text-align: left; margin: 0 auto;" 
                                   id="acordion" activeIndex="#{breederFormBean.activeIndex}">
-                    <p:tab title="Solicitante" id="solicitantetab">
+                    <p:tab title="1. Solicitante" id="solicitantetab">
                         <p:commandButton value="AGREGAR SOLICITANTE" class="btn_peque" style="margin-left: 10%" 
                                          oncomplete="if(args.newperson){PF('dlgPerson').show();}" 
                                          actionListener="#{breederFormBean.prepareNewApplicant}" process="@this" 
@@ -117,7 +117,7 @@ and open the template in the editor.
                             </p:column>
                         </p:dataTable>
                     </p:tab>
-                    <p:tab title="Obtentor" id="obtent">
+                    <p:tab title="2. Obtentor" id="obtent">
                         <p:commandButton value="AGREGAR OBTENTOR" class="btn_peque" style="margin-left: 10%" 
                                          oncomplete="if(args.newperson){PF('dlgPerson').show();}" 
                                          actionListener="#{breederFormBean.prepareNewObtentor}" process="@this" 
@@ -164,7 +164,7 @@ and open the template in the editor.
                             </p:column>
                         </p:dataTable>
                     </p:tab>
-                    <p:tab title="Dirección para Notificaciones" id="dirnot">
+                    <p:tab title="3. Dirección para Notificaciones" id="dirnot">
                         <p:outputLabel value="La dirección de notificaciones corresponde a:" />
                         <br/><br/><br/>
                         <p:selectOneRadio id="corresponde" value="#{breederFormBean.tipoNotificacion}" layout="pageDirection" 
@@ -200,7 +200,7 @@ and open the template in the editor.
 
                         </p:panelGrid>                        
                     </p:tab>
-                    <p:tab title="Taxón botánico" id="taxbot">
+                    <p:tab title="4. Taxón botánico" id="taxbot">
                         <p:outputLabel value="Nombre en latín del género, la especie o la subespecie a los que pertenece la variedad* Taxón botánico*:" class="maxsize"
                                        for="botanicalt"/>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.botanicalTaxon}" id="botanicalt"  
@@ -209,7 +209,7 @@ and open the template in the editor.
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.commonName}" id="commonn" 
                                          styleClass="#{(breederFormBean.showTab4Error and breederFormBean.vegetableForms.commonName.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                     </p:tab>
-                    <p:tab title="Denominación de la variedad" id="denvar">
+                    <p:tab title="5. Denominación de la variedad" id="denvar">
 
                         <p>La denominación deberá ser igual en todos los países miembros de la Unión Internacional para la Protección de las Obtenciones Vegetales (UPOV) donde se solicite protección, y deberá ser diferente de una variedad existente de la misma especie vegetal o de una especie semejante y no deberá ser utilizada más de una vez en la misma clase.</p>
                         <p>La denominación genérica propuesta en la solicitud no deberá corresponder a una marca, nombre comercial de la variedad, indicación geográfica o denominación de origen de productos agrícolas o alimenticios.</p>                                                
@@ -239,7 +239,7 @@ and open the template in the editor.
                             <f:selectItem itemValue="CODE" itemLabel="Código" />                            
                         </p:selectOneRadio>
                     </p:tab>                    
-                    <p:tab title="¿Cómo se ha transferido la variedad al/a los solicitante(s)?" id="transfvar">
+                    <p:tab title="6. ¿Cómo se ha transferido la variedad al/a los solicitante(s)?" id="transfvar">
                         “Si el solicitante es diferente del obtentor se debe ingresar de forma física la prueba documental adecuada.”
                         <br/><br/>
                         <p:outputLabel value="Seleccione 'Sí' si el obtentor no es el solicitante:" />
@@ -276,7 +276,7 @@ and open the template in the editor.
                         </p:panel>
 
                     </p:tab>
-                    <p:tab title="Información de todas las demás solicitudes de protección de obtención vegetal o listados oficiales relativos a esta variedad realizados en un Estado miembro de la Unión." 
+                    <p:tab title="7. Información de todas las demás solicitudes de protección de obtención vegetal o listados oficiales relativos a esta variedad realizados en un Estado miembro de la Unión." 
                            id="infsol">
                         <p:outputLabel value="¿Se ha realizado otras solicitudes en relación con esta variedad?" for="hasother"/>                        
                         <p:selectOneRadio id="hasother" value="#{breederFormBean.previousRequest}" layout="pageDirection" 
@@ -361,7 +361,7 @@ and open the template in the editor.
                             </p:panel>                            
                         </p:panelGrid>                       
                     </p:tab>
-                    <p:tab title="Prioridad" id="priori">
+                    <p:tab title="8. Prioridad" id="priori">
                         <p>La reivindicación de prioridad deberá basarse en la primera solicitud de protección de la variedad en cuestión, 
                             presentada por usted o por su representante / apoderado, en un Estado miembro de la UPOV. 
                             El solicitante podrá reivindicar prioridad, siempre y cuando no hayan transcurrido más de doce 
@@ -410,7 +410,7 @@ and open the template in the editor.
 
 
                     </p:tab>
-                    <p:tab title="¿Se ha vendido o explotado de otro modo la obtención vegetal? " id="explot">
+                    <p:tab title="9. ¿Se ha vendido o explotado de otro modo la obtención vegetal? " id="explot">
 
                         <p><strong>“Se otorga protección a las variedades nuevas. Una variedad será considerada nueva si el 
                                 material de reproducción o de multiplicación, o un producto de su cosecha no hubiese 
@@ -514,7 +514,7 @@ and open the template in the editor.
                             </p:dataTable>
                         </p:panelGrid>                        
                     </p:tab>
-                    <p:tab title="Examen técnico de la variedad" id="exa">
+                    <p:tab title="10. Examen técnico de la variedad" id="exa">
                         <p:outputLabel value="“Especificar, según el caso, el país y centro de investigación donde se ha realizado, se están realizando o se tiene previsto realizar las pruebas de distinción, homogeneidad y estabilidad.”" />
                         <br/><br/>
                         <p:selectOneRadio id="examt" value="#{breederFormBean.technicalQuiz}" layout="pageDirection" 
@@ -558,7 +558,7 @@ and open the template in the editor.
                                              styleClass="#{breederFormBean.showTab10Error and (breederFormBean.vegetableForms.samplePlace eq null || breederFormBean.vegetableForms.samplePlace.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         </p:panelGrid>
                     </p:tab>
-                    <p:tab title="Descripción técnica de la variedad" id="destec">
+                    <p:tab title="11. Descripción técnica de la variedad" id="destec">
                         <p:outputLabel value="Genealogía:" for="geneal"/>
                         <span> origen genético (parentales/en el caso de variedades híbridas indique en primer lugar el componente madre y luego el componente padre) (Confidencial)</span>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.genealogy}" id="geneal"
@@ -594,7 +594,7 @@ and open the template in the editor.
                                              styleClass="#{breederFormBean.showTab11Error and (breederFormBean.vegetableForms.processHistory eq null || breederFormBean.vegetableForms.processHistory.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         </p:panel>                        
                     </p:tab>
-                    <p:tab title="Información adicional de la variedad" id="infad">
+                    <p:tab title="12. Información adicional de la variedad" id="infad">
                         <p:outputLabel for="deschar" value="Descripción de características fisiológicas, fitosanitarias, fenológicas, físico-químicas, industriales o agronómicas, que sean pertinentes, esenciales o discriminatorios y permitan su identificación frente a sus análogos"/>
                         <span>(De ser el caso)</span>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.featuresDescription}" id="deschar" class="maxsize" maxlength="255"/>
@@ -627,7 +627,7 @@ and open the template in the editor.
                             <f:selectItem itemValue="NO" itemLabel="No" />                            
                         </p:selectOneRadio>
                     </p:tab>
-                    <p:tab title="Caracteres de la variedad" id="carvar">
+                    <p:tab title="13. Caracteres de la variedad" id="carvar">
                         <p:outputLabel value="Caracteres de la variedad conforme a las directrices UPOV, directrices nacionales del SENADI o a falta de lo anterior, el solicitante señalará los caracteres pertinentes, esenciales o discriminatorios que permitan identificarla y diferenciarla:" class="maxsize"/>
                         <br/><br/>
                         <span>Nota aclaratoria: "INDICAR, SEGÚN LA ESPECIE, DE ACUERDO CON LA TABLA DE CARACTERÍSTICAS QUE CONSTA EN LOS PRINCIPIOS 
@@ -666,7 +666,7 @@ and open the template in the editor.
                             </p:column>
                         </p:dataTable>                        
                     </p:tab>
-                    <p:tab title="Comparación con variedades similares" id="compvar">
+                    <p:tab title="14. Comparación con variedades similares" id="compvar">
                         <p:outputLabel value="Comparación con variedades similares, consideraciones que serán tomadas en cuenta para la ejecución del examen de Distinción, Homogeneidad y Estabilidad:" class="maxsize"/>
                         <br/><br/>
                         <span>Nota aclaratoria: "En caso de que los niveles de expresión de ambas variedades sean idénticos, sírvase indicar la amplitud de la diferencia."</span>
@@ -703,7 +703,7 @@ and open the template in the editor.
                             </p:column>
                         </p:dataTable>                        
                     </p:tab>                    
-                    <p:tab title="Documentos Adjuntos" id="docadd">
+                    <p:tab title="15. Documentos Adjuntos" id="docadd">
                         <p:outputLabel value="Se adjuntan los siguientes formularios y documentos a la presente solicitud: Por favor, adjunte los documentos pertinentes:" />
                         <p:dataList id="dtganx" var="anx" value="#{breederFormBean.annexes}" varStatus="st"
                                     widgetVar="dtganx" binding="#{breederFormBean.annexeData}" 
@@ -724,16 +724,30 @@ and open the template in the editor.
                             </p:commandLink>
                         </p:dataList>
                     </p:tab>
-                    <p:tab title="Descuento" id="desctab">
+                    <p:tab title="16. Descuento" id="desctab">
 
                     </p:tab>
-                    <p:tab title="Declaraciones" id="declara">
+                    <p:tab title="17. Declaraciones" id="declara">
                         <ul class="lista-espaciada">
                             <li>Se autoriza por la presente al SENADI a intercambiar con las Oficinas de Examen y otras autoridades competentes toda la información y material necesarios, referidos a la variedad, siempre que se salvaguarden los derechos del  solicitante.</li>
                             <li>Yo (Nosotros) por la presente declaro (declaramos) que, a mi (nuestro) mejor entender, la información necesaria para el examen de la solicitud, facilitada en este formulario y sus anexos, es correcta, completa y de única responsabilidad del obtentor, el solicitante o apoderado.</li>
                             <li>Yo (Nosotros) declaro (declaramos) por la presente que ninguna otra persona o personas, aparte de los citados en esta solicitud, han intervenido en la obtención de la variedad.</li>
                             <li> 	El (los) signatario(s) declara(n) que, a su leal saber y entender, la variedad es nueva, distinta, homogénea y estable de acuerdo con la Decisión 345 y la Ley de Propiedad Intelectual. La información necesaria para el examen de la solicitud que se facilita en el presente formulario y sus anexos están de acuerdo con las condiciones del artículo 7 de la decisión 345 y son completas y exactas.  </li>
-                        </ul>
+                        </ul>                        
+                        
+                        <p:outputLabel value="Lugar:" for="placel"/>
+                        <p:inputText id="placel" value="#{breederFormBean.declaration.place}" class="maxsize" maxlength="255"
+                                     styleClass="#{breederFormBean.showTab17Error and (breederFormBean.declaration.place eq null || breederFormBean.declaration.place.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <p:outputLabel value="Fecha:" for="fechad"/>
+                        <p:calendar id="fechad" pattern="yyyy-MM-dd" value="#{breederFormBean.declaration.declarationDate}" lang="es" locale="es"
+                                    label="Fecha Declaración" style="font-size: 20px !important;" class="maxsize"
+                                    navigator="true" readonly="true" 
+                                    inputStyleClass="#{breederFormBean.showTab17Error and breederFormBean.declaration.declarationDate eq null ? 'invalid-inputfield' : 'maxsize'}"/>
+                        
+                        <p:outputLabel value="Nombre:" for="nombred"/>
+                        <p:inputText id="nombred" value="#{breederFormBean.declaration.name}" class="maxsize" maxlength="255"
+                                     styleClass="#{breederFormBean.showTab17Error and (breederFormBean.declaration.name eq null || breederFormBean.declaration.name.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        
                         <br/>
                         <p:selectBooleanCheckbox value="#{breederFormBean.vegetableForms.electronicCommunicationConsent}" style="font-size: 14px !important; font-weight: bold"
                                                  itemLabel="Yo (nosotros) acepto (aceptamos) recibir toda comunicación de forma electrónica (de ser el caso)."/>

@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9d41fc9d-f179-4e06-84a8-43994a8378d5">
 	<property name="ireport.zoom" value="1.3310000000000004"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="1440"/>
 	<parameter name="id" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["/home/michael/NetBeansProjects/obtenciones/src/main/webapp/WEB-INF/report/"]]></defaultValueExpression>
@@ -10,6 +10,7 @@
 	<parameter name="applicants" class="net.sf.jasperreports.engine.JRDataSource"/>
 	<parameter name="obtentors" class="net.sf.jasperreports.engine.JRDataSource"/>
 	<parameter name="personn" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="geographic_origin_country" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[Select * from vegetable_forms where id = $P{id};]]>
 	</queryString>
@@ -127,6 +128,18 @@
 	<field name="variety_transfer_type" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
+	<variable name="declaracion_1" class="java.lang.String">
+		<variableExpression><![CDATA["\nSe autoriza por la presente al SENADI a intercambiar con las Oficinas de Examen y otras autoridades competentes toda la información y material necesarios, referidos a la variedad, siempre que se salvaguarden los derechos del solicitante.\n"]]></variableExpression>
+	</variable>
+	<variable name="declaracion_2" class="java.lang.String">
+		<variableExpression><![CDATA["Yo (Nosotros) por la presente declaro (declaramos) que, a mi (nuestro) mejor entender, la información necesaria para el examen de la solicitud, facilitada en este formulario y sus anexos, es correcta, completa y de única responsabilidad del obtentor, el solicitante o apoderado."]]></variableExpression>
+	</variable>
+	<variable name="declaracion_3" class="java.lang.String">
+		<variableExpression><![CDATA["Yo (Nosotros) declaro (declaramos) por la presente que ninguna otra persona o personas, aparte de los citados en esta solicitud, han intervenido en la obtención de la variedad.\n"]]></variableExpression>
+	</variable>
+	<variable name="declaracion_4" class="java.lang.String">
+		<variableExpression><![CDATA["El (los) signatario(s) declara(n) que, a su leal saber y entender, la variedad es nueva, distinta, homogénea y estable de acuerdo con la Decisión 345 y la Ley de Propiedad Intelectual. La información necesaria para el examen de la solicitud que se facilita en el presente formulario y sus anexos están de acuerdo con las condiciones del artículo 7 de la decisión 345 y son completas y exactas."]]></variableExpression>
+	</variable>
 	<background>
 		<band height="802" splitType="Stretch">
 			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
@@ -280,9 +293,101 @@
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "PersonReport.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
-		<band height="220" splitType="Stretch">
+		<band height="60" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="20" width="486" height="20" backcolor="#E6E6E6" uuid="edb8627d-2783-40c6-bdf7-093d851ce18a"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Referencia del Obtentor]]></text>
+			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="234" y="160" width="295" height="20" isRemoveLineWhenBlank="true" uuid="afea8aa1-7d14-4a4e-9d7f-b016cdaef2cf">
+				<reportElement x="43" y="40" width="486" height="20" uuid="7868e7b5-7918-4caf-abae-b8c289ad56fd"/>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{provitional_designation}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="966ccd0e-c021-453b-82dc-bbee181a9bd4"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[5. Denominación de la variedad]]></text>
+			</staticText>
+		</band>
+		<band height="40">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="43" y="20" width="486" height="20" uuid="367a46a6-8cfc-42ce-8e86-beb3c8791dd0"/>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{generic_denomination}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="18e093ba-33bf-4eca-9a85-bcb74fbe3d13"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Denominación genérica propuesta de la variedad]]></text>
+			</staticText>
+		</band>
+		<band height="40" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{has_other_applications}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="09fc68a2-e6d6-4fef-8556-14d6adef7b04"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Tipo de Denominación]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="43" y="20" width="486" height="20" uuid="cff50fe1-9a05-4603-be63-6b44623a5baf"/>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{denomination_type}.equals("FANTASY_NAME")?"Nombre de Fantasía":"Código"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="60">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="234" y="40" width="295" height="20" isRemoveLineWhenBlank="true" uuid="afea8aa1-7d14-4a4e-9d7f-b016cdaef2cf">
 					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 				</reportElement>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
@@ -298,7 +403,7 @@
 ($F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT")?"Contrato de trabajo":"Otra")))]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="edb8627d-2783-40c6-bdf7-093d851ce18a"/>
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="4a170ff4-cb53-4bc0-977b-230820019ae3"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -308,82 +413,10 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Referencia del Obtentor]]></text>
+				<text><![CDATA[6. ¿Cómo se ha transferido la variedad al/a los solicitante(s)?]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="43" y="20" width="486" height="20" uuid="7868e7b5-7918-4caf-abae-b8c289ad56fd"/>
-				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{provitional_designation}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="43" y="60" width="486" height="20" uuid="367a46a6-8cfc-42ce-8e86-beb3c8791dd0"/>
-				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{generic_denomination}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement mode="Opaque" x="43" y="40" width="486" height="20" backcolor="#CCCCCC" uuid="18e093ba-33bf-4eca-9a85-bcb74fbe3d13"/>
-				<box>
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
-					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Denominación de la variedad]]></text>
-			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="43" y="80" width="486" height="20" backcolor="#CCCCCC" uuid="09fc68a2-e6d6-4fef-8556-14d6adef7b04"/>
-				<box>
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
-					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Tipo de Denominación]]></text>
-			</staticText>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="43" y="100" width="486" height="20" uuid="cff50fe1-9a05-4603-be63-6b44623a5baf"/>
-				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{denomination_type}.equals("FANTASY_NAME")?"Nombre de Fantasía":"Código"]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement mode="Opaque" x="43" y="120" width="486" height="20" backcolor="#CCCCCC" uuid="4a170ff4-cb53-4bc0-977b-230820019ae3"/>
-				<box>
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
-					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[¿Cómo se ha transferido la variedad al/a los solicitante(s)?]]></text>
-			</staticText>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="234" y="140" width="295" height="20" uuid="a1861425-e95a-4c52-911e-2086b6294988"/>
+				<reportElement x="234" y="20" width="295" height="20" uuid="a1861425-e95a-4c52-911e-2086b6294988"/>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -394,7 +427,7 @@
 				<textFieldExpression><![CDATA[$F{variety_transfer}.equals(true)?"SI":"NO"]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="160" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="47b788bf-d3d2-49cf-820a-3054bc93b544">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="40" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="47b788bf-d3d2-49cf-820a-3054bc93b544">
 					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 				</reportElement>
 				<box leftPadding="3">
@@ -409,7 +442,23 @@
 				<text><![CDATA[Tipo de Transferencia:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="180" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="8ce87029-09b8-41ce-861c-5bde3d227425">
+				<reportElement mode="Opaque" x="43" y="20" width="191" height="20" backcolor="#FFFFFF" uuid="e9c3309d-b600-4893-b1c2-6fab0bcfea54"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[¿El obtentor no es solicitante?:]]></text>
+			</staticText>
+		</band>
+		<band height="40">
+			<printWhenExpression><![CDATA[$F{priority_claim}]]></printWhenExpression>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="0" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="8ce87029-09b8-41ce-861c-5bde3d227425">
 					<printWhenExpression><![CDATA[$F{variety_transfer} && 
 ($F{variety_transfer_type}.equals("TRANSFER_RIGHTS") ||
 $F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT") ||
@@ -427,7 +476,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[Descripción:]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="234" y="180" width="295" height="20" isRemoveLineWhenBlank="true" uuid="c3aff078-fad8-43ba-9de7-20954ac7d77e">
+				<reportElement x="234" y="0" width="295" height="20" isRemoveLineWhenBlank="true" uuid="c3aff078-fad8-43ba-9de7-20954ac7d77e">
 					<printWhenExpression><![CDATA[$F{variety_transfer} &&  
 ($F{variety_transfer_type}.equals("TRANSFER_RIGHTS") || 
 $F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT") || 
@@ -443,7 +492,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$F{variety_transfer_description}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" mode="Opaque" x="43" y="200" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="152ee6a0-66f8-4338-a82b-67c84991eaa8">
+				<reportElement positionType="Float" mode="Opaque" x="43" y="20" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="152ee6a0-66f8-4338-a82b-67c84991eaa8">
 					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 				</reportElement>
 				<box leftPadding="3">
@@ -458,7 +507,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[Origen geográfico:]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="234" y="200" width="295" height="20" isRemoveLineWhenBlank="true" uuid="8a44bcad-e238-40eb-8664-acb261ae08b8">
+				<reportElement positionType="Float" x="234" y="20" width="295" height="20" isRemoveLineWhenBlank="true" uuid="8a44bcad-e238-40eb-8664-acb261ae08b8">
 					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 				</reportElement>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
@@ -468,21 +517,8 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{geographic_origin}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{geographic_origin_country}]]></textFieldExpression>
 			</textField>
-			<staticText>
-				<reportElement mode="Opaque" x="43" y="140" width="191" height="20" backcolor="#FFFFFF" uuid="e9c3309d-b600-4893-b1c2-6fab0bcfea54"/>
-				<box leftPadding="3">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement verticalAlignment="Middle" markup="styled">
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[¿El obtentor no es solicitante?:]]></text>
-			</staticText>
 		</band>
 		<band height="40">
 			<staticText>
@@ -496,7 +532,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Información de todas las demás solicitudes de protección de obtención vegetal]]></text>
+				<text><![CDATA[7. Información de todas las demás solicitudes de protección de obtención vegetal]]></text>
 			</staticText>
 			<staticText>
 				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="20" width="191" height="20" backcolor="#FFFFFF" uuid="494e0ba4-9553-4f2f-beac-fba0291f31c5"/>
@@ -523,8 +559,8 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$F{has_other_applications}?"SI":"NO"]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="15" splitType="Stretch">
-			<printWhenExpression><![CDATA[$F{has_other_applications}]]></printWhenExpression>
+		<band height="15">
+			<printWhenExpression><![CDATA[$F{in_territory}]]></printWhenExpression>
 			<subreport>
 				<reportElement x="23" y="0" width="486" height="15" uuid="45b3a82d-da98-4389-bd12-fbc7520cdc4b"/>
 				<subreportParameter name="idv">
@@ -546,7 +582,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Prioridad]]></text>
+				<text><![CDATA[8. Prioridad]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="20" width="191" height="20" backcolor="#FFFFFF" uuid="18aa8cb9-413f-4944-978c-a60598c92a83"/>
@@ -574,7 +610,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</textField>
 		</band>
 		<band height="13">
-			<printWhenExpression><![CDATA[$F{priority_claim}]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{out_territory}]]></printWhenExpression>
 			<subreport>
 				<reportElement x="23" y="0" width="486" height="13" uuid="1d32dbea-e546-4556-96e2-6399e23e44f4"/>
 				<subreportParameter name="idv">
@@ -596,7 +632,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[¿Se ha vendido o explotado de otro modo la obtención vegetal?]]></text>
+				<text><![CDATA[9. ¿Se ha vendido o explotado de otro modo la obtención vegetal?]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="20" width="259" height="20" backcolor="#E6E6E6" uuid="efbd26d6-9008-4ded-bd8f-5e109b1ed718"/>
@@ -624,7 +660,6 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</textField>
 		</band>
 		<band height="14">
-			<printWhenExpression><![CDATA[$F{in_territory}]]></printWhenExpression>
 			<subreport>
 				<reportElement x="23" y="0" width="486" height="14" uuid="7de3ab88-b99d-4f81-802d-6433b9c95f54"/>
 				<subreportParameter name="idv">
@@ -661,7 +696,6 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</staticText>
 		</band>
 		<band height="15">
-			<printWhenExpression><![CDATA[$F{out_territory}]]></printWhenExpression>
 			<subreport>
 				<reportElement x="23" y="0" width="486" height="15" uuid="cf59e458-e796-4aee-bdca-4982fed96ea7"/>
 				<subreportParameter name="idv">
@@ -671,7 +705,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SelledReport.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
-		<band height="120">
+		<band height="60">
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="ec78ea82-5182-4b0c-b864-a72c363185eb"/>
 				<box>
@@ -683,7 +717,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Examen técnico de la variedad]]></text>
+				<text><![CDATA[10. Examen técnico de la variedad]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="20" width="125" height="20" backcolor="#FFFFFF" uuid="1592a78f-073f-45d0-987e-600384b461f3"/>
@@ -735,8 +769,10 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{country_exam}]]></textFieldExpression>
 			</textField>
+		</band>
+		<band height="60">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="272" y="60" width="257" height="20" uuid="a5820a4b-1534-4b9d-8aa6-d576c4df10a5"/>
+				<reportElement x="272" y="0" width="257" height="20" uuid="a5820a4b-1534-4b9d-8aa6-d576c4df10a5"/>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -747,7 +783,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$F{living_sample}?"SI":"NO"]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement mode="Opaque" x="43" y="60" width="229" height="20" backcolor="#FFFFFF" uuid="80c2330c-505e-47df-a193-5b8f0c04cc01"/>
+				<reportElement mode="Opaque" x="43" y="0" width="229" height="20" backcolor="#FFFFFF" uuid="80c2330c-505e-47df-a193-5b8f0c04cc01"/>
 				<box leftPadding="3">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -760,7 +796,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[¿Cuenta con depósito de muestra viva?:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="80" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="f9fd11c1-8b7e-4968-b407-02f34acf9ced">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="20" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="f9fd11c1-8b7e-4968-b407-02f34acf9ced">
 					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
 				</reportElement>
 				<box leftPadding="3">
@@ -775,7 +811,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[País depósito:]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="80" width="361" height="20" isRemoveLineWhenBlank="true" uuid="e7d19b6b-ec18-40ef-9891-c79c50df6714">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="20" width="361" height="20" isRemoveLineWhenBlank="true" uuid="e7d19b6b-ec18-40ef-9891-c79c50df6714">
 					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
 				</reportElement>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
@@ -788,7 +824,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$F{country_living_sample}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="100" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="96f7e218-04c6-487b-8861-11b419fb711c">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="40" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="96f7e218-04c6-487b-8861-11b419fb711c">
 					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
 				</reportElement>
 				<box leftPadding="3">
@@ -803,7 +839,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[Lugar exacto:]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="100" width="361" height="20" isRemoveLineWhenBlank="true" uuid="4df19a1d-9338-4e96-8fd5-42aeb3d6bd80">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="40" width="361" height="20" isRemoveLineWhenBlank="true" uuid="4df19a1d-9338-4e96-8fd5-42aeb3d6bd80">
 					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
 				</reportElement>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
@@ -828,7 +864,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Descripción técnica de la variedad]]></text>
+				<text><![CDATA[11. Descripción técnica de la variedad]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="20" width="486" height="20" backcolor="#E6E6E6" uuid="4a672a47-722a-46cf-b2bb-1bb2c835f5ab"/>
@@ -903,7 +939,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Información adicional de la variedad]]></text>
+				<text><![CDATA[12. Información adicional de la variedad]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="20" width="486" height="20" backcolor="#E6E6E6" uuid="a6976ad8-f713-4584-900b-691b259ea11a"/>
@@ -1126,7 +1162,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Descuento]]></text>
+				<text><![CDATA[16. Descuento]]></text>
 			</staticText>
 			<staticText>
 				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="20" width="486" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="cd4ae64f-c9bf-41ea-b03b-d1bff0b4d772">
@@ -1147,22 +1183,126 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[documento de descuento en caso de existir]]></text>
 			</staticText>
 		</band>
-		<band height="88">
+		<band height="40">
 			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="37" width="486" height="51" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="0fe91dc2-2c44-468c-8c51-8fbe3449ab40">
-					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
-				</reportElement>
-				<box leftPadding="3" rightPadding="2">
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="24b16f31-05f0-49a6-9814-afc6c205cc6d"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[17. Declaraciones]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="57" y="20" width="472" height="20" uuid="31685ea7-02da-4607-b6ee-ca37be4a0e8d"/>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{declaracion_1}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="43" y="20" width="14" height="20" backcolor="#FFFFFF" uuid="55dfec98-5866-436e-af16-3aea9465424f"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[•]]></text>
+			</staticText>
+		</band>
+		<band height="20">
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="43" y="0" width="14" height="20" backcolor="#FFFFFF" uuid="9a3921bc-579e-478e-a44d-93fe8515de0c"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Top" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[•]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="57" y="0" width="472" height="20" uuid="1d8f6fd2-625d-40e2-92b7-2706948fd5d1"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{declaracion_2}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="57" y="0" width="472" height="20" uuid="05961042-44a7-40be-8fd3-53660687b370"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{declaracion_3}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="43" y="0" width="14" height="20" backcolor="#FFFFFF" uuid="41c4c128-6e5c-4dbf-87b9-7104c12dd213"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Top" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[•]]></text>
+			</staticText>
+		</band>
+		<band height="20">
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="43" y="0" width="14" height="20" backcolor="#FFFFFF" uuid="02383253-0ac9-4e75-9831-101ce0fc2753"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Top" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[•]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="57" y="0" width="472" height="20" uuid="803178f3-79ee-4ab0-9477-d906dac97c4a"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{declaracion_4}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="88"/>
+		<band height="50">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="43" y="0" width="486" height="20" uuid="6bb8c068-de94-42e2-84ff-029800e1cf3f"/>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
 					<topPen lineWidth="0.0"/>
 					<leftPen lineWidth="0.0"/>
 					<bottomPen lineWidth="0.0"/>
 					<rightPen lineWidth="0.0"/>
 				</box>
 				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="styled">
-					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
-				<text><![CDATA[Declaro que toda la información proporcionada en el presente trámite es actual, verdadera, completa y exacta, correspondiendo fielmente a los documentos que la respaldan. Asumo responsabilidad por la veracidad de esta declaración, consciente de que cualquier falsedad, omisión o inexactitud podrá acarrear las sanciones establecidas en la legislación ecuatoriana vigente.]]></text>
-			</staticText>
+				<textFieldExpression><![CDATA[$F{electronic_communication_consent}?"Yo (nosotros) acepto (aceptamos) recibir toda comunicación de forma electrónica (de ser el caso).":""]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<pageFooter>

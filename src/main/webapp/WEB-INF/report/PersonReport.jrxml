@@ -30,7 +30,7 @@
 						<rightPen lineWidth="1.0"/>
 					</box>
 					<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
+						<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$P{title_person}]]></textFieldExpression>
 				</textField>
@@ -43,7 +43,7 @@
 	<detail>
 		<band height="20" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#F0F0F0" uuid="d37cc140-65eb-476b-84e8-40e1ec0d06ab"/>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="d37cc140-65eb-476b-84e8-40e1ec0d06ab"/>
 				<box leftPadding="3">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -51,7 +51,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+					<font isBold="false" pdfFontName="Helvetica"/>
 				</textElement>
 				<textFieldExpression><![CDATA["- "+$F{personNumber}+" -"]]></textFieldExpression>
 			</textField>

@@ -15,6 +15,7 @@
     <class>senadi.gob.ec.ov.model.VegetableMethodology</class>
     <class>senadi.gob.ec.ov.model.VegetablePriority</class>
     <class>senadi.gob.ec.ov.model.VegetableProtection</class>
+    <class>senadi.gob.ec.ov.model.Declaration</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.sharedCache.mode" value="ALL"/>

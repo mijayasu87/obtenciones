@@ -28,8 +28,6 @@ import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import senadi.gob.ec.ov.model.Person;
 import senadi.gob.ec.ov.model.PersonVegetable;
 import senadi.gob.ec.ov.model.VegetableForms;
-import senadi.gob.ec.ov.model.enums.PersonType;
-import senadi.gob.ec.ov.table.PersonTableModel;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Parameter;
 
@@ -102,7 +100,7 @@ public class Report implements Serializable {
                         conto++;
                         break;
                     default:
-                        peraux.setPersonNumber(conto+"");
+                        peraux.setPersonNumber(contn+"");
                         personn.add(peraux);
                         contn++;
                         break;
@@ -112,12 +110,15 @@ public class Report implements Serializable {
             
             JRBeanCollectionDataSource applicantsDS = new JRBeanCollectionDataSource(applicants);
             JRBeanCollectionDataSource obtentorsDS = new JRBeanCollectionDataSource(obtentors);
-            JRBeanCollectionDataSource personnDS = new JRBeanCollectionDataSource(obtentors);
+            JRBeanCollectionDataSource personnDS = new JRBeanCollectionDataSource(personn);
             //fin lista de personas
 
             parametro.put("applicants", applicantsDS);
             parametro.put("obtentors", obtentorsDS);
             parametro.put("personn", personnDS);
+            parametro.put("geographic_origin_country",c.getCountryById(vf.getGeographicOrigin()).getName());
+            
+            
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
             if (jasperPrint.getPages().isEmpty()) {

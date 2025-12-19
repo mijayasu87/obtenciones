@@ -39,7 +39,7 @@
 					<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 						<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 					</textElement>
-					<text><![CDATA[Comparación con variedades similares]]></text>
+					<text><![CDATA[14. Comparación con variedades similares]]></text>
 				</staticText>
 			</band>
 		</groupHeader>
@@ -50,7 +50,7 @@
 	<detail>
 		<band height="20" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="0" width="486" height="20" uuid="e337d082-5019-4826-b07b-889b8205fe1a"/>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="e337d082-5019-4826-b07b-889b8205fe1a"/>
 				<box leftPadding="3">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -115,7 +115,7 @@
 		</band>
 		<band height="40">
 			<staticText>
-				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="fdf0b786-0035-4e62-88e8-4955415da708"/>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#F5F5F5" uuid="fdf0b786-0035-4e62-88e8-4955415da708"/>
 				<box topPadding="0" leftPadding="3">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -152,7 +152,7 @@
 				<textFieldExpression><![CDATA[$F{register_expression_level}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="11e64132-fbf0-42ec-bb83-efc678a28aa9"/>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#F5F5F5" uuid="11e64132-fbf0-42ec-bb83-efc678a28aa9"/>
 				<box topPadding="0" leftPadding="3">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
