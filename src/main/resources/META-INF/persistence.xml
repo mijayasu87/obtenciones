@@ -16,6 +16,7 @@
     <class>senadi.gob.ec.ov.model.VegetablePriority</class>
     <class>senadi.gob.ec.ov.model.VegetableProtection</class>
     <class>senadi.gob.ec.ov.model.Declaration</class>
+    <class>senadi.gob.ec.ov.model.FormPaymentRate</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.sharedCache.mode" value="ALL"/>

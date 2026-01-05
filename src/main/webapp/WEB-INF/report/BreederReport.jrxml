@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9d41fc9d-f179-4e06-84a8-43994a8378d5">
 	<property name="ireport.zoom" value="1.3310000000000004"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="1440"/>
+	<property name="ireport.y" value="480"/>
 	<parameter name="id" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["/home/michael/NetBeansProjects/obtenciones/src/main/webapp/WEB-INF/report/"]]></defaultValueExpression>
@@ -11,8 +11,21 @@
 	<parameter name="obtentors" class="net.sf.jasperreports.engine.JRDataSource"/>
 	<parameter name="personn" class="net.sf.jasperreports.engine.JRDataSource"/>
 	<parameter name="geographic_origin_country" class="java.lang.String"/>
+	<parameter name="protectionsb" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="priorities" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="interr" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="outerr" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="country_exam" class="java.lang.String"/>
+	<parameter name="country_sample" class="java.lang.String"/>
+	<parameter name="protb" class="java.lang.Boolean"/>
+	<parameter name="protectionsp" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="protp" class="java.lang.Boolean"/>
+	<parameter name="protectionsc" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="protc" class="java.lang.Boolean"/>
 	<queryString>
-		<![CDATA[Select * from vegetable_forms where id = $P{id};]]>
+		<![CDATA[Select * from vegetable_forms as vf
+inner join declaration as d on d.vegetable_form_id = vf.id
+ where vf.id = $P{id};]]>
 	</queryString>
 	<field name="id" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>
@@ -20,7 +33,7 @@
 	<field name="additional_information" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="application_date" class="java.sql.Timestamp">
+	<field name="application_date" class="java.util.Date">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="application_number" class="java.lang.String">
@@ -38,7 +51,7 @@
 	<field name="country_living_sample" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="create_date" class="java.sql.Timestamp">
+	<field name="create_date" class="java.time.LocalDateTime">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="denomination_type" class="java.lang.String">
@@ -98,7 +111,7 @@
 	<field name="priority_claim" class="java.lang.Boolean">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="priority_date" class="java.sql.Timestamp">
+	<field name="priority_date" class="java.time.LocalDateTime">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="process_history" class="java.lang.String">
@@ -128,11 +141,23 @@
 	<field name="variety_transfer_type" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
+	<field name="declaration_date" class="java.time.LocalDateTime">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="place" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="vegetable_form_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
 	<variable name="declaracion_1" class="java.lang.String">
 		<variableExpression><![CDATA["\nSe autoriza por la presente al SENADI a intercambiar con las Oficinas de Examen y otras autoridades competentes toda la información y material necesarios, referidos a la variedad, siempre que se salvaguarden los derechos del solicitante.\n"]]></variableExpression>
 	</variable>
 	<variable name="declaracion_2" class="java.lang.String">
-		<variableExpression><![CDATA["Yo (Nosotros) por la presente declaro (declaramos) que, a mi (nuestro) mejor entender, la información necesaria para el examen de la solicitud, facilitada en este formulario y sus anexos, es correcta, completa y de única responsabilidad del obtentor, el solicitante o apoderado."]]></variableExpression>
+		<variableExpression><![CDATA["Yo (Nosotros) por la presente declaro (declaramos) que, a mi (nuestro) mejor entender, la información necesaria para el examen de la solicitud, facilitada en este formulario y sus anexos, es correcta, completa y de única responsabilidad del obtentor, el solicitante o apoderado.\n"]]></variableExpression>
 	</variable>
 	<variable name="declaracion_3" class="java.lang.String">
 		<variableExpression><![CDATA["Yo (Nosotros) declaro (declaramos) por la presente que ninguna otra persona o personas, aparte de los citados en esta solicitud, han intervenido en la obtención de la variedad.\n"]]></variableExpression>
@@ -359,7 +384,6 @@
 			</staticText>
 		</band>
 		<band height="40" splitType="Stretch">
-			<printWhenExpression><![CDATA[$F{has_other_applications}]]></printWhenExpression>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="09fc68a2-e6d6-4fef-8556-14d6adef7b04"/>
 				<box>
@@ -385,23 +409,7 @@
 				<textFieldExpression><![CDATA[$F{denomination_type}.equals("FANTASY_NAME")?"Nombre de Fantasía":"Código"]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="60">
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="234" y="40" width="295" height="20" isRemoveLineWhenBlank="true" uuid="afea8aa1-7d14-4a4e-9d7f-b016cdaef2cf">
-					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
-				</reportElement>
-				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{variety_transfer_type}.equals("TRANSFER_RIGHTS")?"Cesión de Derechos":
-($F{variety_transfer_type}.equals("SUCCESSION")?"Sucesión":
-($F{variety_transfer_type}.equals("CONTRACT")?"Contrato":
-($F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT")?"Contrato de trabajo":"Otra")))]]></textFieldExpression>
-			</textField>
+		<band height="40">
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="4a170ff4-cb53-4bc0-977b-230820019ae3"/>
 				<box>
@@ -424,23 +432,8 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{variety_transfer}.equals(true)?"SI":"NO"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{variety_transfer}?"SI":"NO"]]></textFieldExpression>
 			</textField>
-			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="40" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="47b788bf-d3d2-49cf-820a-3054bc93b544">
-					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
-				</reportElement>
-				<box leftPadding="3">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement verticalAlignment="Middle" markup="styled">
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Tipo de Transferencia:]]></text>
-			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="43" y="20" width="191" height="20" backcolor="#FFFFFF" uuid="e9c3309d-b600-4893-b1c2-6fab0bcfea54"/>
 				<box leftPadding="3">
@@ -455,10 +448,10 @@
 				<text><![CDATA[¿El obtentor no es solicitante?:]]></text>
 			</staticText>
 		</band>
-		<band height="40">
-			<printWhenExpression><![CDATA[$F{priority_claim}]]></printWhenExpression>
+		<band height="60">
+			<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 			<staticText>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="0" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="8ce87029-09b8-41ce-861c-5bde3d227425">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="20" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="8ce87029-09b8-41ce-861c-5bde3d227425">
 					<printWhenExpression><![CDATA[$F{variety_transfer} && 
 ($F{variety_transfer_type}.equals("TRANSFER_RIGHTS") ||
 $F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT") ||
@@ -476,7 +469,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[Descripción:]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="234" y="0" width="295" height="20" isRemoveLineWhenBlank="true" uuid="c3aff078-fad8-43ba-9de7-20954ac7d77e">
+				<reportElement x="234" y="20" width="295" height="20" isRemoveLineWhenBlank="true" uuid="c3aff078-fad8-43ba-9de7-20954ac7d77e">
 					<printWhenExpression><![CDATA[$F{variety_transfer} &&  
 ($F{variety_transfer_type}.equals("TRANSFER_RIGHTS") || 
 $F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT") || 
@@ -492,7 +485,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$F{variety_transfer_description}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" mode="Opaque" x="43" y="20" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="152ee6a0-66f8-4338-a82b-67c84991eaa8">
+				<reportElement positionType="Float" mode="Opaque" x="43" y="40" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="152ee6a0-66f8-4338-a82b-67c84991eaa8">
 					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 				</reportElement>
 				<box leftPadding="3">
@@ -507,7 +500,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<text><![CDATA[Origen geográfico:]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="234" y="20" width="295" height="20" isRemoveLineWhenBlank="true" uuid="8a44bcad-e238-40eb-8664-acb261ae08b8">
+				<reportElement positionType="Float" x="234" y="40" width="295" height="20" isRemoveLineWhenBlank="true" uuid="8a44bcad-e238-40eb-8664-acb261ae08b8">
 					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
 				</reportElement>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
@@ -519,6 +512,37 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{geographic_origin_country}]]></textFieldExpression>
 			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="234" y="0" width="295" height="20" isRemoveLineWhenBlank="true" uuid="afea8aa1-7d14-4a4e-9d7f-b016cdaef2cf">
+					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
+				</reportElement>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{variety_transfer_type}.equals("TRANSFER_RIGHTS")?"Cesión de Derechos":
+($F{variety_transfer_type}.equals("SUCCESSION")?"Sucesión":
+($F{variety_transfer_type}.equals("CONTRACT")?"Contrato":
+($F{variety_transfer_type}.equals("EMPLOYMENT_CONTRACT")?"Contrato de trabajo":"Otra")))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="0" width="191" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="47b788bf-d3d2-49cf-820a-3054bc93b544">
+					<printWhenExpression><![CDATA[$F{variety_transfer}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Tipo de Transferencia:]]></text>
+			</staticText>
 		</band>
 		<band height="40">
 			<staticText>
@@ -530,7 +554,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
-					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
 				</textElement>
 				<text><![CDATA[7. Información de todas las demás solicitudes de protección de obtención vegetal]]></text>
 			</staticText>
@@ -559,16 +583,125 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$F{has_other_applications}?"SI":"NO"]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="15">
-			<printWhenExpression><![CDATA[$F{in_territory}]]></printWhenExpression>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{has_other_applications}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#D7D7D7" uuid="015e72fd-dd40-427c-aade-08ab544edb5c"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Protección mediante Derecho de Obtentor]]></text>
+			</staticText>
+		</band>
+		<band height="15" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{has_other_applications} && $P{protb}]]></printWhenExpression>
 			<subreport>
-				<reportElement x="23" y="0" width="486" height="15" uuid="45b3a82d-da98-4389-bd12-fbc7520cdc4b"/>
-				<subreportParameter name="idv">
-					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
-				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<reportElement x="23" y="0" width="486" height="15" isRemoveLineWhenBlank="true" uuid="45b3a82d-da98-4389-bd12-fbc7520cdc4b"/>
+				<dataSourceExpression><![CDATA[$P{protectionsb}]]></dataSourceExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SolicitudAnteriorReport.jasper"]]></subreportExpression>
 			</subreport>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{has_other_applications} && !$P{protb}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="484" height="20" backcolor="#FFFFFF" uuid="45ba780d-0484-4404-8569-7c7a5205992e"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[NO APLICA]]></text>
+			</staticText>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{has_other_applications}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#D7D7D7" uuid="92bc9327-e6e5-47d3-8ed2-429b1ff2b349"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Protección mediante Patente]]></text>
+			</staticText>
+		</band>
+		<band height="15">
+			<printWhenExpression><![CDATA[$F{has_other_applications} && $P{protp}]]></printWhenExpression>
+			<subreport>
+				<reportElement x="23" y="0" width="486" height="15" isRemoveLineWhenBlank="true" uuid="6cb617e5-afa9-497a-a1e2-292da9caada9"/>
+				<dataSourceExpression><![CDATA[$P{protectionsp}]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SolicitudAnteriorReport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{has_other_applications} && !$P{protp}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="484" height="20" backcolor="#FFFFFF" uuid="e6d920f6-1041-4b37-b8c3-46e88302ddb5"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[NO APLICA]]></text>
+			</staticText>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{has_other_applications}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="486" height="20" backcolor="#D7D7D7" uuid="12d22112-a779-4fd1-9380-72aba1f5a4f7"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Registro de cultivares]]></text>
+			</staticText>
+		</band>
+		<band height="15">
+			<printWhenExpression><![CDATA[$F{has_other_applications} && $P{protc}]]></printWhenExpression>
+			<subreport>
+				<reportElement x="23" y="0" width="486" height="15" isRemoveLineWhenBlank="true" uuid="48a9cc1d-4052-4be2-91e3-0ceb2aedac07"/>
+				<dataSourceExpression><![CDATA[$P{protectionsc}]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SolicitudAnteriorReport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{has_other_applications} && !$P{protc}]]></printWhenExpression>
+			<staticText>
+				<reportElement mode="Opaque" x="43" y="0" width="484" height="20" backcolor="#FFFFFF" uuid="1e22b958-c861-4b44-a838-3740dc552aba"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[NO APLICA]]></text>
+			</staticText>
 		</band>
 		<band height="40">
 			<staticText>
@@ -610,13 +743,13 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</textField>
 		</band>
 		<band height="13">
-			<printWhenExpression><![CDATA[$F{out_territory}]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{priority_claim}]]></printWhenExpression>
 			<subreport>
-				<reportElement x="23" y="0" width="486" height="13" uuid="1d32dbea-e546-4556-96e2-6399e23e44f4"/>
+				<reportElement x="23" y="0" width="486" height="13" isRemoveLineWhenBlank="true" uuid="1d32dbea-e546-4556-96e2-6399e23e44f4"/>
 				<subreportParameter name="idv">
 					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
 				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<dataSourceExpression><![CDATA[$P{priorities}]]></dataSourceExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "PriorityReport.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
@@ -660,12 +793,13 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</textField>
 		</band>
 		<band height="14">
+			<printWhenExpression><![CDATA[$F{in_territory}]]></printWhenExpression>
 			<subreport>
-				<reportElement x="23" y="0" width="486" height="14" uuid="7de3ab88-b99d-4f81-802d-6433b9c95f54"/>
+				<reportElement x="23" y="0" width="486" height="14" isRemoveLineWhenBlank="true" uuid="7de3ab88-b99d-4f81-802d-6433b9c95f54"/>
 				<subreportParameter name="idv">
 					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
 				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<dataSourceExpression><![CDATA[$P{interr}]]></dataSourceExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SelledReport.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
@@ -696,12 +830,13 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</staticText>
 		</band>
 		<band height="15">
+			<printWhenExpression><![CDATA[$F{out_territory}]]></printWhenExpression>
 			<subreport>
-				<reportElement x="23" y="0" width="486" height="15" uuid="cf59e458-e796-4aee-bdca-4982fed96ea7"/>
+				<reportElement x="23" y="0" width="486" height="15" isRemoveLineWhenBlank="true" uuid="cf59e458-e796-4aee-bdca-4982fed96ea7"/>
 				<subreportParameter name="idv">
 					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
 				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<dataSourceExpression><![CDATA[$P{outerr}]]></dataSourceExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "SelledReport.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
@@ -767,7 +902,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{country_exam}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{country_exam}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="60">
@@ -821,7 +956,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{country_living_sample}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{country_sample}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="40" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="96f7e218-04c6-487b-8861-11b419fb711c">
@@ -1288,10 +1423,106 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$V{declaracion_4}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="88"/>
-		<band height="50">
+		<band height="37">
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="57" y="17" width="52" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="6460faf3-32f8-4618-a718-341be8ce8fcb">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Lugar:]]></text>
+			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="43" y="0" width="486" height="20" uuid="6bb8c068-de94-42e2-84ff-029800e1cf3f"/>
+				<reportElement x="109" y="17" width="139" height="20" uuid="92fb184f-22fd-41fb-a782-7649f6a99ac7"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{place}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="300" y="17" width="52" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="b5487ac9-4b8e-4867-adca-68dbaaadaa36">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="352" y="17" width="175" height="20" uuid="424382d6-10ae-4b74-9c6e-519214c22100"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[java.sql.Timestamp.valueOf($F{declaration_date})]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="55">
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="57" y="35" width="52" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="0632e42e-10e7-4fd4-b543-779ac021ef76">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Nombre:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="109" y="35" width="139" height="20" uuid="c5a7c751-6ebb-48bd-aae0-20a2d071bfce"/>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="302" y="35" width="52" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="3992be3d-1b5b-4175-8043-239dbecfe992">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Firma:]]></text>
+			</staticText>
+		</band>
+		<band height="48">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="43" y="28" width="486" height="20" uuid="6bb8c068-de94-42e2-84ff-029800e1cf3f"/>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
 					<topPen lineWidth="0.0"/>
 					<leftPen lineWidth="0.0"/>
@@ -1306,7 +1537,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 		</band>
 	</detail>
 	<pageFooter>
-		<band height="76" splitType="Stretch"/>
+		<band height="70" splitType="Stretch"/>
 	</pageFooter>
 	<summary>
 		<band height="13" splitType="Stretch"/>

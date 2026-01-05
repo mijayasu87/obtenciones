@@ -3,85 +3,34 @@
 	<property name="ireport.zoom" value="1.4641000000000013"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="idv" class="java.lang.Integer"/>
 	<queryString>
-		<![CDATA[select * from vegetable_protection where vegetable_forms_id = $P{idv} order by protection_type]]>
+		<![CDATA[]]>
 	</queryString>
-	<field name="id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="application_number" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="denomination" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="protection_type" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="register_number" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="status" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="submission_country_id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="submission_date" class="java.sql.Timestamp">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="vegetable_forms_id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<group name="groupPersonType">
-		<groupHeader>
-			<band height="20">
-				<staticText>
-					<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#CCCCCC" uuid="1e4d2583-45a8-4751-8ee0-dee4ec1c527c"/>
-					<box topPadding="0" leftPadding="3">
-						<topPen lineWidth="1.0"/>
-						<leftPen lineWidth="1.0"/>
-						<bottomPen lineWidth="1.0"/>
-						<rightPen lineWidth="1.0"/>
-					</box>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Solicitudes Anteriores]]></text>
-				</staticText>
-			</band>
-		</groupHeader>
-	</group>
+	<field name="protection" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="submissionDate" class="java.util.Date"/>
+	<field name="applicationNumber" class="java.lang.String"/>
+	<field name="registerNumber" class="java.lang.String"/>
+	<field name="country" class="java.lang.String"/>
+	<field name="denomination" class="java.lang.String"/>
+	<field name="protectionNumber" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<detail>
 		<band height="20" splitType="Stretch">
-			<staticText>
-				<reportElement positionType="Float" x="0" y="0" width="109" height="20" uuid="df98f158-7893-4eb4-9c9f-f2a0cef6b8d1"/>
-				<box topPadding="0" leftPadding="3">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement verticalAlignment="Middle">
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Tipo Protección:]]></text>
-			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="109" y="0" width="377" height="20" uuid="fd3fb94b-2871-4fac-b18f-1bb3e4b5c661"/>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="486" height="20" backcolor="#E6E6E6" uuid="27a2859a-2d2d-4be8-a208-114a4e7a0b74"/>
 				<box leftPadding="3">
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
 					<bottomPen lineWidth="1.0"/>
 					<rightPen lineWidth="1.0"/>
 				</box>
-				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{protection_type}.equals("THROUGH_PATENT")?"Protección mediante Patente":
-($F{protection_type}.equals("CULTIVAR_REGISTRY")?"Registro de Cultivares":"Protección mediante Derecho de Obtentor")]]></textFieldExpression>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font isBold="false" pdfFontName="Helvetica"/>
+				</textElement>
+				<textFieldExpression><![CDATA["- "+$F{protectionNumber}+" -"]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">
@@ -107,7 +56,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{submission_date}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{submissionDate}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="0" y="0" width="109" height="20" uuid="5a016ec3-a78c-4b1c-a891-cbd6d5b4d5b3"/>
@@ -157,7 +106,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{application_number}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{applicationNumber}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="259" y="0" width="120" height="20" uuid="ab8b30d0-4c1d-427b-909a-d87b2289bc2b"/>
@@ -181,7 +130,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{register_number}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{registerNumber}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">
@@ -207,7 +156,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{submission_country_id}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{country}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">

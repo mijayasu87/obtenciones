@@ -3,28 +3,12 @@
 	<property name="ireport.zoom" value="1.4641000000000013"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="idv" class="java.lang.Integer"/>
 	<queryString>
-		<![CDATA[select * from exploited_selled where vegetable_forms_id = $P{idv}]]>
+		<![CDATA[]]>
 	</queryString>
-	<field name="id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="country_id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="denomination" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="explotation_date" class="java.sql.Date">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="explotation_type" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="vegetable_forms_id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
+	<field name="country" class="java.lang.String"/>
+	<field name="denomination" class="java.lang.String"/>
+	<field name="explotationDate" class="java.util.Date"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -52,7 +36,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{country_id}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{country}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">
@@ -78,7 +62,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{explotation_date}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{explotationDate}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">

@@ -3,31 +3,14 @@
 	<property name="ireport.zoom" value="1.4641000000000013"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="idv" class="java.lang.Integer"/>
 	<queryString>
-		<![CDATA[select * from vegetable_priority where vegetable_form_id = $P{idv}]]>
+		<![CDATA[]]>
 	</queryString>
-	<field name="id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="applicant_name" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="application_date" class="java.sql.Timestamp">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="application_number" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="country_id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="generic_denomination" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="vegetable_form_id" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
+	<field name="applicantName" class="java.lang.String"/>
+	<field name="applicationDate" class="java.util.Date"/>
+	<field name="applicationNumber" class="java.lang.String"/>
+	<field name="genericDenomination" class="java.lang.String"/>
+	<field name="country" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -55,7 +38,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{country_id}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{country}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">
@@ -81,7 +64,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{application_date}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{applicationDate}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="0" y="0" width="109" height="20" uuid="5a016ec3-a78c-4b1c-a891-cbd6d5b4d5b3"/>
@@ -105,7 +88,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{application_number}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{applicationNumber}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">
@@ -131,7 +114,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{applicant_name}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{applicantName}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="20">
@@ -157,7 +140,7 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{generic_denomination}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{genericDenomination}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

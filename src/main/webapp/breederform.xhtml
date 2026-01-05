@@ -112,6 +112,14 @@ and open the template in the editor.
                         </p:commandLink>
                         <p:commandLink class="link" title="Visualizar Formulario" 
                                        actionListener="#{vegetableFormBean.viewFormulario}"
+                                       oncomplete="if(args.doit){otherpage(args.url);}" 
+                                       process="@this" 
+                                       update="mensajes"                                       
+                                       rendered="#{vegetable.status != 'SAVED'}" >                            
+                            <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
+                        </p:commandLink>
+                        <p:commandLink class="link" title="Visualizar Formulario prueba" 
+                                       actionListener="#{vegetableFormBean.viewFormularioPrueba}"
                                        oncomplete="popupwindow('breedertest', '_blank', args);" 
                                        process="@this" 
                                        update="mensajes"                                       
@@ -184,7 +192,7 @@ and open the template in the editor.
             }
         }
 
-        function otherpage(url) {
+        function otherpage(url) {           
             setTimeout(function () {
                 window.open(url, '_blank');
             }, 0);

@@ -14,6 +14,7 @@ import org.primefaces.PrimeFaces;
 import senadi.gob.ec.ov.model.VegetableForms;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Operations;
+import senadi.gob.ec.ov.util.Parameter;
 
 /**
  *
@@ -30,14 +31,16 @@ public class VegetableFormsBean implements Serializable {
 
     private LoginBean login;
 
+    private String previewPath;
+
     public VegetableFormsBean() {
         loadData();
     }
 
     private void loadData() {
         Controller c = new Controller();
-        login = c.getLogin();        
-        vegetablesFormses = c.getVegetableFormsByOwnerId(login.getOwner().getId());        
+        login = c.getLogin();
+        vegetablesFormses = c.getVegetableFormsByOwnerId(login.getOwner().getId());
         loadMainData();
     }
 
@@ -52,22 +55,32 @@ public class VegetableFormsBean implements Serializable {
         if (vegetableForms != null && vegetableForms.getId() != null) {
 //            System.out.println("si llegooooo vf");
             PrimeFaces.current().ajax().addCallbackParam("viewr", true);
-            PrimeFaces.current().ajax().addCallbackParam("pagveg", "createbreed.xhtml?editId="+vegetableForms.getId());
-        }else{
+            PrimeFaces.current().ajax().addCallbackParam("pagveg", "createbreed.xhtml?editId=" + vegetableForms.getId());
+        } else {
+            Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL REGISTRO SELECCIONADO");
+        }
+    }
+
+    public void viewFormulario(ActionEvent ae) {
+        vegetableForms = (VegetableForms) vegetableFormsData.getRowData();
+        if (vegetableForms != null && vegetableForms.getId() != null) {
+            previewPath = Parameter.RUTA_URL + vegetableForms.getId() + "/pdf_breederfrm_" + vegetableForms.getId() + ".pdf";
+            System.out.println("preview path: "+previewPath);
+            //Operations.mensaje(Operations.INFORMACION, "ENVIADO A IMPRIMIR");
+            PrimeFaces.current().ajax().addCallbackParam("url",  previewPath);
+            PrimeFaces.current().ajax().addCallbackParam("doit", true);
+        } else {
             Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL REGISTRO SELECCIONADO");
         }
     }
     
-    public void viewFormulario(ActionEvent ae){
-        System.out.println("lleeeeeeeeeeeeegoooooo");
+    public void viewFormularioPrueba(ActionEvent ae) {
         vegetableForms = (VegetableForms) vegetableFormsData.getRowData();
-        if(vegetableForms != null && vegetableForms.getId() != null){
-            System.out.println("listo para imprimir "+vegetableForms.getId());
-            login.setIdVegetableForms(vegetableForms.getId());            
-            Operations.mensaje(Operations.INFORMACION, "ENVIADO A IMPRIMIR");
+        if (vegetableForms != null && vegetableForms.getId() != null) {
+            login.setIdVegetableForms(vegetableForms.getId());
             PrimeFaces.current().ajax().addCallbackParam("doit", true);
-        }else{
-            Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL REGISTRO");
+        } else {
+            Operations.mensaje(Operations.ERROR, "HAY UN PROBLEMA CON EL REGISTRO SELECCIONADO");
         }
     }
 
@@ -139,6 +152,20 @@ public class VegetableFormsBean implements Serializable {
      */
     public void setVegetableFormsData(UIData vegetableFormsData) {
         this.vegetableFormsData = vegetableFormsData;
+    }
+
+    /**
+     * @return the previewPath
+     */
+    public String getPreviewPath() {
+        return previewPath;
+    }
+
+    /**
+     * @param previewPath the previewPath to set
+     */
+    public void setPreviewPath(String previewPath) {
+        this.previewPath = previewPath;
     }
 
 }

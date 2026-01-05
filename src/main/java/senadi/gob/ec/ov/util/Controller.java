@@ -5,8 +5,6 @@
 package senadi.gob.ec.ov.util;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import senadi.gob.ec.ov.bean.LoginBean;

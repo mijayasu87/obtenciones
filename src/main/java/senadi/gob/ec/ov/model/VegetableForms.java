@@ -153,6 +153,9 @@ public class VegetableForms implements Serializable {
 
     @Column(name = "electronic_communication_consent")
     private Boolean electronicCommunicationConsent;
+    
+    @Column(name = "varietal_group", nullable = false)
+    private String varietalGroup;
 
     @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private VegetablePriority vegetablePriority;
@@ -180,6 +183,9 @@ public class VegetableForms implements Serializable {
     
     @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private Declaration declaration;
+    
+    @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
+    private FormPaymentRate formPaymentRate;
 
     public VegetableForms() {
         botanicalTaxon = "";
@@ -852,6 +858,34 @@ public class VegetableForms implements Serializable {
      */
     public void setDeclaration(Declaration declaration) {
         this.declaration = declaration;
+    }
+
+    /**
+     * @return the formPaymentRate
+     */
+    public FormPaymentRate getFormPaymentRate() {
+        return formPaymentRate;
+    }
+
+    /**
+     * @param formPaymentRate the formPaymentRate to set
+     */
+    public void setFormPaymentRate(FormPaymentRate formPaymentRate) {
+        this.formPaymentRate = formPaymentRate;
+    }
+
+    /**
+     * @return the varietalGroup
+     */
+    public String getVarietalGroup() {
+        return varietalGroup;
+    }
+
+    /**
+     * @param varietalGroup the varietalGroup to set
+     */
+    public void setVarietalGroup(String varietalGroup) {
+        this.varietalGroup = varietalGroup;
     }
 
 }

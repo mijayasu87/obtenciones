@@ -25,9 +25,14 @@ import net.sf.jasperreports.export.ExporterInput;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import senadi.gob.ec.ov.model.ExploitedSelled;
 import senadi.gob.ec.ov.model.Person;
 import senadi.gob.ec.ov.model.PersonVegetable;
 import senadi.gob.ec.ov.model.VegetableForms;
+import senadi.gob.ec.ov.model.VegetablePriority;
+import senadi.gob.ec.ov.model.VegetableProtection;
+import senadi.gob.ec.ov.model.enums.ExplotationType;
+import senadi.gob.ec.ov.model.enums.ProtectionType;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Parameter;
 
@@ -90,35 +95,102 @@ public class Report implements Serializable {
                 }
                 switch (pv.getPersonType()) {
                     case APPLICANT:
-                        peraux.setPersonNumber(conta+"");
+                        peraux.setPersonNumber(conta + "");
                         applicants.add(peraux);
                         conta++;
                         break;
                     case BREEDER:
-                        peraux.setPersonNumber(conto+"");
+                        peraux.setPersonNumber(conto + "");
                         obtentors.add(peraux);
                         conto++;
                         break;
                     default:
-                        peraux.setPersonNumber(contn+"");
+                        peraux.setPersonNumber(contn + "");
                         personn.add(peraux);
                         contn++;
                         break;
                 }
             }
-            
-            
+            //tab 7
+            List<VegetableProtection> protections = vf.getVegetableProtections();
+            List<VegetableProtection> protsBreeder = new ArrayList<>();
+            List<VegetableProtection> protsPatent = new ArrayList<>();
+            List<VegetableProtection> protsCult = new ArrayList<>();
+            int contbreed = 1;
+            int contpat = 1;
+            int contcult = 1;
+            for (int i = 0; i < protections.size(); i++) {
+                protections.get(i).setCountry(c.getCountryById(protections.get(i).getSubmissionCountryId()).getName());
+
+                ProtectionType pt = protections.get(i).getProtectionType();
+                switch (pt) {
+                    case THROUGH_BREEDER_RIGHT:
+                        protections.get(i).setProtection("Protección mediante Derecho de Obtentor");
+                        protections.get(i).setProtectionNumber(contbreed + "");
+                        protsBreeder.add(protections.get(i));
+                        contbreed++;
+                        break;
+                    case THROUGH_PATENT:
+                        protections.get(i).setProtection("Protección mediante Patente");
+                        protections.get(i).setProtectionNumber(contpat + "");
+                        protsPatent.add(protections.get(i));
+                        contpat++;
+                        break;
+                    default:
+                        protections.get(i).setProtection("Registro de Cultivares");
+                        protections.get(i).setProtectionNumber(contcult + "");
+                        protsCult.add(protections.get(i));
+                        contcult++;
+                        break;
+                }
+                System.out.println("protection " + (i + 1) + ": " + protections.get(i).getProtection());
+            }
+            //tab 8
+            VegetablePriority vp = vf.getVegetablePriority();
+            vp.setCountry(c.getCountryById(vp.getCountryId()).getName());
+            List<VegetablePriority> priorities = new ArrayList<>();
+            priorities.add(vp);
+
+            List<ExploitedSelled> interr = new ArrayList<>();
+            List<ExploitedSelled> outerr = new ArrayList<>();
+            for (int i = 0; i < vf.getExploitedSelleds().size(); i++) {
+                vf.getExploitedSelleds().get(i).setCountry(c.getCountryById(vf.getExploitedSelleds().get(i).getCountryId()).getName());
+                if (vf.getExploitedSelleds().get(i).getExplotationType().equals(ExplotationType.IN_ANDEAN_SUBREGION)) {
+                    interr.add(vf.getExploitedSelleds().get(i));
+                } else {
+                    outerr.add(vf.getExploitedSelleds().get(i));
+                }
+            }
+
             JRBeanCollectionDataSource applicantsDS = new JRBeanCollectionDataSource(applicants);
             JRBeanCollectionDataSource obtentorsDS = new JRBeanCollectionDataSource(obtentors);
             JRBeanCollectionDataSource personnDS = new JRBeanCollectionDataSource(personn);
+            
+            JRBeanCollectionDataSource protectionBDS = new JRBeanCollectionDataSource(protsBreeder);
+            JRBeanCollectionDataSource protectionPDS = new JRBeanCollectionDataSource(protsPatent);
+            JRBeanCollectionDataSource protectionCDS = new JRBeanCollectionDataSource(protsCult);
+            
+            JRBeanCollectionDataSource priorityDS = new JRBeanCollectionDataSource(priorities);
+
+            JRBeanCollectionDataSource interrDS = new JRBeanCollectionDataSource(interr);
+            JRBeanCollectionDataSource outerrDS = new JRBeanCollectionDataSource(outerr);
             //fin lista de personas
 
             parametro.put("applicants", applicantsDS);
             parametro.put("obtentors", obtentorsDS);
             parametro.put("personn", personnDS);
-            parametro.put("geographic_origin_country",c.getCountryById(vf.getGeographicOrigin()).getName());
-            
-            
+            parametro.put("geographic_origin_country", c.getCountryById(vf.getGeographicOrigin()).getName());
+            parametro.put("protectionsb", protectionBDS);
+            parametro.put("protb", !protsBreeder.isEmpty());
+            parametro.put("protectionsp", protectionPDS);
+            parametro.put("protp", !protsPatent.isEmpty());
+            parametro.put("protectionsc", protectionCDS);
+            parametro.put("protc", !protsCult.isEmpty());
+            parametro.put("priorities", priorityDS);
+            parametro.put("interr", interrDS);
+            parametro.put("outerr", outerrDS);
+            parametro.put("country_exam", c.getCountryById(vf.getCountryExam()).getName());
+            parametro.put("country_sample", c.getCountryById(vf.getCountryLivingSample()).getName());
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
             if (jasperPrint.getPages().isEmpty()) {

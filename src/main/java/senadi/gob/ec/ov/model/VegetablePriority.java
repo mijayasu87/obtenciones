@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 /**
  *
@@ -44,6 +45,9 @@ public class VegetablePriority implements Serializable{
     
     @Column(name = "application_number")
     private String applicationNumber;
+    
+    @Transient
+    private String country;
     
     @OneToOne
     @JoinColumn(name = "vegetable_form_id")
@@ -145,5 +149,19 @@ public class VegetablePriority implements Serializable{
      */
     public void setApplicationDate(Date applicationDate) {
         this.applicationDate = applicationDate;
+    }
+
+    /**
+     * @return the country
+     */
+    public String getCountry() {
+        return country;
+    }
+
+    /**
+     * @param country the country to set
+     */
+    public void setCountry(String country) {
+        this.country = country;
     }
 }

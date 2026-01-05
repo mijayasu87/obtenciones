@@ -209,6 +209,14 @@ and open the template in the editor.
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.commonName}" id="commonn" 
                                          styleClass="#{(breederFormBean.showTab4Error and breederFormBean.vegetableForms.commonName.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                     </p:tab>
+                    <p:tab title="4. Grupo Varietal" id="grupvar">
+                        <p:selectOneRadio id="groupv" value="#{breederFormBean.vegetableForms.varietalGroup}" layout="pageDirection" 
+                                          style="text-align: left" 
+                                          styleClass="#{breederFormBean.showTab18Error and (breederFormBean.vegetableForms.varietalGroup eq null || breederFormBean.vegetableForms.varietalGroup.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
+                            <f:selectItem itemValue="GROUP_A" itemLabel="“GRUPO A”: Ornamentales; árboles, arbustos y herbáceas de tipo frutales y ornamentales; cucurbitáceas; vid; hortalizas; palmeras; y, caña de azúcar."                                          />
+                            <f:selectItem itemValue="GROUP_B" itemLabel="“GRUPO B”: Otras variedades no consideradas en el ‘GRUPO A’, tales como: cereales; tubérculos; raíces; y, cultivos andinos." />                            
+                        </p:selectOneRadio>
+                    </p:tab>
                     <p:tab title="5. Denominación de la variedad" id="denvar">
 
                         <p>La denominación deberá ser igual en todos los países miembros de la Unión Internacional para la Protección de las Obtenciones Vegetales (UPOV) donde se solicite protección, y deberá ser diferente de una variedad existente de la misma especie vegetal o de una especie semejante y no deberá ser utilizada más de una vez en la misma clase.</p>
@@ -705,6 +713,9 @@ and open the template in the editor.
                     </p:tab>                    
                     <p:tab title="15. Documentos Adjuntos" id="docadd">
                         <p:outputLabel value="Se adjuntan los siguientes formularios y documentos a la presente solicitud: Por favor, adjunte los documentos pertinentes:" />
+                        <p:panel style="border: 1px black solid">
+                            <span style="color: blue; font-size: 10px">Los documentos obligatorios, también debe presentarlos de manera física en el SENADI</span>
+                        </p:panel>
                         <p:dataList id="dtganx" var="anx" value="#{breederFormBean.annexes}" varStatus="st"
                                     widgetVar="dtganx" binding="#{breederFormBean.annexeData}" 
                                     styleClass="annex-list">
@@ -760,8 +771,9 @@ and open the template in the editor.
                                      process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.savevf){PF('dlgConfirmar').show();}"/>
                     <p:commandButton value="VISTA PREVIA" class="btn_buscar" actionListener="#{breederFormBean.preparePreviewVegetableForms}"
                                      process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.previewvf){PF('dlgConfirmar').show();}"/>
-                    <p:commandButton value="GENERAR COMPROBANTE" class="btn_buscar" rendered="#{breederFormBean.vegetableForms.status eq 'PREVIEW'}"
-                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.previewvf){PF('dlgConfirmar').show();}"/>
+                    <p:commandButton value="GENERAR COMPROBANTE" class="btn_buscar" actionListener="#{breederFormBean.prepareGenerateVoucher}"
+                                     rendered="#{breederFormBean.vegetableForms.status eq 'PREVIEW'}"
+                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.generatev){PF('dlgConfirmar').show();}"/>
                 </div>
                 <p:dialog id="dlgConfirmar" modal="true" header="CONFIRMAR" widgetVar="dlgConfirmar" width="400">
                     <p:outputLabel value="ESTÁ SEGURO DE GUARDAR EL FORMULARIO ACTUAL?" />

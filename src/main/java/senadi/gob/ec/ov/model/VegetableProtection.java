@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import senadi.gob.ec.ov.model.enums.ProtectionType;
 
 /**
@@ -50,9 +51,18 @@ public class VegetableProtection implements Serializable{
     @Column(name = "denomination")
     private String denomination;
     
+    @Transient
+    private String country;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "protection_type", nullable = false)
     private ProtectionType protectionType;
+    
+    @Transient
+    private String protection;
+    
+    @Transient
+    private String protectionNumber;
     
     @ManyToOne
     @JoinColumn(name = "vegetable_forms_id", nullable = false)
@@ -182,5 +192,47 @@ public class VegetableProtection implements Serializable{
      */
     public void setSubmissionDate(Date submissionDate) {
         this.submissionDate = submissionDate;
+    }
+
+    /**
+     * @return the country
+     */
+    public String getCountry() {
+        return country;
+    }
+
+    /**
+     * @param country the country to set
+     */
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    /**
+     * @return the protection
+     */
+    public String getProtection() {
+        return protection;
+    }
+
+    /**
+     * @param protection the protection to set
+     */
+    public void setProtection(String protection) {
+        this.protection = protection;
+    }
+
+    /**
+     * @return the protectionNumber
+     */
+    public String getProtectionNumber() {
+        return protectionNumber;
+    }
+
+    /**
+     * @param protectionNumber the protectionNumber to set
+     */
+    public void setProtectionNumber(String protectionNumber) {
+        this.protectionNumber = protectionNumber;
     }
 }

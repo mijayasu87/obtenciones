@@ -5,6 +5,7 @@
 package senadi.gob.ec.ov.bean;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -18,11 +19,13 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIData;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
+import senadi.gob.ec.ov.bean.solicitudes.BreederForm;
 import senadi.gob.ec.ov.bean.solicitudes.City;
 import senadi.gob.ec.ov.bean.solicitudes.Country;
 import senadi.gob.ec.ov.bean.solicitudes.Province;
@@ -48,6 +51,7 @@ import senadi.gob.ec.ov.model.enums.PersonType;
 import senadi.gob.ec.ov.model.enums.ProtectionType;
 import senadi.gob.ec.ov.model.enums.Status;
 import senadi.gob.ec.ov.model.enums.VarietyTransferType;
+import senadi.gob.ec.ov.servlet.Report;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Operations;
 import senadi.gob.ec.ov.util.Parameter;
@@ -207,8 +211,11 @@ public class BreederFormBean implements Serializable {
     private boolean showTab14Error = false;
 
     private boolean showTab15Error = false;
-    
+
     private boolean showTab17Error = false;
+    
+    //varietal group
+    private boolean showTab18Error = false;
 
     private Integer action; //1: save, 2: preview, 3: finished, 4:delivered
 
@@ -216,7 +223,7 @@ public class BreederFormBean implements Serializable {
 
     private VegetableAnnexesData annexeAux;
 
-    private Declaration declaration;
+    private Declaration declaration;        
 
 //    public BreederFormBean() {
 //        preloadEdit();
@@ -244,9 +251,9 @@ public class BreederFormBean implements Serializable {
             annexes.get(i).setIdVegatableForms(null);
         }
         annexes.get(1).setRequired(true);
-        annexes.get(3).setRequired(true);
-        annexes.get(5).setRequired(true);
+        annexes.get(4).setRequired(true);
         annexes.get(6).setRequired(true);
+        annexes.get(8).setRequired(true);
 
         if (editId != null) {
             // 🔹 MODO EDICIÓN
@@ -456,9 +463,9 @@ public class BreederFormBean implements Serializable {
         declaration.setDeclarationDate(new Timestamp(System.currentTimeMillis()));
         if (vegetableForms.getDeclaration() != null && vegetableForms.getDeclaration().getId() != null) {
             declaration = vegetableForms.getDeclaration();
-            if(!Operations.validarFecha(declaration.getDeclarationDate())){
+            if (!Operations.validarFecha(declaration.getDeclarationDate())) {
                 declaration.setDeclarationDate(new Timestamp(System.currentTimeMillis()));
-                System.out.println("declaration -----> "+declaration.getDeclarationDate());
+                System.out.println("declaration -----> " + declaration.getDeclarationDate());
             }
         }
 
@@ -594,9 +601,9 @@ public class BreederFormBean implements Serializable {
                 if (applicants.size() == 1) {
                     System.out.println("cosas 4");
                     personNotification = applicants.get(0);
-                    if(personNotification.getCityAddress() != null){
+                    if (personNotification.getCityAddress() != null) {
                         cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
-                    }                    
+                    }
                     System.out.println("Persona notificación: " + personNotification.toString());
                     personVegetableNotification = new PersonVegetable();
                     showTipoNotificacionError = false;
@@ -604,9 +611,9 @@ public class BreederFormBean implements Serializable {
                     System.out.println("cosas 5");
                     personsNotification = applicants;
                     System.out.println("cosas 5 1");// revisaaaaaaaaaar aquí
-                    if(personNotification.getCityAddress() != null){
+                    if (personNotification.getCityAddress() != null) {
                         cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
-                    }                    
+                    }
                     System.out.println("cosas 5 2");
                     PrimeFaces.current().ajax().addCallbackParam("pernotsel", true);
                     System.out.println("Debe escoger un solicitante de la lista de solicitantes.");
@@ -861,6 +868,16 @@ public class BreederFormBean implements Serializable {
             PrimeFaces.current().ajax().addCallbackParam("previewvf", true);
         } else {
             Operations.mensaje(Operations.ERROR, "HAY UN ERROR DESCONOCIDO EN EL FORMULARIO");
+        }
+    }
+
+    public void prepareGenerateVoucher(ActionEvent ae) {
+        System.out.println("generate voucher llegando");
+        if (vegetableForms != null && vegetableForms.getId() != null) {
+            action = 3;
+            PrimeFaces.current().ajax().addCallbackParam("generatev", true);
+        } else {
+            Operations.mensaje(Operations.ERROR, "EL FORMULARIO ACTUAL PRESENTA UN PROBLEMA, INTENTE MÁS TARDE");
         }
     }
 
@@ -1321,8 +1338,9 @@ public class BreederFormBean implements Serializable {
      *
      * @return true si se guardaron correctamente caso contrarios devuelve false
      * si no se guardó
+     * @throws java.io.IOException
      */
-    public boolean preliminarSave() {
+    public boolean preliminarSave() throws IOException {
         Controller c = new Controller();
         vegetableForms.setOwnerId(login.getOwner().getId());
         vegetableForms.setCreateDate(new Timestamp(System.currentTimeMillis()));
@@ -1339,19 +1357,25 @@ public class BreederFormBean implements Serializable {
         if (vegetableForms.getVarietyTransfer() != null && vegetableForms.getVarietyTransfer()) {
             boolean flagvariety = false;
             if (varietyTransferSelected != null && !varietyTransferSelected.trim().isEmpty()) {
-                if (varietyTransferSelected.equals("SUCCESSION")) {
-                    vegetableForms.setVarietyTransferType(VarietyTransferType.SUCCESSION);
-                } else if (varietyTransferSelected.equals("CONTRACT")) {
-                    vegetableForms.setVarietyTransferType(VarietyTransferType.CONTRACT);
-                } else if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT")) {
-                    vegetableForms.setVarietyTransferType(VarietyTransferType.EMPLOYMENT_CONTRACT);
-                    flagvariety = true;
-                } else if (varietyTransferSelected.equals("TRANSFER_RIGHTS")) {
-                    vegetableForms.setVarietyTransferType(VarietyTransferType.TRANSFER_RIGHTS);
-                    flagvariety = true;
-                } else {
-                    vegetableForms.setVarietyTransferType(VarietyTransferType.OTHER);
-                    flagvariety = true;
+                switch (varietyTransferSelected) {
+                    case "SUCCESSION":
+                        vegetableForms.setVarietyTransferType(VarietyTransferType.SUCCESSION);
+                        break;
+                    case "CONTRACT":
+                        vegetableForms.setVarietyTransferType(VarietyTransferType.CONTRACT);
+                        break;
+                    case "EMPLOYMENT_CONTRACT":
+                        vegetableForms.setVarietyTransferType(VarietyTransferType.EMPLOYMENT_CONTRACT);
+                        flagvariety = true;
+                        break;
+                    case "TRANSFER_RIGHTS":
+                        vegetableForms.setVarietyTransferType(VarietyTransferType.TRANSFER_RIGHTS);
+                        flagvariety = true;
+                        break;
+                    default:
+                        vegetableForms.setVarietyTransferType(VarietyTransferType.OTHER);
+                        flagvariety = true;
+                        break;
                 }
                 if (!flagvariety) {
                     vegetableForms.setVarietyTransferDescription("");
@@ -1399,18 +1423,22 @@ public class BreederFormBean implements Serializable {
 
         //tab 10
         if (technicalQuiz != null && !technicalQuiz.trim().isEmpty()) {
-            if (technicalQuiz.equals("PERFORMED")) {
-                vegetableForms.setExamPerformed(true);
-                vegetableForms.setExamInProcess(false);
-                vegetableForms.setNoExamYet(false);
-            } else if (technicalQuiz.equals("INPROCESS")) {
-                vegetableForms.setExamPerformed(false);
-                vegetableForms.setExamInProcess(true);
-                vegetableForms.setNoExamYet(false);
-            } else {
-                vegetableForms.setExamPerformed(false);
-                vegetableForms.setExamInProcess(false);
-                vegetableForms.setNoExamYet(true);
+            switch (technicalQuiz) {
+                case "PERFORMED":
+                    vegetableForms.setExamPerformed(true);
+                    vegetableForms.setExamInProcess(false);
+                    vegetableForms.setNoExamYet(false);
+                    break;
+                case "INPROCESS":
+                    vegetableForms.setExamPerformed(false);
+                    vegetableForms.setExamInProcess(true);
+                    vegetableForms.setNoExamYet(false);
+                    break;
+                default:
+                    vegetableForms.setExamPerformed(false);
+                    vegetableForms.setExamInProcess(false);
+                    vegetableForms.setNoExamYet(true);
+                    break;
             }
             if (countryQuiz != null && countryQuiz.getId() > 0) {
                 vegetableForms.setCountryExam(countryQuiz.getId());
@@ -1472,17 +1500,23 @@ public class BreederFormBean implements Serializable {
             if (personNotification != null && personNotification.getIdentificationNumber() != null) {
                 List<Person> personsNotifications = new ArrayList<>();
                 personsNotifications.add(personNotification);
-                if (tipoNotificacion.equals("SOLICITANTE")) {
-                    generateAsociationPerson(personsNotifications, PersonType.APPLICANT_DIR, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
-                } else if (tipoNotificacion.equals("OBTENTOR")) {
-                    generateAsociationPerson(personsNotifications, PersonType.BREEDER_DIR, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
-                } else if (tipoNotificacion.equals("REPRESENTANTE")) {
-                    generateAsociationPerson(personsNotifications, PersonType.LEGAL_REPRESENTATIVE, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
-                } else {
-                    generateAsociationPerson(personsNotifications, PersonType.ATTORNEY, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                switch (tipoNotificacion) {
+                    case "SOLICITANTE":
+                        generateAsociationPerson(personsNotifications, PersonType.APPLICANT_DIR, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                        break;
+                    case "OBTENTOR":
+                        generateAsociationPerson(personsNotifications, PersonType.BREEDER_DIR, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                        break;
+                    case "REPRESENTANTE":
+                        generateAsociationPerson(personsNotifications, PersonType.LEGAL_REPRESENTATIVE, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                        break;
+                    default:
+                        generateAsociationPerson(personsNotifications, PersonType.ATTORNEY, personVegetableNotification.getJudicialLocker(), personVegetableNotification.getPowerCode());
+                        break;
                 }
             }
-            System.out.println("has other applications - now: " + vegetableForms.getHasOtherApplications());
+            //tab 7: protections
+            System.out.println("has other applications - now: " + vegetableForms.getHasOtherApplications());            
             if (vegetableForms.getHasOtherApplications() != null && vegetableForms.getHasOtherApplications()) {
                 if (vegetableForms.getVegetableProtections() != null && !vegetableForms.getVegetableProtections().isEmpty()) {
                     // 🔥 Eliminar objetos que llegan sin padre — son temporales del UI y causan el error                                        
@@ -1493,6 +1527,12 @@ public class BreederFormBean implements Serializable {
                     for (VegetableProtection protection : vegetableProtections) {
                         protection.setVegetableForms(vegetableForms);
                         vegetableForms.getVegetableProtections().add(protection);
+                    }
+                }
+            }else{
+                if(vegetableForms.getHasOtherApplications() != null && !vegetableForms.getHasOtherApplications()){
+                    if(!vegetableForms.getVegetableProtections().isEmpty()){                        
+                        vegetableForms.getVegetableProtections().clear();
                     }
                 }
             }
@@ -1713,22 +1753,33 @@ public class BreederFormBean implements Serializable {
             }
             System.out.println("llegoooooooooooooooooo 17");
             //tab 17
-            if (declaration != null) {                
+            if (declaration != null) {
                 System.out.println("llegoooooooooooooooooo 17 1");
-                System.out.println("declaration: "+declaration.getDeclarationDate());
-                System.out.println("vegetablef: "+vegetableForms.getId());
-                
+                System.out.println("declaration: " + declaration.getDeclarationDate());
+                System.out.println("vegetablef: " + vegetableForms.getId());
+
                 declaration.setVegetableForms(vegetableForms);
                 vegetableForms.setDeclaration(declaration);
                 System.out.println("llegoooooooooooooooooo 17 2");
             }
 
             if (c.updateVegetableForms(vegetableForms)) {
-                if (action == 2) {
+                if (action == 2 || action == 3) {
                     //aquí hacer el reporte de vista previa
-
+                    if (generatePdfPreview()) {
+                        if(action == 3){
+                            if(generatePdfVoucher()){
+                                Operations.mensaje(Operations.INFORMACION, "SE HA GENERADO CORRECTAMENTE EL COMPROBANTE");
+                            }
+                        }else{
+                            Operations.mensaje(Operations.INFORMACION, "SE HA GENERADO LA VISTA PREVIA CORRECTAMENTE");
+                        }                        
+                        return true;
+                    } else {
+                        Operations.mensaje(Operations.AVISO, "NO SE PUDO CREAR EL DOCUMENTO DE VISTA PREVIA, INTENTE DE NUEVO");
+                        return true;
+                    }
                 }
-                Operations.mensaje(Operations.INFORMACION, "SE HA GUARDADO CORRECTAMENTE EL REGISTRO");
                 return true;
             } else {
                 Operations.mensaje(Operations.ERROR, "HUBO UN ERROR AL INTENTAR GUARDAR LOS SOLICITANTES");
@@ -1739,6 +1790,36 @@ public class BreederFormBean implements Serializable {
             Operations.mensaje(Operations.ERROR, "NO SE HA PODIDO GUARDAR EL REGISTRO");
             return false;
         }
+    }
+    
+    public boolean generatePdfVoucher(){
+        
+        BreederForm breeder = new BreederForm();
+        breeder.setCreateDate(new Timestamp(System.currentTimeMillis()));
+        breeder.setStatus("FINISHED");
+        
+        
+        
+        breeder.setApplicationNumber("obtener el número que corresponde");
+        breeder.setDiscountFile("poner descuento si es que hay");
+        
+        //hacer método para guardar breeder
+        
+        
+        return true;
+    }
+
+    public boolean generatePdfPreview() throws IOException {
+        Report report = new Report();
+        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+        String path = ec.getRealPath("/WEB-INF/report/");
+        InputStream is = FacesContext.getCurrentInstance()
+                .getExternalContext()
+                .getResourceAsStream("/WEB-INF/report/BreederReport.jrxml");
+        FileInputStream in = report.viewVegetableForms(path, is, "archivo.xls", vegetableForms.getId());
+        SFTPUtil sftp = new SFTPUtil();
+        ByteArrayInputStream input = new ByteArrayInputStream(in.readAllBytes());
+        return sftp.guardarArchivoEnServidorRemoto(input, vegetableForms.getId(), "pdf_breederfrm_" + vegetableForms.getId() + ".pdf");
     }
 
     private boolean eliminarArchivoFisico(VegetableAnnexesData vad) {
@@ -1788,7 +1869,7 @@ public class BreederFormBean implements Serializable {
         return vad;
     }
 
-    public void saveVegetableForms(ActionEvent ae) {
+    public void saveVegetableForms(ActionEvent ae) throws IOException {
         if (vegetableForms != null) {
             if (action == 1) {
                 if (validarTaxon()) {
@@ -1798,6 +1879,11 @@ public class BreederFormBean implements Serializable {
                     }
                 }
             } else if (action == 2) {
+                if (validarCampos()) {
+                    preliminarSave();
+                    PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                }
+            } else if (action == 3) {
                 if (validarCampos()) {
                     preliminarSave();
                     PrimeFaces.current().ajax().addCallbackParam("doit", true);
@@ -1836,7 +1922,7 @@ public class BreederFormBean implements Serializable {
 
         showTab14Error = false;
         showTab15Error = false;
-        
+
         showTab17Error = false;
     }
 
@@ -4102,5 +4188,19 @@ public class BreederFormBean implements Serializable {
      */
     public void setShowTab17Error(boolean showTab17Error) {
         this.showTab17Error = showTab17Error;
+    }
+
+    /**
+     * @return the showTab18Error
+     */
+    public boolean isShowTab18Error() {
+        return showTab18Error;
+    }
+
+    /**
+     * @param showTab18Error the showTab18Error to set
+     */
+    public void setShowTab18Error(boolean showTab18Error) {
+        this.showTab18Error = showTab18Error;
     }
 }

@@ -17,6 +17,7 @@ public class Parameter {
     //prueba formularios
     public static String iepi_casilleros = "jdbc:mysql://10.0.26.130:3306/iepi_casilleros";
     public static String iepi_formularios = "jdbc:mysql://10.0.26.130:3306/iepi_formularios";
+    
     public static String USER = "iepi-solicitudes";
     public static String PASSWORD = "5ad0d5c3fced39d5048f";
     
@@ -33,11 +34,12 @@ public class Parameter {
     public static int SFTP_PORT = 22;
     
     public static String RUTA_SERVER = "/var/www/html/solicitudes/media/files/breeder_forms/";
+    //Pruebas
     public static String RUTA_URL = "https://pruebas.propiedadintelectual.gob.ec/solicitudes/media/files/breeder_forms/";
         
     //Data Base local
     public static String USER_DB = "root";
-    public static String PASSWORD_DB = "MichaRoot6*";
+    public static String PASSWORD_DB = "root";//MichaRoot6*
     public static String DATABASE = "senadi_vegetable";
     public static String HOST_DB = "localhost";    
     
