@@ -10,7 +10,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import senadi.gob.ec.ov.bean.BreederFormBean;
-import senadi.gob.ec.ov.bean.solicitudes.City;
+import senadi.gob.ec.ov.solicitudes.City;
 
 
 /**

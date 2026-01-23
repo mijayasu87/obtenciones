@@ -154,8 +154,14 @@ public class VegetableForms implements Serializable {
     @Column(name = "electronic_communication_consent")
     private Boolean electronicCommunicationConsent;
     
-    @Column(name = "varietal_group", nullable = false)
+    @Column(name = "varietal_group")
     private String varietalGroup;
+    
+    @Column(name = "payment_receipt_id")
+    private Integer paymentReceiptId;
+    
+    @Column(name = "discount_file")
+    private String discountFile;
 
     @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private VegetablePriority vegetablePriority;
@@ -185,7 +191,7 @@ public class VegetableForms implements Serializable {
     private Declaration declaration;
     
     @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
-    private FormPaymentRate formPaymentRate;
+    private FormPaymentRate formPaymentRate;        
 
     public VegetableForms() {
         botanicalTaxon = "";
@@ -886,6 +892,45 @@ public class VegetableForms implements Serializable {
      */
     public void setVarietalGroup(String varietalGroup) {
         this.varietalGroup = varietalGroup;
+    }
+    
+    public List<Person> getPersonsType(String type){
+        List<PersonVegetable> persons = getPersonVegetables();
+        List<Person> people = new ArrayList<>();
+        for (int i = 0; i < persons.size(); i++) {
+            if(persons.get(i).getPersonType().equals(PersonType.APPLICANT)){
+                people.add(persons.get(i).getPerson());
+            }
+        }
+        return people;
+    }
+
+    /**
+     * @return the paymentReceiptId
+     */
+    public Integer getPaymentReceiptId() {
+        return paymentReceiptId;
+    }
+
+    /**
+     * @param paymentReceiptId the paymentReceiptId to set
+     */
+    public void setPaymentReceiptId(Integer paymentReceiptId) {
+        this.paymentReceiptId = paymentReceiptId;
+    }
+
+    /**
+     * @return the discountFile
+     */
+    public String getDiscountFile() {
+        return discountFile;
+    }
+
+    /**
+     * @param discountFile the discountFile to set
+     */
+    public void setDiscountFile(String discountFile) {
+        this.discountFile = discountFile;
     }
 
 }

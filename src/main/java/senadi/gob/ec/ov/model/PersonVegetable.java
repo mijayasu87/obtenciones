@@ -42,6 +42,9 @@ public class PersonVegetable implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "person_type", nullable = false, insertable = false, updatable = false)
     private PersonType personType;
+    
+    @Column(name = "email_lawyer_attorney", length = 30)
+    private String emailLawyerAttorney;
 
     @Column(name = "judicial_locker", length = 30)
     private String judicialLocker;
@@ -122,5 +125,19 @@ public class PersonVegetable implements Serializable {
     @Override
     public String toString(){
         return getPersonType().toString()+" - "+getPerson().getId();
+    }
+
+    /**
+     * @return the emailLawyerAttorney
+     */
+    public String getEmailLawyerAttorney() {
+        return emailLawyerAttorney;
+    }
+
+    /**
+     * @param emailLawyerAttorney the emailLawyerAttorney to set
+     */
+    public void setEmailLawyerAttorney(String emailLawyerAttorney) {
+        this.emailLawyerAttorney = emailLawyerAttorney;
     }
 }

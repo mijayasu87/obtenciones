@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package senadi.gob.ec.ov.bean.solicitudes;
+package senadi.gob.ec.ov.solicitudes;
 
 import java.util.Objects;
 
@@ -10,19 +10,19 @@ import java.util.Objects;
  *
  * @author michael
  */
-public class Country {
+public class City {
 
-    Integer id;
+    private Integer id;
+    private Integer provinceId;
     private String name;
-    private String code;
 
-    public Country(Integer id, String name, String code) {
+    public City(Integer id, Integer provinceId, String name) {
         this.id = id;
+        this.provinceId = provinceId;
         this.name = name;
-        this.code = code;
     }
 
-    public Country() {
+    public City() {
     }
 
     /**
@@ -40,6 +40,20 @@ public class Country {
     }
 
     /**
+     * @return the provinceId
+     */
+    public Integer getProvinceId() {
+        return provinceId;
+    }
+
+    /**
+     * @param provinceId the provinceId to set
+     */
+    public void setProvinceId(Integer provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    /**
      * @return the name
      */
     public String getName() {
@@ -53,34 +67,20 @@ public class Country {
         this.name = name;
     }
 
-    /**
-     * @return the code
-     */
-    public String getCode() {
-        return code;
-    }
-
-    /**
-     * @param code the code to set
-     */
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     @Override
     public String toString() {
         return getName();
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Country)) {
+        if (!(o instanceof City)) {
             return false;
         }
-        Country other = (Country) o;
+        City other = (City) o;
         return Objects.equals(this.id, other.id);
     }
 

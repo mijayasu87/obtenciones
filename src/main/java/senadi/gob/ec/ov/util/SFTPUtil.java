@@ -10,6 +10,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Properties;
 
 /**
  *
@@ -72,13 +73,13 @@ public class SFTPUtil {
         if (inputs == null) {
             System.err.println("No se ha seleccionado ningún archivo para subir.");
             return false;
-        }        
+        }
         Session session = null;
         ChannelSftp channelSftp = null;
-        try (InputStream input = inputs) {            
+        try (InputStream input = inputs) {
             // Configuración del servidor SFTP
 
-            String SFTP_DIR = Parameter.RUTA_SERVER + idCarpeta + "/";            
+            String SFTP_DIR = Parameter.RUTA_SERVER + idCarpeta + "/";
             JSch jsch = new JSch();
             session = jsch.getSession(Parameter.SFTP_USER, Parameter.SFTP_HOST, Parameter.SFTP_PORT);
             session.setPassword(Parameter.SFTP_PASS);
@@ -91,9 +92,9 @@ public class SFTPUtil {
             // Conexión
             session.connect();
             channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();            
+            channelSftp.connect();
             //Crear carpeta en caso de que no exista
-            createRemoteDirectoriy(channelSftp, SFTP_DIR);            
+            createRemoteDirectoriy(channelSftp, SFTP_DIR);
             // Subir archivo
 //            String nombreArchivo = uploadedFile.getFileName();
 //            channelSftp.cd(SFTP_DIR);
@@ -117,6 +118,91 @@ public class SFTPUtil {
         }
     }
 
+    public boolean copiarArchivoEnServidorRemoto(
+            String carpetaOrigen,
+            String carpetaDestino,
+            String nombreArchivo) {
+
+        Session session = null;
+        ChannelSftp sftpRead = null;
+        ChannelSftp sftpWrite = null;
+
+        try {
+            JSch jsch = new JSch();
+            session = jsch.getSession(
+                    Parameter.SFTP_USER,
+                    Parameter.SFTP_HOST,
+                    Parameter.SFTP_PORT
+            );
+            session.setPassword(Parameter.SFTP_PASS);
+
+            Properties config = new Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+
+            session.connect();
+
+            sftpRead = (ChannelSftp) session.openChannel("sftp");
+            sftpRead.connect();
+
+            sftpWrite = (ChannelSftp) session.openChannel("sftp");
+            sftpWrite.connect();
+
+            // 🔴 RUTAS ABSOLUTAS
+            String origen = carpetaOrigen + nombreArchivo;
+//            String destino = carpetaDestino + "/" + nombreArchivo;
+            System.out.println("origen: " + origen);
+//            System.out.println("destino: "+destino);
+
+            createRemoteDirectory(sftpRead, carpetaDestino);
+
+            try (InputStream input = sftpRead.get(origen)) {
+                sftpWrite.cd(carpetaDestino);
+                sftpWrite.put(input, nombreArchivo);
+            }
+            System.out.println("✅ Archivo copiado correctamente");
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al copiar archivo: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            if (sftpRead != null) {
+                sftpRead.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
+        }
+    }
+
+    /**
+     * No usa cd
+     */
+    private void createRemoteDirectory(ChannelSftp sftp, String remoteDir) throws SftpException {
+
+        String[] folders = remoteDir.split("/");
+        String path = "";
+
+        for (String folder : folders) {
+            if (folder.isEmpty()) {
+                continue;
+            }
+
+            path += "/" + folder;
+            try {
+                sftp.stat(path);
+            } catch (SftpException e) {
+                sftp.mkdir(path);
+            }
+        }
+    }
+
+    /**
+     * Usa cd
+     */
     private void createRemoteDirectoriy(ChannelSftp sftpChannel, String remotePath) throws SftpException {
         // Asegurar que termina en "/"
         if (!remotePath.endsWith("/")) {

@@ -86,7 +86,9 @@ public class InformeBreeder extends HttpServlet {
                 nombre = nombre.trim().replace(" ", "_");
                 response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                 is = getServletContext().getResourceAsStream("/WEB-INF/report/BreederReport.jrxml");
-                in = report.viewVegetableForms(path, is, "archivo.xls", id);
+//                String jasperPath = context.getRealPath("/WEB-INF/report/BreederReport.jasper");
+//                String jrxmlPath = context.getRealPath("/WEB-INF/report/BreederReport.jrxml");
+                in = report.generatePDFVegetableForms(path, is, "archivo.xls", id);
             } else {
                 System.err.println("No se cargó correctamente el vegetable_forms");
             }

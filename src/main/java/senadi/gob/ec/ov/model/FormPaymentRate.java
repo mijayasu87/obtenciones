@@ -30,7 +30,7 @@ public class FormPaymentRate implements Serializable{
     private Integer id;    
     
     @Column(name = "form_payment_rate_id")
-    private Integer formPayamentRateId;
+    private Integer formPaymentRateId;
     
     @Column(name = "payment_rate_id")
     private Integer paymentRateId;
@@ -57,17 +57,17 @@ public class FormPaymentRate implements Serializable{
     }
 
     /**
-     * @return the formPayamentRateId
+     * @return the formPaymentRateId
      */
-    public Integer getFormPayamentRateId() {
-        return formPayamentRateId;
+    public Integer getFormPaymentRateId() {
+        return formPaymentRateId;
     }
 
     /**
-     * @param formPayamentRateId the formPayamentRateId to set
+     * @param formPaymentRateId the formPaymentRateId to set
      */
-    public void setFormPayamentRateId(Integer formPayamentRateId) {
-        this.formPayamentRateId = formPayamentRateId;
+    public void setFormPaymentRateId(Integer formPaymentRateId) {
+        this.formPaymentRateId = formPaymentRateId;
     }
 
     /**

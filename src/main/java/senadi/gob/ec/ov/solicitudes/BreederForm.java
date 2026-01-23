@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package senadi.gob.ec.ov.bean.solicitudes;
+package senadi.gob.ec.ov.solicitudes;
 
 import java.sql.Timestamp;
 
@@ -12,12 +12,16 @@ import java.sql.Timestamp;
  */
 public class BreederForm {
     private Integer id;
+    private String proposedName;
+    private String commercialName;
     private Timestamp createDate;
     private Timestamp applicationDate;
     private String applicationNumber;
     private String status;
     private Integer paymentReceiptId;
     private String discountFile;
+    private Integer ownerId;
+    private String group;
 
     /**
      * @return the id
@@ -115,5 +119,61 @@ public class BreederForm {
      */
     public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
+    }
+
+    /**
+     * @return the proposedName
+     */
+    public String getProposedName() {
+        return proposedName;
+    }
+
+    /**
+     * @param proposedName the proposedName to set
+     */
+    public void setProposedName(String proposedName) {
+        this.proposedName = proposedName;
+    }
+
+    /**
+     * @return the commercialName
+     */
+    public String getCommercialName() {
+        return commercialName;
+    }
+
+    /**
+     * @param commercialName the commercialName to set
+     */
+    public void setCommercialName(String commercialName) {
+        this.commercialName = commercialName;
+    }
+
+    /**
+     * @return the ownerId
+     */
+    public Integer getOwnerId() {
+        return ownerId;
+    }
+
+    /**
+     * @param ownerId the ownerId to set
+     */
+    public void setOwnerId(Integer ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    /**
+     * @return the group
+     */
+    public String getGroup() {
+        return group;
+    }
+
+    /**
+     * @param group the group to set
+     */
+    public void setGroup(String group) {
+        this.group = group;
     }
 }

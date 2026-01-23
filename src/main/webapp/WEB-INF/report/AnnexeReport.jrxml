@@ -44,7 +44,7 @@ where va.vegetable_form_id = $P{idv}]]>
 					<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 						<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 					</textElement>
-					<text><![CDATA[15. Anexos adjuntos que acompañan la solicitud]]></text>
+					<text><![CDATA[16. Anexos adjuntos que acompañan la solicitud]]></text>
 				</staticText>
 			</band>
 		</groupHeader>

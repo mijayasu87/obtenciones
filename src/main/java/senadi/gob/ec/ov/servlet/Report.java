@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.jasperreports.engine.*;
@@ -33,6 +35,7 @@ import senadi.gob.ec.ov.model.VegetablePriority;
 import senadi.gob.ec.ov.model.VegetableProtection;
 import senadi.gob.ec.ov.model.enums.ExplotationType;
 import senadi.gob.ec.ov.model.enums.ProtectionType;
+import senadi.gob.ec.ov.solicitudes.PaymentRates;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Parameter;
 
@@ -51,7 +54,7 @@ public class Report implements Serializable {
             String url = "jdbc:mysql://" + Parameter.HOST_DB + "/" + Parameter.DATABASE + "?serverTimezone=GMT-5&autoReconnect=true&useSSL=false";
             conn = DriverManager.getConnection(url, Parameter.USER_DB, Parameter.PASSWORD_DB);
 
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             System.out.println("Error conexion: " + ex);
             ex.printStackTrace();
         }
@@ -68,9 +71,79 @@ public class Report implements Serializable {
         }
     }
 
-    public FileInputStream viewVegetableForms(String path, InputStream rutaJrxml, String rutapdf, Integer idVegetableForms) {
+    public FileInputStream generatePDFVoucher(String path, InputStream rutaJrxml, String rutapdf, VegetableForms ve) throws JRException {
+
+        JasperReport reportePrincipal = JasperCompileManager.compileReport(rutaJrxml);
+
+        List<Person> applicants = ve.getPersonsType("APPLICANT");
+        String clientes = "";
+        for (Person applicant : applicants) {
+            clientes += applicant.getName() + "; ";
+        }
+        clientes = clientes.substring(0, clientes.length() - 2);
+
+        Controller c = new Controller();
+        PaymentRates pr = c.getPaymentRatesById(ve.getFormPaymentRate().getPaymentRateId());
+
+        Map parametro = new HashMap();
+        parametro.put("idv", ve.getId());
+        parametro.put("SUBREPORT_DIR", path + "/");
+        parametro.put("clientes", clientes);
+        parametro.put("concepto", pr.getDescription());
+        parametro.put("tasa", pr.getPaymentCode());
+
+        double value = pr.getValue();
+
+        if (ve.getDiscountFile() != null && !ve.getDiscountFile().trim().isEmpty()) {
+            double valor = value - (value * (pr.getDiscount() / 100));
+            BigDecimal bd = BigDecimal.valueOf(valor).setScale(2, RoundingMode.HALF_UP);
+            value = bd.doubleValue();
+        }
+
+        parametro.put("unitario", value + "");
+        parametro.put("total", value + "");
+
+        return createFileInputStream(reportePrincipal, parametro, rutapdf);
+
+    }
+
+    public FileInputStream createFileInputStream(JasperReport jasper, Map parameters, String rutapdf) {
+        FileInputStream entrada;
+
+        try {
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasper, parameters, conn);
+            if (jasperPrint.getPages().isEmpty()) {
+                return null;
+            }
+
+            DefaultJasperReportsContext context = DefaultJasperReportsContext.getInstance();
+
+            try (OutputStream out = new FileOutputStream(rutapdf + ".pdf")) {
+                JRPdfExporter exporter = new JRPdfExporter();
+                SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+                ExporterInput inp = new SimpleExporterInput(jasperPrint);
+                configuration.setCreatingBatchModeBookmarks(true);
+                configuration.set128BitKey(Boolean.TRUE);
+
+                exporter.setConfiguration(configuration);
+                exporter.setExporterInput(inp);
+                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
+
+                exporter.exportReport();
+
+            }
+            entrada = new FileInputStream(rutapdf + ".pdf");
+            return entrada;
+        } catch (Exception ex) {
+            System.out.println("Error print breeder_form: " + ex);
+            return null;
+        }
+    }
+
+    public FileInputStream generatePDFVegetableForms(String path, InputStream rutaJrxml, String rutapdf, Integer idVegetableForms) {
         try {
             FileInputStream entrada;
+
             JasperReport reportePrincipal = JasperCompileManager.compileReport(rutaJrxml);
 
             Map parametro = new HashMap();
@@ -145,31 +218,34 @@ public class Report implements Serializable {
                 }
                 System.out.println("protection " + (i + 1) + ": " + protections.get(i).getProtection());
             }
+
             //tab 8
             VegetablePriority vp = vf.getVegetablePriority();
-            vp.setCountry(c.getCountryById(vp.getCountryId()).getName());
-            List<VegetablePriority> priorities = new ArrayList<>();
-            priorities.add(vp);
-
             List<ExploitedSelled> interr = new ArrayList<>();
             List<ExploitedSelled> outerr = new ArrayList<>();
-            for (int i = 0; i < vf.getExploitedSelleds().size(); i++) {
-                vf.getExploitedSelleds().get(i).setCountry(c.getCountryById(vf.getExploitedSelleds().get(i).getCountryId()).getName());
-                if (vf.getExploitedSelleds().get(i).getExplotationType().equals(ExplotationType.IN_ANDEAN_SUBREGION)) {
-                    interr.add(vf.getExploitedSelleds().get(i));
-                } else {
-                    outerr.add(vf.getExploitedSelleds().get(i));
+            List<VegetablePriority> priorities = new ArrayList<>();
+            if (vp != null && vp.getId() != null) {
+                vp.setCountry(c.getCountryById(vp.getCountryId()).getName());
+                priorities.add(vp);
+
+                for (int i = 0; i < vf.getExploitedSelleds().size(); i++) {
+                    vf.getExploitedSelleds().get(i).setCountry(c.getCountryById(vf.getExploitedSelleds().get(i).getCountryId()).getName());
+                    if (vf.getExploitedSelleds().get(i).getExplotationType().equals(ExplotationType.IN_ANDEAN_SUBREGION)) {
+                        interr.add(vf.getExploitedSelleds().get(i));
+                    } else {
+                        outerr.add(vf.getExploitedSelleds().get(i));
+                    }
                 }
             }
 
             JRBeanCollectionDataSource applicantsDS = new JRBeanCollectionDataSource(applicants);
             JRBeanCollectionDataSource obtentorsDS = new JRBeanCollectionDataSource(obtentors);
             JRBeanCollectionDataSource personnDS = new JRBeanCollectionDataSource(personn);
-            
+
             JRBeanCollectionDataSource protectionBDS = new JRBeanCollectionDataSource(protsBreeder);
             JRBeanCollectionDataSource protectionPDS = new JRBeanCollectionDataSource(protsPatent);
             JRBeanCollectionDataSource protectionCDS = new JRBeanCollectionDataSource(protsCult);
-            
+
             JRBeanCollectionDataSource priorityDS = new JRBeanCollectionDataSource(priorities);
 
             JRBeanCollectionDataSource interrDS = new JRBeanCollectionDataSource(interr);

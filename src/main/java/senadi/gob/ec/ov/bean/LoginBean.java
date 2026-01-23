@@ -8,7 +8,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpSession;
 import org.primefaces.PrimeFaces;
-import senadi.gob.ec.ov.bean.solicitudes.Owners;
+import senadi.gob.ec.ov.solicitudes.Owners;
 import senadi.gob.ec.ov.util.Controller;
 
 @ManagedBean(name = "loginBean")

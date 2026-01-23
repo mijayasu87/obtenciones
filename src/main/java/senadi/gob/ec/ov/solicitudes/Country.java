@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package senadi.gob.ec.ov.bean.solicitudes;
+package senadi.gob.ec.ov.solicitudes;
 
 import java.util.Objects;
 
@@ -10,19 +10,19 @@ import java.util.Objects;
  *
  * @author michael
  */
-public class Province {
+public class Country {
 
-    private Integer id;
-    private Integer countryId;
+    Integer id;
     private String name;
+    private String code;
 
-    public Province() {
+    public Country(Integer id, String name, String code) {
+        this.id = id;
+        this.name = name;
+        this.code = code;
     }
 
-    public Province(Integer id, Integer countryId, String name) {
-        this.id = id;
-        this.countryId = countryId;
-        this.name = name;
+    public Country() {
     }
 
     /**
@@ -40,20 +40,6 @@ public class Province {
     }
 
     /**
-     * @return the countryId
-     */
-    public Integer getCountryId() {
-        return countryId;
-    }
-
-    /**
-     * @param countryId the countryId to set
-     */
-    public void setCountryId(Integer countryId) {
-        this.countryId = countryId;
-    }
-
-    /**
      * @return the name
      */
     public String getName() {
@@ -66,21 +52,35 @@ public class Province {
     public void setName(String name) {
         this.name = name;
     }
-    
+
+    /**
+     * @return the code
+     */
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * @param code the code to set
+     */
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return getName();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Province)) {
+        if (!(o instanceof Country)) {
             return false;
         }
-        Province other = (Province) o;
+        Country other = (Country) o;
         return Objects.equals(this.id, other.id);
     }
 

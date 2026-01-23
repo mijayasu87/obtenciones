@@ -786,15 +786,25 @@ img.pull-left { margin-right: 10px; }
     font-size: 15px;
 }
 
+.start_p_label{
+    font-size: 12px;
+    font-weight: bold;
+}
+
 .link{
     font-size: 20px;
     text-decoration: none;
     color: #0D47A1 !important;
+    margin-left: 5px !important;
 }
 
 .link>i:hover{
     font-size: 22px !important;
-    color: #00BCD4;
+    color: #00BCD4;    
+}
+
+.link img:hover{
+    transform: scale(1.15);
 }
 
 .link_remove{

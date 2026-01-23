@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package senadi.gob.ec.ov.bean.solicitudes;
+package senadi.gob.ec.ov.solicitudes;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

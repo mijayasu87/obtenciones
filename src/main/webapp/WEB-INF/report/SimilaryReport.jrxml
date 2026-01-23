@@ -39,7 +39,7 @@
 					<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
 						<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 					</textElement>
-					<text><![CDATA[14. Comparación con variedades similares]]></text>
+					<text><![CDATA[15. Comparación con variedades similares]]></text>
 				</staticText>
 			</band>
 		</groupHeader>

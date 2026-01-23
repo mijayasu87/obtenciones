@@ -4,16 +4,23 @@
  */
 package senadi.gob.ec.ov.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import senadi.gob.ec.ov.bean.LoginBean;
-import senadi.gob.ec.ov.bean.solicitudes.City;
-import senadi.gob.ec.ov.bean.solicitudes.Country;
-import senadi.gob.ec.ov.bean.solicitudes.Owners;
-import senadi.gob.ec.ov.bean.solicitudes.OwnersDAO;
-import senadi.gob.ec.ov.bean.solicitudes.PersonDAO;
-import senadi.gob.ec.ov.bean.solicitudes.Province;
+import senadi.gob.ec.ov.solicitudes.City;
+import senadi.gob.ec.ov.solicitudes.Country;
+import senadi.gob.ec.ov.solicitudes.Owners;
+import senadi.gob.ec.ov.solicitudes.OwnersDAO;
+import senadi.gob.ec.ov.solicitudes.PersonDAO;
+import senadi.gob.ec.ov.solicitudes.Province;
 import senadi.gob.ec.ov.dao.MethodologyDAO;
 import senadi.gob.ec.ov.dao.PersonVDAO;
 import senadi.gob.ec.ov.dao.PersonVegetableDAO;
@@ -30,6 +37,16 @@ import senadi.gob.ec.ov.model.VegetableAnnexesData;
 import senadi.gob.ec.ov.model.VegetableForms;
 import senadi.gob.ec.ov.model.VegetableMethodology;
 import senadi.gob.ec.ov.model.VegetableProtection;
+import senadi.gob.ec.ov.model.discount.CodigoDescuento;
+import senadi.gob.ec.ov.model.discount.CodigoDescuentoDAO;
+import senadi.gob.ec.ov.model.discount.Descuento;
+import senadi.gob.ec.ov.servlet.Report;
+import senadi.gob.ec.ov.solicitudes.BreederDAO;
+import senadi.gob.ec.ov.solicitudes.BreederForm;
+import senadi.gob.ec.ov.solicitudes.FormPaymentRates;
+import senadi.gob.ec.ov.solicitudes.PaymentRates;
+import senadi.gob.ec.ov.solicitudes.PaymentReceiptDAO;
+import senadi.gob.ec.ov.solicitudes.PersonBreeder;
 
 /**
  *
@@ -173,12 +190,12 @@ public class Controller {
                 "Contrato de trabajo o su equivalente.",
                 "Cesión de derechos*.",
                 "Certificado de depósito de la muestra viva, de ser el caso.",
-                "Documentación de prueba de posesión de los derechos para presentar una solicitud (Poder)*.",
-                "Reivindicación de prioridad (copia certificada de la primera solicitud).",
+                "Documentación de prueba de posesión de los derechos para presentar una solicitud (Poder).",
+                "Reivindicación de prioridad (copia certificada de la primera solicitud)*.",
                 "Comprobante de pago de tasa*.",
                 "Fotografías (color, nítidas, tamaño A4, papel fotográfico) *.",
                 "Copia de la solicitud presentada a la autoridad competente según corresponda, cuando se trate de variedades OGM, con el fin de que la autoridad competente informe sobre los riesgos a la salud humana, animal o vegetal, soberanía alimentaria, seguridad alimentaria y seguridad ambiental.",
-                "Declaración juramentada, cuando el examen DHE se realizó por cuenta del obtentor, declaración elaborada en base a los parámetros de la minuta propuesta por el SENADI.",
+                "Declaración juramentada, cuando el examen DHE se realizó por cuenta del obtentor, declaración elaborada en base a los parámetros de la minuta propuesta por el SENADI.*",
                 "Declaración juramentada de la novedad.",
                 "Nombramiento de representante legal, si el solicitante es una persona jurídica y adjunta la acreditación para firmar en su nombre.",
                 "Copia del permiso de acceso al recurso biológico y genético del país, si se trata de una variedad producto de material obtenido en cualquiera de los países miembros de la CAN.",
@@ -304,7 +321,7 @@ public class Controller {
             return false;
         }
     }
-    
+
     public boolean removeVegetableMethodology(VegetableMethodology methodology) {
         VegetableMethodolyDAO vd = new VegetableMethodolyDAO(methodology);
         try {
@@ -320,7 +337,7 @@ public class Controller {
             return false;
         }
     }
-    
+
     public boolean removeVegetableAnnexesData(VegetableAnnexesData annexe) {
         VegetableAnnexesDataDAO vd = new VegetableAnnexesDataDAO(annexe);
         try {
@@ -350,5 +367,157 @@ public class Controller {
         } catch (Exception ex) {
             return false;
         }
+    }
+
+    public int getNextApplicationNumber() {
+        BreederDAO bd = new BreederDAO();
+        return bd.getNextApplicationNumber();
+    }
+
+    public boolean createApplications(String applicationNumber, String tableName, Integer ownerId,
+            String status, Integer year, Integer number, String serviceWindow) {
+        BreederDAO bd = new BreederDAO();
+        return bd.createApplications(applicationNumber, tableName, ownerId, status, year, number, serviceWindow);
+    }
+
+    public int saveBreederForm(BreederForm bf) {
+        BreederDAO bd = new BreederDAO();
+        return bd.saveBreederForm(bf);
+    }
+
+    public boolean savePersonBreeder(PersonBreeder pb) {
+        BreederDAO bd = new BreederDAO();
+        return bd.savePersonBreeder(pb);
+    }
+
+    public int saveFormPaymentRates(FormPaymentRates fpr) {
+        BreederDAO bd = new BreederDAO();
+        return bd.saveFormPaymentRates(fpr);
+    }
+
+    public PaymentRates getPaymentRatesById(Integer id) {
+        BreederDAO bd = new BreederDAO();
+        return bd.getPaymentRatesById(id);
+    }
+
+    public boolean updateBreederForm(BreederForm bf) {
+        BreederDAO bd = new BreederDAO();
+        return bd.updateBreederForm(bf);
+    }
+
+    public boolean generateVegetableFormsPdfPreview(Integer vegetableFormId) throws IOException {
+        Report report = new Report();
+        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+        String path = ec.getRealPath("/WEB-INF/report/");
+        InputStream is = FacesContext.getCurrentInstance()
+                .getExternalContext()
+                .getResourceAsStream("/WEB-INF/report/BreederReport.jrxml");
+
+        FileInputStream in = report.generatePDFVegetableForms(path, is, "archivo.xls", vegetableFormId);
+        SFTPUtil sftp = new SFTPUtil();
+        ByteArrayInputStream input = new ByteArrayInputStream(in.readAllBytes());
+        return sftp.guardarArchivoEnServidorRemoto(input, vegetableFormId, "pdf_breederfrm_" + vegetableFormId + ".pdf");
+    }
+
+    public boolean existeCodigoVigente(String numero, int owner_id, String identificacion, boolean usado) {
+        CodigoDescuentoDAO cd = new CodigoDescuentoDAO(null);
+        return cd.existeCodigoVigente(numero, owner_id, identificacion, usado);
+    }
+
+    public CodigoDescuento getCodigoDescuento(String numero, int owner_id, String identificacion, boolean usado) {
+        CodigoDescuentoDAO cd = new CodigoDescuentoDAO(null);
+        return cd.getCodigoDescuento(numero, owner_id, identificacion, usado);
+    }
+
+    public CodigoDescuento getCodigoDescuentoByCode(String code) {
+        CodigoDescuentoDAO cd = new CodigoDescuentoDAO(null);
+        return cd.getCodigoDescuentoByCode(code);
+    }
+
+    public boolean updateCodigoDescuento(CodigoDescuento code) {
+        CodigoDescuentoDAO cd = new CodigoDescuentoDAO(code);
+        try {
+            if (!cd.getEntityManager().contains(code)) {
+                System.out.println("merge update vegetableforms");
+                code = cd.getEntityManager().merge(code);
+                cd = new CodigoDescuentoDAO(code);
+            }
+
+            cd.update();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("No se ha podido editar codigo_descuento de id " + code.getId() + ": " + ex);
+            return false;
+        }
+    }
+
+    public Descuento getDescuentoByNumero(String numero) {
+        CodigoDescuentoDAO cd = new CodigoDescuentoDAO(null);
+        return cd.getDescuentoByNumero(numero);
+    }
+
+    /**
+     * realiza actualización de pagos realizados por el banco pacífico
+     *
+     * @param ownerId : id del owner del casillero
+     * @return true si el proceso se completó correctamente.
+     */
+    public boolean updateVegetableFormsPaymentByOnwerId(Integer ownerId) {
+        List<BreederForm> breeders = getBreederFormsWithPayByOwnerId(ownerId);
+//        System.out.println("Se encontraron "+breeders.size()+" pagos a revisar del ownerid "+ownerId);
+        return insertBreederPayInVegetableForms(breeders);
+    }
+
+    public List<BreederForm> getBreederFormsWithPayByOwnerId(Integer ownerId) {
+        PaymentReceiptDAO pd = new PaymentReceiptDAO();
+        return pd.getBreederFormsWithPayByOwnerId(ownerId);
+    }
+
+    public VegetableForms getVegetableFormsByApplicationNumber(String applicationNumber) {
+        VegetableFormsDAO vd = new VegetableFormsDAO(null);
+        return vd.getVegetableFormsByApplicationNumber(applicationNumber);
+    }
+
+    public boolean insertBreederPayInVegetableForms(List<BreederForm> breeders) {
+        for (int i = 0; i < breeders.size(); i++) {
+            BreederForm breeder = breeders.get(i);
+            VegetableForms vegetable = getVegetableFormsByApplicationNumber(breeder.getApplicationNumber());
+            if (vegetable.getId() != null) {
+                if (vegetable.getPaymentReceiptId() == null || vegetable.getPaymentReceiptId() == 0) {
+                    vegetable.setPaymentReceiptId(breeder.getPaymentReceiptId());
+                    if (!updateVegetableForms(vegetable)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public List<VegetableForms> getVegetableFormsPaymentByOwnerId(Integer ownerId) {
+        VegetableFormsDAO vd = new VegetableFormsDAO(null);
+        return vd.getVegetableFormsPaymentByOwnerId(ownerId);
+    }
+
+    public BreederForm getBreederFormByApplicationNumber(String applicationNumber) {
+        PaymentReceiptDAO pd = new PaymentReceiptDAO();
+        return pd.getBreederFormByApplicationNumber(applicationNumber);
+    }
+
+    public boolean removeVegetablePayWhenCancelledByOwnerId(Integer ownerId) {
+        List<VegetableForms> vegetables = getVegetableFormsPaymentByOwnerId(ownerId);
+        for (int i = 0; i < vegetables.size(); i++) {
+            VegetableForms ve = vegetables.get(i);
+            BreederForm bf = getBreederFormByApplicationNumber(ve.getApplicationNumber());
+            if (bf.getId() != null) {
+                if (bf.getPaymentReceiptId() == null) {
+                    ve.setPaymentReceiptId(null);
+                    if (!updateVegetableForms(ve)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

@@ -61,9 +61,37 @@ and open the template in the editor.
                 <p:outputLabel value="OBTENCIONES VEGETALES" style="font-size: 16px; color: black"/>
             </div>
 
-            <div style="margin-left: 8%">
-                <p:commandButton value="NUEVA SOLICITUD" class="btn_buscar" onclick="samepage('createbreed.xhtml')"/>
-            </div><br/>
+            <div style="width: 50%; margin: 0 auto; background: #e3e3e3 !important; border: 1px solid black; padding: 5px; border-radius: 8px;">
+                <span style="font-weight: bold">Titulares</span>
+
+                <p>Los titulares del derecho de obtentor podrán ser personas naturales o jurídicas nacional 
+                    o extranjera, tengan o no su domicilio en el Ecuador, que acrediten haber desarrollado 
+                    y obtenido una nueva variedad vegetal mediante un proceso de mejoramiento vegetal, observando 
+                    lo establecido en el artículo 472 del Código Orgánico de la Economía Social de los Conocimientos, Creatividad e Innovación.</p>
+
+                <span style="font-weight: bold">Obtentor</span>
+
+                <p>Persona natural o jurídica, nacional o extranjera, que haya creado una variedad vegetal; 
+                    el empleador de la persona antes mencionada o que haya encargado su trabajo; o el derechohabiente 
+                    de las primeras o de las segundas personas mencionadas, según el caso.</p>
+
+                <span style="font-weight: bold">Material Protegible</span>
+
+                <p>La protección se extiende a las variedades pertenecientes a todos los géneros y especies vegetales que impliquen el mejoramiento vegetal heredable de las plantas.
+                    Se exceptúan las especies señaladas en el Art. 471 del Código Orgánico de la Economía Social de los Conocimientos, Creatividad e Innovación. Para la protección de las obtenciones vegetales por derecho de obtentor se acatarán las disposiciones de tutela al patrimonio biológico y genético del Ecuador.</p>
+            </div>
+
+            <div style="margin-left: 5%;">
+                <p:commandButton value="NUEVA SOLICITUD" class="btn_buscar" onclick="samepage('createbreed.xhtml')"/>                
+            </div>
+            <div style="float: right; margin-right: 5%; margin-top: -20px;">
+                <h:graphicImage library="images" name="edit.png"/>Editar
+                <h:graphicImage library="images" name="pdf.png"/>Ver Solicitud
+                <h:graphicImage library="images" name="start_process.png"/>Iniciar Proceso                    
+                <h:graphicImage library="images" name="voucher.png"/>Ver Comprobante de Pago
+                <h:graphicImage library="images" name="card.png"/>Pagar con Tarejta de Crédito                    
+            </div>
+            <br/>
             <p:panelGrid columns="1" style="text-align: center !important; margin: 0 auto !important; width: 90%" id="panTot">
                 <p:dataTable id="tablaDeDatos" var="vegetable"
                              value="#{vegetableFormBean.vegetablesFormses}" widgetVar="tablaDeDatos"
@@ -99,40 +127,62 @@ and open the template in the editor.
                             <f:convertDateTime pattern="yyyy-MM-dd" timeZone="America/Guayaquil"/>
                         </h:outputText>
                     </p:column>
+                    <p:column headerText="Grupo Varietal" style="text-align: center;" filterBy="#{vegetable.varietalGroup}" >
+                        <h:outputText value="#{vegetable.varietalGroup}" />
+                    </p:column>
+                    <p:column headerText="Estado" style="text-align: center;">
+                        <h:outputText value="#{vegetable.status eq 'SAVED'?'Guardado':(vegetable.status eq 'PREVIEW'?'Vista previa':
+                                               (vegetable.status eq 'FINISHED' and vegetable.paymentReceiptId eq null?'Pendiente de Pago':
+                                               (vegetable.status eq 'DELIVERED'?'Proceso iniciado':'Pagado')))}" styleClass="#{vegetable.status eq 'DELIVERED'?'start_p_label':''}"/>
+                    </p:column>
                     <p:column headerText="Acciones" style="text-align: center; width: 150px" exportable="false" >                                
                         <p:commandLink class="link" title="Editar Formulario" actionListener="#{vegetableFormBean.prepareEditRecord}"
                                        oncomplete="if(args.viewr){window.location=args.pagveg;}" process="@this" update="mensajes"
                                        rendered="#{vegetable.status eq 'SAVED' or vegetable.status eq 'PREVIEW'}">
-                            <i id="edit_action" class="material-icons md-10" style="font-size: 20px">edit</i>
+                            <h:graphicImage library="images" name="edit.png"/>                            
                         </p:commandLink>
-                        <p:commandLink class="link" title="Inicio de Proceso" 
-                                       oncomplete="alert('ver pdf');" process="@this" update="mensajes"
-                                       rendered="#{vegetable.status eq 'FINISHED'}" >                            
-                            <i class="pi pi-play" style="font-size: 2rem"></i>
+                        <p:commandLink class="link" title="Inicio de Proceso" actionListener="#{vegetableFormBean.startProcess}"
+                                       process="@this" update="mensajes tablaDeDatos num_registros"
+                                       rendered="#{vegetable.status eq 'FINISHED' and vegetable.paymentReceiptId != null}" >                                                        
+                            <h:graphicImage library="images" name="start_process.png"/>
+                            <p:confirm header="CONFIRMAR" message="SEGURO DE REALIZAR EL INICIO DE PROCESO DEL TRÁMITE #{vegetable.applicationNumber} ?"/> 
                         </p:commandLink>
                         <p:commandLink class="link" title="Visualizar Formulario" 
                                        actionListener="#{vegetableFormBean.viewFormulario}"
                                        oncomplete="if(args.doit){otherpage(args.url);}" 
                                        process="@this" 
                                        update="mensajes"                                       
-                                       rendered="#{vegetable.status != 'SAVED'}" >                            
-                            <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
+                                       rendered="#{vegetable.status != 'SAVED'}" >
+                            <h:graphicImage library="images" name="pdf.png"/>
                         </p:commandLink>
                         <p:commandLink class="link" title="Visualizar Formulario prueba" 
                                        actionListener="#{vegetableFormBean.viewFormularioPrueba}"
                                        oncomplete="popupwindow('breedertest', '_blank', args);" 
                                        process="@this" 
                                        update="mensajes"                                       
-                                       rendered="#{vegetable.status != 'SAVED'}" >                            
-                            <i class="pi pi-file-pdf" style="font-size: 2rem"></i>
+                                       rendered="false" ><!--{vegetable.status != 'SAVED'}  -->
+                            <h:graphicImage library="images" name="pdf.png"/>
+                        </p:commandLink>
+                        <p:commandLink class="link" title="Visualizar Comprobante" 
+                                       actionListener="#{vegetableFormBean.viewVoucher}"
+                                       oncomplete="if(args.doit){otherpage(args.url);}" 
+                                       process="@this" 
+                                       update="mensajes"                                       
+                                       rendered="#{vegetable.status != 'SAVED' and vegetable.status != 'PREVIEW'}" >
+
+                            <h:graphicImage library="images" name="voucher.png"/>                            
                         </p:commandLink>
                         <p:commandLink class="link" title="Botón de Pago" 
-                                       oncomplete="alert('botón de pago');" process="@this" update="mensajes"
-                                       rendered="#{vegetable.status eq 'FINISHED'}" >                            
-                            <i class="pi pi-credit-card" style="font-size: 2rem"></i>
-                        </p:commandLink>
-
+                                       oncomplete="otherpage('https://botondepago.derechosintelectuales.gob.ec/pagosenadi')" 
+                                       process="@this" update="mensajes"
+                                       rendered="#{vegetable.status eq 'FINISHED' and vegetable.paymentReceiptId == null}" >
+                            <h:graphicImage library="images" name="card.png"/>
+                        </p:commandLink>                        
                     </p:column>
+                    <f:facet name="footer">
+                            <p:outputLabel id="num_registros" value="#{vegetableFormBean.vegetablesFormses.size()} registros." style="float: left; font-size: 12px"/>
+                            <br/>
+                        </f:facet>
                 </p:dataTable>
             </p:panelGrid>                      
 
@@ -192,7 +242,7 @@ and open the template in the editor.
             }
         }
 
-        function otherpage(url) {           
+        function otherpage(url) {
             setTimeout(function () {
                 window.open(url, '_blank');
             }, 0);

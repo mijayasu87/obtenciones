@@ -1,42 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
-  <!-- Define Persistence Unit -->
-  <persistence-unit name="vegetablePU" transaction-type="JTA">
-    <jta-data-source>java:/jboss/datasources/vegetable_local</jta-data-source>
-    <class>senadi.gob.ec.ov.model.ExploitedSelled</class>
-    <class>senadi.gob.ec.ov.model.Methodology</class>
-    <class>senadi.gob.ec.ov.model.Person</class>
-    <class>senadi.gob.ec.ov.model.PersonVegetable</class>
-    <class>senadi.gob.ec.ov.model.SimilaryVariety</class>
-    <class>senadi.gob.ec.ov.model.VarietyCharacters</class>
-    <class>senadi.gob.ec.ov.model.VegetableAnnexes</class>
-    <class>senadi.gob.ec.ov.model.VegetableAnnexesData</class>
-    <class>senadi.gob.ec.ov.model.VegetableForms</class>
-    <class>senadi.gob.ec.ov.model.VegetableMethodology</class>
-    <class>senadi.gob.ec.ov.model.VegetablePriority</class>
-    <class>senadi.gob.ec.ov.model.VegetableProtection</class>
-    <class>senadi.gob.ec.ov.model.Declaration</class>
-    <class>senadi.gob.ec.ov.model.FormPaymentRate</class>
-    <exclude-unlisted-classes>true</exclude-unlisted-classes>
-    <properties>
-      <property name="javax.persistence.sharedCache.mode" value="ALL"/>
-      <property name="eclipselink.cache.shared.default" value="false"/>
-      <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
-      <property name="eclipselink.ddl-generation.index-foreign-keys" value="true"/>
-      <property name="eclipselink.orm.throw.exceptions" value="true"/>
-      <property name="eclipselink.weaving" value="false"/>
-      <property name="eclipselink.logging.level" value="INFO"/>
-      <property name="eclipselink.create-ddl-jdbc-file-name" value="createDDL_ddlGeneration.jdbc"/>
-      <property name="eclipselink.drop-ddl-jdbc-file-name" value="dropDDL_ddlGeneration.jdbc"/>
-      <property name="eclipselink.ddl-generation.output-mode" value="both"/>
-      <property name="eclipselink.jdbc.cache-statements" value="false"/>
-      <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-      <property name="eclipselink.jdbc.batch-writing.size" value="1000"/>
-      <property name="eclipselink.persistence-context.close-on-commit" value="true"/>
-      <property name="eclipselink.persistence-context.flush-mode" value="commit"/>
-      <property name="eclipselink.persistence-context.persist-on-commit" value="true"/>
-      <property name="eclipselink.persistence-context.reference-mode" value="WEAK"/>
-      <property name="eclipselink.mysql.allow.autoincrement" value="true"/>
-    </properties>
-  </persistence-unit>
+    <!-- Define Persistence Unit -->
+    <persistence-unit name="vegetablePU" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:/jboss/datasources/vegetable_prod</jta-data-source>
+        <class>senadi.gob.ec.ov.model.ExploitedSelled</class>
+        <class>senadi.gob.ec.ov.model.Methodology</class>
+        <class>senadi.gob.ec.ov.model.Person</class>
+        <class>senadi.gob.ec.ov.model.PersonVegetable</class>
+        <class>senadi.gob.ec.ov.model.SimilaryVariety</class>
+        <class>senadi.gob.ec.ov.model.VarietyCharacters</class>
+        <class>senadi.gob.ec.ov.model.VegetableAnnexes</class>
+        <class>senadi.gob.ec.ov.model.VegetableAnnexesData</class>
+        <class>senadi.gob.ec.ov.model.VegetableForms</class>
+        <class>senadi.gob.ec.ov.model.VegetableMethodology</class>
+        <class>senadi.gob.ec.ov.model.VegetablePriority</class>
+        <class>senadi.gob.ec.ov.model.VegetableProtection</class>
+        <class>senadi.gob.ec.ov.model.Declaration</class>
+        <class>senadi.gob.ec.ov.model.FormPaymentRate</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <!--<property name="javax.persistence.sharedCache.mode" value="ALL"/>
+            <property name="eclipselink.cache.shared.default" value="false"/>
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+            <property name="eclipselink.ddl-generation.index-foreign-keys" value="true"/>
+            <property name="eclipselink.orm.throw.exceptions" value="true"/>
+            <property name="eclipselink.weaving" value="false"/>
+            <property name="eclipselink.logging.level" value="INFO"/>
+            <property name="eclipselink.create-ddl-jdbc-file-name" value="createDDL_ddlGeneration.jdbc"/>
+            <property name="eclipselink.drop-ddl-jdbc-file-name" value="dropDDL_ddlGeneration.jdbc"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="both"/>
+            <property name="eclipselink.jdbc.cache-statements" value="false"/>
+            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
+            <property name="eclipselink.jdbc.batch-writing.size" value="1000"/>
+            <property name="eclipselink.persistence-context.close-on-commit" value="true"/>
+            <property name="eclipselink.persistence-context.flush-mode" value="commit"/>
+            <property name="eclipselink.persistence-context.persist-on-commit" value="true"/>
+            <property name="eclipselink.persistence-context.reference-mode" value="WEAK"/>
+            <property name="eclipselink.mysql.allow.autoincrement" value="true"/>-->
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="descuentoPU" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:/jboss/datasources/senadi_descuento</jta-data-source>
+        <class>senadi.gob.ec.ov.model.discount.CodigoDescuento</class>
+        <class>senadi.gob.ec.ov.model.discount.Descuento</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties/>
+    </persistence-unit>
 </persistence>

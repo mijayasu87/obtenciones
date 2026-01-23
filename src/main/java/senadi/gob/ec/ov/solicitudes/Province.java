@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package senadi.gob.ec.ov.bean.solicitudes;
+package senadi.gob.ec.ov.solicitudes;
 
 import java.util.Objects;
 
@@ -10,19 +10,19 @@ import java.util.Objects;
  *
  * @author michael
  */
-public class City {
+public class Province {
 
     private Integer id;
-    private Integer provinceId;
+    private Integer countryId;
     private String name;
 
-    public City(Integer id, Integer provinceId, String name) {
-        this.id = id;
-        this.provinceId = provinceId;
-        this.name = name;
+    public Province() {
     }
 
-    public City() {
+    public Province(Integer id, Integer countryId, String name) {
+        this.id = id;
+        this.countryId = countryId;
+        this.name = name;
     }
 
     /**
@@ -40,17 +40,17 @@ public class City {
     }
 
     /**
-     * @return the provinceId
+     * @return the countryId
      */
-    public Integer getProvinceId() {
-        return provinceId;
+    public Integer getCountryId() {
+        return countryId;
     }
 
     /**
-     * @param provinceId the provinceId to set
+     * @param countryId the countryId to set
      */
-    public void setProvinceId(Integer provinceId) {
-        this.provinceId = provinceId;
+    public void setCountryId(Integer countryId) {
+        this.countryId = countryId;
     }
 
     /**
@@ -66,9 +66,9 @@ public class City {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     @Override
-    public String toString() {
+    public String toString(){
         return getName();
     }
     
@@ -77,10 +77,10 @@ public class City {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof City)) {
+        if (!(o instanceof Province)) {
             return false;
         }
-        City other = (City) o;
+        Province other = (Province) o;
         return Objects.equals(this.id, other.id);
     }
 
