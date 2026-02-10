@@ -35,7 +35,7 @@ public class VegetableFormsBean implements Serializable {
 
     private LoginBean login;
 
-    private String previewPath;        
+    private String previewPath;
 
     public VegetableFormsBean() {
         loadData();

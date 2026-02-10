@@ -7,6 +7,7 @@ package senadi.gob.ec.ov.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -19,9 +20,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import senadi.gob.ec.ov.model.enums.DenominationType;
 import senadi.gob.ec.ov.model.enums.PersonType;
 import senadi.gob.ec.ov.model.enums.Status;
+import senadi.gob.ec.ov.model.enums.StatusFlow;
 import senadi.gob.ec.ov.model.enums.VarietyTransferType;
 
 /**
@@ -162,6 +165,17 @@ public class VegetableForms implements Serializable {
     
     @Column(name = "discount_file")
     private String discountFile;
+    
+    @Column(name = "assigned_user")
+    private String assignedUser;
+    
+    @Column(name = "assigned_date")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date assignedDate;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_flow")
+    private StatusFlow statusFlow;
 
     @OneToOne(mappedBy = "vegetableForms", cascade = CascadeType.ALL, orphanRemoval = true)
     private VegetablePriority vegetablePriority;
@@ -931,6 +945,48 @@ public class VegetableForms implements Serializable {
      */
     public void setDiscountFile(String discountFile) {
         this.discountFile = discountFile;
+    }
+
+    /**
+     * @return the assignedUser
+     */
+    public String getAssignedUser() {
+        return assignedUser;
+    }
+
+    /**
+     * @param assignedUser the assignedUser to set
+     */
+    public void setAssignedUser(String assignedUser) {
+        this.assignedUser = assignedUser;
+    }
+
+    /**
+     * @return the assignedDate
+     */
+    public Date getAssignedDate() {
+        return assignedDate;
+    }
+
+    /**
+     * @param assignedDate the assignedDate to set
+     */
+    public void setAssignedDate(Date assignedDate) {
+        this.assignedDate = assignedDate;
+    }
+
+    /**
+     * @return the statusFlow
+     */
+    public StatusFlow getStatusFlow() {
+        return statusFlow;
+    }
+
+    /**
+     * @param statusFlow the statusFlow to set
+     */
+    public void setStatusFlow(StatusFlow statusFlow) {
+        this.statusFlow = statusFlow;
     }
 
 }

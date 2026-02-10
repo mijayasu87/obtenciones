@@ -706,19 +706,15 @@ public class BreederFormBean implements Serializable {
         radioJuridicoSelected();
     }
 
-    public void onNotificationSelected() {
-        System.out.println("cosas 1");
+    public void onNotificationSelected() {        
         Controller c = new Controller();
-        if (tipoNotificacion != null && tipoNotificacion.equals("SOLICITANTE")) {
-            System.out.println("cosas 2");
+        if (tipoNotificacion != null && tipoNotificacion.equals("SOLICITANTE")) {            
             otherpersonnot = false;
             if (applicants.isEmpty()) {
                 Operations.mensaje(Operations.ERROR, "DEBE INGRESAR AL MENOS UN SOLICITANTE PREVIAMENTE");
                 cleanPersonNotification();
-            } else {
-                System.out.println("cosas 3");
-                if (applicants.size() == 1) {
-                    System.out.println("cosas 4");
+            } else {                
+                if (applicants.size() == 1) {                    
                     personNotification = applicants.get(0);
                     if (personNotification.getCityAddress() != null) {
                         cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
@@ -726,20 +722,16 @@ public class BreederFormBean implements Serializable {
                     System.out.println("Persona notificación: " + personNotification.toString());
                     personVegetableNotification = new PersonVegetable();
                     showTipoNotificacionError = false;
-                } else {
-                    System.out.println("cosas 5");
-                    personsNotification = applicants;
-                    System.out.println("cosas 5 1");// revisaaaaaaaaaar aquí
+                } else {                    
+                    personsNotification = applicants;                    
                     if (personNotification.getCityAddress() != null) {
                         cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
-                    }
-                    System.out.println("cosas 5 2");
+                    }                    
                     PrimeFaces.current().ajax().addCallbackParam("pernotsel", true);
                     System.out.println("Debe escoger un solicitante de la lista de solicitantes.");
                 }
             }
-        } else if (tipoNotificacion != null && tipoNotificacion.equals("OBTENTOR")) {
-            System.out.println("cosas 6");
+        } else if (tipoNotificacion != null && tipoNotificacion.equals("OBTENTOR")) {            
             otherpersonnot = false;
             if (obtentors.isEmpty()) {
                 Operations.mensaje(Operations.ERROR, "DEBE INGRESAR AL MENOS UN OBTENTOR PREVIAMENTE");
