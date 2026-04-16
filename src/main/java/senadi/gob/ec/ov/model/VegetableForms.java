@@ -112,6 +112,9 @@ public class VegetableForms implements Serializable {
 
     @Column(name = "country_living_sample")
     private Integer countryLivingSample;
+    
+    @Column(name = "city_living_sample")
+    private Integer cityLivingSample;
 
     @Column(name = "genealogy")
     private String genealogy;
@@ -987,6 +990,20 @@ public class VegetableForms implements Serializable {
      */
     public void setStatusFlow(StatusFlow statusFlow) {
         this.statusFlow = statusFlow;
+    }
+
+    /**
+     * @return the cityLivingSample
+     */
+    public Integer getCityLivingSample() {
+        return cityLivingSample;
+    }
+
+    /**
+     * @param cityLivingSample the cityLivingSample to set
+     */
+    public void setCityLivingSample(Integer cityLivingSample) {
+        this.cityLivingSample = cityLivingSample;
     }
 
 }

@@ -35,6 +35,8 @@ import senadi.gob.ec.ov.model.VegetablePriority;
 import senadi.gob.ec.ov.model.VegetableProtection;
 import senadi.gob.ec.ov.model.enums.ExplotationType;
 import senadi.gob.ec.ov.model.enums.ProtectionType;
+import senadi.gob.ec.ov.solicitudes.City;
+import senadi.gob.ec.ov.solicitudes.Country;
 import senadi.gob.ec.ov.solicitudes.PaymentRates;
 import senadi.gob.ec.ov.util.Controller;
 import senadi.gob.ec.ov.util.Parameter;
@@ -266,7 +268,19 @@ public class Report implements Serializable {
             parametro.put("interr", interrDS);
             parametro.put("outerr", outerrDS);
             parametro.put("country_exam", c.getCountryById(vf.getCountryExam()).getName());
-            parametro.put("country_sample", c.getCountryById(vf.getCountryLivingSample()).getName());
+            
+            Country countrysample = c.getCountryById(vf.getCountryLivingSample());
+            if(vf.getLivingSample()){
+                if(countrysample.getName().equals("Ecuador")){
+                    City citysample = c.getCityByCityId(vf.getCityLivingSample());
+                    parametro.put("province_sample",c.getProvinceIdByProvinceId(citysample.getProvinceId()).getName());
+                    parametro.put("city_sample", c.getCityByCityId(citysample.getId()).getName());                    
+                }
+            }
+            
+            parametro.put("country_sample", countrysample.getName());
+            
+            
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
             if (jasperPrint.getPages().isEmpty()) {

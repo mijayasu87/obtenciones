@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9d41fc9d-f179-4e06-84a8-43994a8378d5">
 	<property name="ireport.zoom" value="1.3310000000000004"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="1584"/>
+	<property name="ireport.y" value="1008"/>
 	<parameter name="id" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["/home/michael/NetBeansProjects/obtenciones/src/main/webapp/WEB-INF/report/"]]></defaultValueExpression>
@@ -22,6 +22,8 @@
 	<parameter name="protp" class="java.lang.Boolean"/>
 	<parameter name="protectionsc" class="net.sf.jasperreports.engine.JRDataSource"/>
 	<parameter name="protc" class="java.lang.Boolean"/>
+	<parameter name="province_sample" class="java.lang.String"/>
+	<parameter name="city_sample" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[Select * from vegetable_forms as vf
 inner join declaration as d on d.vegetable_form_id = vf.id
@@ -941,7 +943,7 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				<textFieldExpression><![CDATA[$P{country_exam}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="60">
+		<band height="100">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="272" y="0" width="257" height="20" uuid="a5820a4b-1534-4b9d-8aa6-d576c4df10a5"/>
 				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
@@ -996,6 +998,75 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="40" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="96f7e218-04c6-487b-8861-11b419fb711c">
+					<printWhenExpression><![CDATA[$P{province_sample} != null && !$P{province_sample}.trim().isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Provincia:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="40" width="361" height="20" isRemoveLineWhenBlank="true" uuid="4df19a1d-9338-4e96-8fd5-42aeb3d6bd80">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{province_sample}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="60" width="361" height="20" isRemoveLineWhenBlank="true" uuid="f7cbc985-240f-4a78-8b00-4562a195bc91">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{city_sample}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="60" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="37e826a9-9805-4cc8-b00d-0ac936a73678">
+					<printWhenExpression><![CDATA[$P{city_sample} != null && !$P{city_sample}.trim().isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="styled">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Ciudad:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="80" width="361" height="20" isRemoveLineWhenBlank="true" uuid="2d97646e-ff83-46b1-9f0a-24e419c359a7">
+					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
+				</reportElement>
+				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{sample_place}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="43" y="80" width="125" height="20" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="6c806afb-1d75-4692-9bfa-e014890d7eb3">
 					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
 				</reportElement>
 				<box leftPadding="3">
@@ -1009,19 +1080,6 @@ $F{variety_transfer_type}.equals("OTHER"))]]></printWhenExpression>
 				</textElement>
 				<text><![CDATA[Lugar exacto:]]></text>
 			</staticText>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="168" y="40" width="361" height="20" isRemoveLineWhenBlank="true" uuid="4df19a1d-9338-4e96-8fd5-42aeb3d6bd80">
-					<printWhenExpression><![CDATA[$F{living_sample}]]></printWhenExpression>
-				</reportElement>
-				<box topPadding="1" leftPadding="3" bottomPadding="1" rightPadding="2">
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Justified" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{sample_place}]]></textFieldExpression>
-			</textField>
 		</band>
 		<band height="60">
 			<staticText>

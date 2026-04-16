@@ -40,6 +40,9 @@ and open the template in the editor.
         </div>        
         <p:growl id="mensajes" showDetail="true" life="4000"/>
         <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
+            <p:messages id="panelMensajes" showDetail="true" closable="true">
+                <p:autoUpdate/>
+            </p:messages>
             <div class="menu">
                 <a href="#" class="logo"  title="Logo Senadi" ><img src="#{resource['images/sena_2.png']}" width="161px"/></a>
 
@@ -61,7 +64,7 @@ and open the template in the editor.
                 <p:outputLabel value="OBTENCIONES VEGETALES" style="font-size: 16px; color: black"/>
             </div>
 
-            <div style="width: 50%; margin: 0 auto; background: #e3e3e3 !important; border: 1px solid black; padding: 5px; border-radius: 8px;">
+            <div id="panelInformativo" style="width: 50%; margin: 0 auto; background: #e3e3e3 !important; border: 1px solid black; padding: 5px; border-radius: 8px;">
                 <span style="font-weight: bold">Titulares</span>
 
                 <p>Los titulares del derecho de obtentor podrán ser personas naturales o jurídicas nacional 
@@ -80,6 +83,12 @@ and open the template in the editor.
                 <p>La protección se extiende a las variedades pertenecientes a todos los géneros y especies vegetales que impliquen el mejoramiento vegetal heredable de las plantas.
                     Se exceptúan las especies señaladas en el Art. 471 del Código Orgánico de la Economía Social de los Conocimientos, Creatividad e Innovación. Para la protección de las obtenciones vegetales por derecho de obtentor se acatarán las disposiciones de tutela al patrimonio biológico y genético del Ecuador.</p>
             </div>
+
+            <h:panelGroup rendered="#{not empty vegetableFormBean.redirectMessage}" layout="block"
+                          styleClass="success-message-animated"
+                          style="width: 50%; margin: 12px auto; background: #e8f5e9; color: #1b5e20; border: 1px solid #66bb6a; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center;">
+                <h:outputText value="#{vegetableFormBean.redirectMessage}" />
+            </h:panelGroup>
 
             <div style="margin-left: 5%;">
                 <p:commandButton value="NUEVA SOLICITUD" class="btn_buscar" onclick="samepage('createbreed.xhtml')"/>                
@@ -198,6 +207,17 @@ and open the template in the editor.
             </p:confirmDialog>
             <br/>
         </h:form>
+
+        <h:outputScript>
+            if (window.history &amp;&amp; window.history.replaceState) {
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('msg')) {
+                    url.searchParams.delete('msg');
+                    const cleanUrl = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+            }
+        </h:outputScript>
 
         <div id="footer"></div>
 

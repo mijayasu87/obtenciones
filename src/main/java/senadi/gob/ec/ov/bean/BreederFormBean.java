@@ -161,6 +161,11 @@ public class BreederFormBean implements Serializable {
     private String technicalQuiz;
 
     private Country countryLivingSample;
+    private boolean ecuadorLS;
+    private List<Province> provincesLS;
+    private Province provinceLS;
+    private List<City> citiesLS;
+    private City cityLS;
     private String livingVarietySample;
 
     private List<Methodology> methodologies;
@@ -239,6 +244,8 @@ public class BreederFormBean implements Serializable {
     private String discountCode;
 
     private Descuento descuento;
+
+    private Methodology lastSelectedMethodology;
 
 //    public BreederFormBean() {
 //        preloadEdit();
@@ -352,8 +359,8 @@ public class BreederFormBean implements Serializable {
             if (varietyTransferObtentor.equals("SI")) {
                 if (vegetableForms.getVarietyTransferType() != null) {
                     varietyTransferSelected = vegetableForms.getVarietyTransferType().toString();
-                    if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT") || varietyTransferSelected.equals("TRANSFER_RIGHTS")
-                            || varietyTransferSelected.equals("OTHER")) {
+                    if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT")
+                            || varietyTransferSelected.equals("OTHER")) { //|| varietyTransferSelected.equals("TRANSFER_RIGHTS")
                         withDescriptionVariety = true;
                     } else {
                         withDescriptionVariety = false;
@@ -429,6 +436,30 @@ public class BreederFormBean implements Serializable {
             if (livingVarietySample.equals("SI")) {
                 if (vegetableForms.getCountryLivingSample() != null && vegetableForms.getCountryLivingSample() > 0) {
                     countryLivingSample = c.getCountryById(vegetableForms.getCountryLivingSample());
+                    if (countryLivingSample.getName().equals("Ecuador")) {
+                        ecuadorLS = true;
+                        if (vegetableForms.getCityLivingSample() != null && vegetableForms.getCityLivingSample() > 0) {
+                            provincesLS = c.getProvincesByCountryId(vegetableForms.getCountryLivingSample());
+                            provincesLS.add(0, new Province(-2, countryLivingSample.getId(), "-- Seleccione --"));
+
+                            int provinceId = c.getProvinceIdByCityId(vegetableForms.getCityLivingSample());
+                            provinceLS = c.getProvinceIdByProvinceId(provinceId);
+
+                            citiesLS = c.getCitiesByProvinceId(provinceLS.getId());
+                            citiesLS.add(0, new City(-3, provinceLS.getId(), "-- Seleccione --"));
+
+                            cityLS = c.getCityByCityId(vegetableForms.getCityLivingSample());
+                        } else {
+                            provincesLS = c.getProvincesByCountryId(vegetableForms.getCountryLivingSample());
+                            provincesLS.add(0, new Province(-2, countryLivingSample.getId(), "-- Seleccione --"));
+
+                            citiesLS = new ArrayList<>();
+                        }
+                    } else {
+                        provincesLS = new ArrayList<>();
+                        citiesLS = new ArrayList<>();
+                        ecuadorLS = false;
+                    }
                 }
             }
         }
@@ -535,7 +566,7 @@ public class BreederFormBean implements Serializable {
     }
 
     public void validateDiscount(ActionEvent ae) {
-        System.out.println("llegoooooo " + discountCode);
+//        System.out.println("llegoooooo " + discountCode);
         if (discountCode != null && !discountCode.trim().isEmpty()) {
             if (!applicants.isEmpty()) {
                 discountCode = discountCode.trim();
@@ -706,15 +737,15 @@ public class BreederFormBean implements Serializable {
         radioJuridicoSelected();
     }
 
-    public void onNotificationSelected() {        
+    public void onNotificationSelected() {
         Controller c = new Controller();
-        if (tipoNotificacion != null && tipoNotificacion.equals("SOLICITANTE")) {            
+        if (tipoNotificacion != null && tipoNotificacion.equals("SOLICITANTE")) {
             otherpersonnot = false;
             if (applicants.isEmpty()) {
                 Operations.mensaje(Operations.ERROR, "DEBE INGRESAR AL MENOS UN SOLICITANTE PREVIAMENTE");
                 cleanPersonNotification();
-            } else {                
-                if (applicants.size() == 1) {                    
+            } else {
+                if (applicants.size() == 1) {
                     personNotification = applicants.get(0);
                     if (personNotification.getCityAddress() != null) {
                         cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
@@ -722,16 +753,16 @@ public class BreederFormBean implements Serializable {
                     System.out.println("Persona notificación: " + personNotification.toString());
                     personVegetableNotification = new PersonVegetable();
                     showTipoNotificacionError = false;
-                } else {                    
-                    personsNotification = applicants;                    
+                } else {
+                    personsNotification = applicants;
                     if (personNotification.getCityAddress() != null) {
                         cityNotification = c.getCityByCityId(personNotification.getCityAddress()).getName();
-                    }                    
+                    }
                     PrimeFaces.current().ajax().addCallbackParam("pernotsel", true);
                     System.out.println("Debe escoger un solicitante de la lista de solicitantes.");
                 }
             }
-        } else if (tipoNotificacion != null && tipoNotificacion.equals("OBTENTOR")) {            
+        } else if (tipoNotificacion != null && tipoNotificacion.equals("OBTENTOR")) {
             otherpersonnot = false;
             if (obtentors.isEmpty()) {
                 Operations.mensaje(Operations.ERROR, "DEBE INGRESAR AL MENOS UN OBTENTOR PREVIAMENTE");
@@ -773,8 +804,8 @@ public class BreederFormBean implements Serializable {
 
     public void onVarietySelected() {
         if (varietyTransferSelected != null) {
-            if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT") || varietyTransferSelected.equals("TRANSFER_RIGHTS")
-                    || varietyTransferSelected.equals("OTHER")) {
+            if (varietyTransferSelected.equals("EMPLOYMENT_CONTRACT")
+                    || varietyTransferSelected.equals("OTHER")) {//|| varietyTransferSelected.equals("TRANSFER_RIGHTS")
                 withDescriptionVariety = true;
             } else {
                 withDescriptionVariety = false;
@@ -964,6 +995,32 @@ public class BreederFormBean implements Serializable {
         }
     }
 
+    public void onCountryLSChange() {
+        if (countryLivingSample.getName().equals("Ecuador")) {
+            Controller c = new Controller();
+            provincesLS = c.getProvincesByCountryId(countryLivingSample.getId());
+            provincesLS.add(0, new Province(-2, countryLivingSample.getId(), "-- Seleccione --"));
+            ecuadorLS = true;
+        } else {
+            provincesLS = new ArrayList<>();
+            provinceLS = new Province();
+            citiesLS = new ArrayList<>();
+            cityLS = new City();
+            ecuadorLS = false;
+        }
+    }
+
+    public void onProvinceLSChange() {
+        if (provinceLS.getId() != null && provinceLS.getId() != -2) {
+            Controller c = new Controller();
+            citiesLS = c.getCitiesByProvinceId(provinceLS.getId());
+            citiesLS.add(0, new City(-3, provinceLS.getId(), "-- Seleccione --"));
+        } else {
+            citiesLS = new ArrayList<>();
+            cityLS = new City();
+        }
+    }
+
     public void prepareSaveVegetableForms(ActionEvent ae) {
         if (vegetableForms != null) {
             action = 1;
@@ -1008,7 +1065,7 @@ public class BreederFormBean implements Serializable {
         return true;
     }
 
-    public boolean validarCampos() {
+    public boolean validarCampos() {        
         if (applicants == null || applicants.isEmpty()) {
             showApplicantsTableError = true;
             activeIndex = 0;
@@ -1175,7 +1232,7 @@ public class BreederFormBean implements Serializable {
                 Operations.mensaje(Operations.ERROR, "DEBE AGREGAR UN REGISTRO FUERA DEL TERRITORIO DE LA SUBREGIÓN ANDINA");
                 return false;
             }
-        }
+        }        
         //tab 11
         if (technicalQuiz != null && !technicalQuiz.trim().isEmpty()) {
             if (countryQuiz == null || countryQuiz.getId() < 1) {
@@ -1191,22 +1248,38 @@ public class BreederFormBean implements Serializable {
             activeIndex = 10;
             Operations.mensaje(Operations.ERROR, "DEBE SELECCIONAR SI SE CUENTA O NO CON EL DEPÓSITO DE MUESTRA VIVA");
             return false;
-        }
-
+        }        
         if (livingVarietySample.equals("SI")) {
             if (countryLivingSample == null || countryLivingSample.getId() < 1) {
                 showTab10Error = true;
                 activeIndex = 10;
                 Operations.mensaje(Operations.ERROR, "DEBE SELECCIONAR EL PAÍS QUE CORRESPONDE AL DEPÓSITO DE LA MUESTRA VIVA");
                 return false;
-            }
+            } else {                
+                if (countryLivingSample.getName().equals("Ecuador")) {                    
+                    if (provinceLS == null || provinceLS.getId() == null || provinceLS.getId() < 1) {                        
+                        showTab10Error = true;
+                        activeIndex = 10;
+                        Operations.mensaje(Operations.ERROR, "DEBE SELECCIONAR LA PROVINCIA QUE CORRESPONDE AL DEPÓSITO DE LA MUESTRA VIVA");
+                        return false;
+                    } else {                                                
+                        if (cityLS == null || cityLS.getId() == null || cityLS.getId() < 1) {                            
+                            showTab10Error = true;
+                            activeIndex = 10;
+                            Operations.mensaje(Operations.ERROR, "DEBE SELECCIONAR LA CIUDAD QUE CORRESPONDE AL DEPÓSITO DE LA MUESTRA VIVA");
+                            return false;
+                        }                        
+                    }
+                }
+            }            
             if (vegetableForms.getSamplePlace() == null || vegetableForms.getSamplePlace().trim().isEmpty()) {
                 showTab10Error = true;
                 activeIndex = 10;
                 Operations.mensaje(Operations.ERROR, "ESPECIFIQUE EL LUGAR EXÁCTO DEL DEPÓSITO DE MUESTRA VIVA");
                 return false;
             }
-        }
+        }        
+
         //tab 12
         if (vegetableForms.getGenealogy() == null || vegetableForms.getGenealogy().trim().isEmpty()) {
             showTab11Error = true;
@@ -1503,7 +1576,7 @@ public class BreederFormBean implements Serializable {
                         break;
                     case "TRANSFER_RIGHTS":
                         vegetableForms.setVarietyTransferType(VarietyTransferType.TRANSFER_RIGHTS);
-                        flagvariety = true;
+//                        flagvariety = true;
                         break;
                     default:
                         vegetableForms.setVarietyTransferType(VarietyTransferType.OTHER);
@@ -1577,19 +1650,25 @@ public class BreederFormBean implements Serializable {
                 vegetableForms.setCountryExam(countryQuiz.getId());
             }
         }
-
-        //tab 12
-        if (livingVarietySample != null && !livingVarietySample.trim().isEmpty()) {
-            if (livingVarietySample.equals("SI")) {
+        
+        if (livingVarietySample != null && !livingVarietySample.trim().isEmpty()) {            
+            if (livingVarietySample.equals("SI")) {                
                 vegetableForms.setLivingSample(true);
-                if (countryLivingSample != null && countryLivingSample.getId() > 0) {
+                if (countryLivingSample != null && countryLivingSample.getId() > 0) {                    
                     vegetableForms.setCountryLivingSample(countryLivingSample.getId());
-                }
+                    if (countryLivingSample.getName().equals("Ecuador")) {                        
+                        if (cityLS != null && cityLS.getId() != null && cityLS.getId() > 0) {
+                            vegetableForms.setCityLivingSample(cityLS.getId());
+                        }
+                    }
+                }                
             } else {
                 vegetableForms.setLivingSample(false);
-                vegetableForms.setSamplePlace("");
+                vegetableForms.setSamplePlace("");                
             }
-        }
+        }        
+
+        //tab 13
         if (materialVarietyIdentification != null && !materialVarietyIdentification.trim().isEmpty()) {
             if (materialVarietyIdentification.equals("SI")) {
                 vegetableForms.setMaterialVarietyIdentification(true);
@@ -2023,8 +2102,8 @@ public class BreederFormBean implements Serializable {
                         System.err.println("No se creó el form_payment_rates");
                         return false;
                     }
-                }else{
-                    System.err.println("No se crearon todos los aplicantes de vf "+vegetableForms.getId());
+                } else {
+                    System.err.println("No se crearon todos los aplicantes de vf " + vegetableForms.getId());
                     return false;
                 }
 
@@ -2104,13 +2183,19 @@ public class BreederFormBean implements Serializable {
                 if (validarTaxon()) {
                     removeErrors();
                     if (preliminarSave()) {
+                        Operations.mensaje(Operations.INFORMACION, "SE HA GUARDADO EL FORMULARIO CORRECTAMENTE");
+                        Operations.mantenerMensajesEnRedireccion();
                         PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                        PrimeFaces.current().ajax().addCallbackParam("redirectUrl", "breederform.xhtml?msg=saved");
                     }
                 }
             } else if (action == 2 || action == 3) {
                 if (validarCampos()) {
-                    preliminarSave();
-                    PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                    if (preliminarSave()) {
+                        Operations.mantenerMensajesEnRedireccion();
+                        PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                        PrimeFaces.current().ajax().addCallbackParam("redirectUrl", action == 2 ? "breederform.xhtml?msg=preview" : "breederform.xhtml?msg=voucher");
+                    }
                 }
             }
 //            else if (action == 3) {
@@ -2492,17 +2577,17 @@ public class BreederFormBean implements Serializable {
 
     public FacesMessage validatePerson(Person personaux) {
         Controller c = new Controller();
-        System.out.println("llego 2");
         if (personaux.getId() != null) {
             generoSolicitante = personaux.getGender();
             if (personaux.getCountryId() != null && personaux.getCountryId() != 0) {
                 country = c.getCountryById(personaux.getCountryId());
-                System.out.println("llego 3");
                 if (country.getName().equals("Ecuador")) {
                     ecuador = true;
                     provinces = c.getProvincesByCountryId(country.getId());
                     provinces.add(0, new Province(-2, country.getId(), "-- Seleccione --"));
+                    System.out.println("provincias cargadas " + provinces.size());
                     if (personaux.getCityAddress() != null && personaux.getCityAddress() != 0) {
+                        System.out.println("existen ciudades? " + personaux.getCityAddress());
                         int provinceId = c.getProvinceIdByCityId(personaux.getCityAddress());
                         province = c.getProvinceIdByProvinceId(provinceId);
 
@@ -2514,7 +2599,6 @@ public class BreederFormBean implements Serializable {
                     ecuador = false;
 
                 }
-                System.out.println("llego 4");
             } else {
                 country = countries.get(0);
                 provinces = new ArrayList<>();
@@ -2522,7 +2606,6 @@ public class BreederFormBean implements Serializable {
                 cities = new ArrayList<>();
                 city = new City();
             }
-            System.out.println("llego 5");
             person = personaux;
             hashPerson = loadHashPerson();
             return new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "DOCUMENTO VÁLIDO");
@@ -2606,42 +2689,89 @@ public class BreederFormBean implements Serializable {
     }
 
     public void onMethodologiesSelected() {
+
         if (selectedMethodologies != null && !selectedMethodologies.isEmpty()) {
-            boolean flagmethodaut = false;
-            boolean flagmethodall = false;
-            for (int i = 0; i < selectedMethodologies.size(); i++) {
-                Methodology maux = selectedMethodologies.get(i);
-                if (maux.getName().equals("Otro: por favor, especifíquese (Especies Autógamas)")) {
-                    autogamousSelected = true;
-                    flagmethodaut = true;
-//                    System.out.println("Se eligió autógamas");
-                }
-                if (maux.getName().equals("Otro: por favor, especifique (Especies Alógamas)")) {
-                    allogamousSelected = true;
-                    flagmethodall = true;
-//                    System.out.println("Se eligió alógamas");
+
+            Methodology current = null;
+
+            // 🔍 encontrar cuál es nuevo (el que no estaba antes)
+            for (Methodology m : selectedMethodologies) {
+                if (lastSelectedMethodology == null || !m.equals(lastSelectedMethodology)) {
+                    current = m;
                 }
             }
-            if (!flagmethodaut) {
-                autogamousSelected = false;
-//                System.out.println("No se seleccionó autógamas");
+
+            // fallback (por si acaso)
+            if (current == null) {
+                current = selectedMethodologies.get(0);
             }
-            if (!flagmethodall) {
-                allogamousSelected = false;
-//                System.out.println("No se seleccionó alógamas");
-            }
+
+            // 🔥 dejar solo el seleccionado real
+            selectedMethodologies.clear();
+            selectedMethodologies.add(current);
+
+            // guardar como último
+            lastSelectedMethodology = current;
+
+            // =====================================================
+            // 🔹 TU LÓGICA ORIGINAL
+            // =====================================================
+            autogamousSelected = "Otro: por favor, especifíquese (Especies Autógamas)"
+                    .equals(current.getName());
+
+            allogamousSelected = "Otro: por favor, especifique (Especies Alógamas)"
+                    .equals(current.getName());
+
         } else {
             autogamousSelected = false;
             allogamousSelected = false;
+            lastSelectedMethodology = null;
         }
     }
 
+//    public void onMethodologiesSelected() {
+//        if (selectedMethodologies != null && !selectedMethodologies.isEmpty()) {
+//            boolean flagmethodaut = false;
+//            boolean flagmethodall = false;            
+//            for (int i = 0; i < selectedMethodologies.size(); i++) {
+//                Methodology maux = selectedMethodologies.get(i);
+//                if (maux.getName().equals("Otro: por favor, especifíquese (Especies Autógamas)")) {
+//                    autogamousSelected = true;
+//                    flagmethodaut = true;
+//                }
+//                if (maux.getName().equals("Otro: por favor, especifique (Especies Alógamas)")) {
+//                    allogamousSelected = true;
+//                    flagmethodall = true;
+//                }
+//            }
+//            if (!flagmethodaut) {
+//                autogamousSelected = false;
+//            }
+//            if (!flagmethodall) {
+//                allogamousSelected = false;
+//            }
+//        } else {
+//            autogamousSelected = false;
+//            allogamousSelected = false;
+//        }
+//    }
     public void onLivingSample() {
         if (livingVarietySample != null && !livingVarietySample.trim().isEmpty()) {
             if (livingVarietySample.equals("SI")) {
                 vegetableForms.setLivingSample(true);
+                if (countryLivingSample.getName().equals("Ecuador")) {
+                    ecuadorLS = true;
+                    Controller c = new Controller();
+                    provincesLS = c.getProvincesByCountryId(countryLivingSample.getId());
+                    provincesLS.add(0, new Province(-2, countryLivingSample.getId(), "-- Seleccione --"));
+                } else {
+                    ecuadorLS = false;
+                    provincesLS = new ArrayList<>();
+                }
             } else {
+                ecuadorLS = false;
                 vegetableForms.setLivingSample(false);
+                provincesLS = new ArrayList<>();
             }
         } else {
             Operations.mensaje(Operations.ERROR, "NO SE RECONOCE LA OPCIÓN SELECCIONADA");
@@ -2894,11 +3024,35 @@ public class BreederFormBean implements Serializable {
         return null;
     }
 
+    public Province getProvinceLSById(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("no id provided");
+        }
+        for (Province provaux : provincesLS) {
+            if (id.equals(provaux.getId())) {
+                return provaux;
+            }
+        }
+        return null;
+    }
+
     public City getCityById(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("no id provided");
         }
         for (City citaux : cities) {
+            if (id.equals(citaux.getId())) {
+                return citaux;
+            }
+        }
+        return null;
+    }
+
+    public City getCityLSById(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("no id provided");
+        }
+        for (City citaux : citiesLS) {
             if (id.equals(citaux.getId())) {
                 return citaux;
             }
@@ -4488,5 +4642,89 @@ public class BreederFormBean implements Serializable {
      */
     public void setDescuento(Descuento descuento) {
         this.descuento = descuento;
+    }
+
+    /**
+     * @return the lastSelectedMethodology
+     */
+    public Methodology getLastSelectedMethodology() {
+        return lastSelectedMethodology;
+    }
+
+    /**
+     * @param lastSelectedMethodology the lastSelectedMethodology to set
+     */
+    public void setLastSelectedMethodology(Methodology lastSelectedMethodology) {
+        this.lastSelectedMethodology = lastSelectedMethodology;
+    }
+
+    /**
+     * @return the ecuadorLS
+     */
+    public boolean isEcuadorLS() {
+        return ecuadorLS;
+    }
+
+    /**
+     * @param ecuadorLS the ecuadorLS to set
+     */
+    public void setEcuadorLS(boolean ecuadorLS) {
+        this.ecuadorLS = ecuadorLS;
+    }
+
+    /**
+     * @return the provincesLS
+     */
+    public List<Province> getProvincesLS() {
+        return provincesLS;
+    }
+
+    /**
+     * @param provincesLS the provincesLS to set
+     */
+    public void setProvincesLS(List<Province> provincesLS) {
+        this.provincesLS = provincesLS;
+    }
+
+    /**
+     * @return the provinceLS
+     */
+    public Province getProvinceLS() {
+        return provinceLS;
+    }
+
+    /**
+     * @param provinceLS the provinceLS to set
+     */
+    public void setProvinceLS(Province provinceLS) {
+        this.provinceLS = provinceLS;
+    }
+
+    /**
+     * @return the citiesLS
+     */
+    public List<City> getCitiesLS() {
+        return citiesLS;
+    }
+
+    /**
+     * @param citiesLS the citiesLS to set
+     */
+    public void setCitiesLS(List<City> citiesLS) {
+        this.citiesLS = citiesLS;
+    }
+
+    /**
+     * @return the cityLS
+     */
+    public City getCityLS() {
+        return cityLS;
+    }
+
+    /**
+     * @param cityLS the cityLS to set
+     */
+    public void setCityLS(City cityLS) {
+        this.cityLS = cityLS;
     }
 }

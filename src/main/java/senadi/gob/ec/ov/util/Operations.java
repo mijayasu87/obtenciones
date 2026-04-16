@@ -64,6 +64,14 @@ public class Operations {
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
 
+    public static void mantenerMensajesEnRedireccion() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (context != null) {
+            context.getExternalContext().getFlash().setKeepMessages(true);
+            context.getExternalContext().getFlash().setRedirect(true);
+        }
+    }
+
     /**
      * Pasa un String Ej: '2020-05-15' a java.util.Date *
      */

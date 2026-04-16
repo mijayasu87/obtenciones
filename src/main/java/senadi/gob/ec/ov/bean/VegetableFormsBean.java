@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIData;
@@ -36,9 +38,39 @@ public class VegetableFormsBean implements Serializable {
     private LoginBean login;
 
     private String previewPath;
+    private String redirectMessage;
 
     public VegetableFormsBean() {
+    }
+
+    @PostConstruct
+    public void init() {
         loadData();
+        showRedirectMessage();
+    }
+
+    private void showRedirectMessage() {
+        String msg = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("msg");
+        redirectMessage = null;
+
+        if (msg == null || msg.trim().isEmpty()) {
+            return;
+        }
+
+        switch (msg) {
+            case "saved":
+                redirectMessage = "SE GUARDÓ CORRECTAMENTE EL FORMULARIO";
+                break;
+            case "preview":
+                redirectMessage = "SE GENERÓ LA VISTA PREVIA CORRECTAMENTE";
+                break;
+            case "voucher":
+                redirectMessage = "SE GENERÓ EL COMPROBANTE DE PAGO SATISFACTORIAMENTE";
+                break;
+            default:
+                break;
+        }
+
     }
 
     private void loadData() {
@@ -217,6 +249,14 @@ public class VegetableFormsBean implements Serializable {
      */
     public void setPreviewPath(String previewPath) {
         this.previewPath = previewPath;
+    }
+
+    public String getRedirectMessage() {
+        return redirectMessage;
+    }
+
+    public void setRedirectMessage(String redirectMessage) {
+        this.redirectMessage = redirectMessage;
     }
 
 }

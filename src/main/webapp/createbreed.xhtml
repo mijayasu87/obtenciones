@@ -57,7 +57,7 @@ and open the template in the editor.
                     <a class="btn_home" href="breederform.xhtml" title="INICIO" >
                         <i class="material-icons-outlined" style="font-size: 30px; ">home</i>
                     </a>
-                    
+
                     <p:commandLink styleClass="btn_logout" actionListener="#{loginBean.logout}"
                                    oncomplete="logout(xhr, status, args)"
                                    title="CERRAR SESIÓN" immediate="true">
@@ -205,7 +205,7 @@ and open the template in the editor.
                             <p:inputText value="#{breederFormBean.personVegetableNotification.powerCode}" class="maxsize bordesuperior" maxlength="30"/>
                         </p:panelGrid>                        
                     </p:tab>
-                    <p:tab title="4. Taxón botánico" id="taxbot">
+                    <p:tab title="4. Taxón botánico (nombre científico al que pertenece la variedad)" id="taxbot">
                         <p:outputLabel value="Nombre en latín del género, la especie o la subespecie a los que pertenece la variedad* Taxón botánico*:" class="maxsize"
                                        for="botanicalt"/>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.botanicalTaxon}" id="botanicalt"  
@@ -218,8 +218,8 @@ and open the template in the editor.
                         <p:selectOneRadio id="groupv" value="#{breederFormBean.varietalGroupText}" layout="pageDirection" 
                                           style="text-align: left" 
                                           styleClass="#{breederFormBean.showTab18Error and (breederFormBean.varietalGroupText eq null || breederFormBean.varietalGroupText.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
-                            <f:selectItem itemValue="GROUP_A" itemLabel="“GRUPO A”: Ornamentales; árboles, arbustos y herbáceas de tipo frutales y ornamentales; cucurbitáceas; vid; hortalizas; palmeras; y, caña de azúcar."                                          />
-                            <f:selectItem itemValue="GROUP_B" itemLabel="“GRUPO B”: Otras variedades no consideradas en el ‘GRUPO A’, tales como: cereales; tubérculos; raíces; y, cultivos andinos." />                            
+                            <f:selectItem itemValue="GROUP_A" itemLabel="“GRUPO A”: Ornamentales; árboles, arbustos y herbáceas de tipo frutales y ornamentales; vid; hortalizas; palmeras; caña de azúcar, forrajeras"                                          />
+                            <f:selectItem itemValue="GROUP_B" itemLabel="“GRUPO B”: Otras variedades no consideradas en el ‘GRUPO A’, tales como: cereales." />
                         </p:selectOneRadio>
                     </p:tab>
                     <p:tab title="6. Denominación de la variedad" id="denvar">
@@ -228,14 +228,14 @@ and open the template in the editor.
                         <p>La denominación genérica propuesta en la solicitud no deberá corresponder a una marca, nombre comercial de la variedad, indicación geográfica o denominación de origen de productos agrícolas o alimenticios.</p>                                                
                         <p:outputLabel value="Designación provisional (referencia del obtentor) de la variedad:" class="maxsize" for="provdes"/>                                                
                         <br/><br/>
-                        <p>Deberían corroborarse las referencias del obtentor entre registros: en todos los procedimientos oficiales debe utilizarse la misma referencia del obtentor.</p>
+                        <p>Deberá ser igual que en todos los países miembros de la Unión Internacional para la Protección de las Obtenciones Vegetales (UPOV) donde se solicite protección.</p>
                         <p><strong>Referencia del obtentor*:</strong></p>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.provitionalDesignation}" id="provdes" maxlength="255"
                                          styleClass="#{(breederFormBean.showTab5Error and breederFormBean.vegetableForms.provitionalDesignation.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <br/><br/>
                         <p:outputLabel value="Denominación genérica propuesta de la variedad *:" class="maxsize" for="genden"/>
 
-                        <p>La denominación deberá ser escrita en mayúsculas y deberá ser la misma en caso de estar registrada en otro país.</p>
+                        <p>Deberá ser igual que en todos los países miembros de la Unión Internacional para la Protección de las Obtenciones Vegetales (UPOV) donde se solicite protección.</p>
 
                         <p>Denominación de la variedad*:</p>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.genericDenomination}" id="genden" maxlength="255"
@@ -243,7 +243,7 @@ and open the template in the editor.
                         <br/><br/>
                         <p:outputLabel value="La denominación puede ser un «nombre de fantasía» o un «CÓDIGO»*:" class="maxsize"/>
 
-                        <p>Las denominaciones de variedades pueden ser «nombres de fantasía» (pronunciables) o nombres de «CÓDIGO» (combinación de números y letras con un máximo de 10 caracteres; los espacios en blanco no se consideran caracteres).</p>
+                        <p>La denominación genérica de la variedad debe señalarse como nombre de fantasía o código. Señalando a los de fantasía como “pronunciables”; y, a los de código como “combinación de letras y números”*.</p>
 
                         <p:selectOneRadio id="dentypesel" value="#{breederFormBean.denominationTypeSelected}" layout="pageDirection" 
                                           style="text-align: left" 
@@ -255,12 +255,12 @@ and open the template in the editor.
                     <p:tab title="7. ¿Cómo se ha transferido la variedad al/a los solicitante(s)?" id="transfvar">
                         “Si el solicitante es diferente del obtentor se debe ingresar de forma física la prueba documental adecuada.”
                         <br/><br/>
-                        <p:outputLabel value="Seleccione 'Sí' si el obtentor no es el solicitante:" />
+                        <p:outputLabel value="¿El/los solicitante(s) es/son el/los obtentor(es)?" />
                         <p:selectOneRadio id="vartranobsel" value="#{breederFormBean.varietyTransferObtentor}" layout="pageDirection" 
                                           style="text-align: left" 
                                           styleClass="#{breederFormBean.showTab6Error and (breederFormBean.varietyTransferObtentor eq null || breederFormBean.varietyTransferObtentor.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
-                            <f:selectItem itemValue="SI" itemLabel="Sí"/>
-                            <f:selectItem itemValue="NO" itemLabel="No" />
+                            <f:selectItem itemValue="NO" itemLabel="Sí" />
+                            <f:selectItem itemValue="SI" itemLabel="No"/><!-- ya en pruebas me dicen que debería ser al revés porque se cambió la pregunta, por ello opté en cambiar solo el itemlabel, sino me tocaba cambiar el código -->
                             <p:ajax update="mensajes allform:acordion:panvariety" listener="#{breederFormBean.onVarietyTransferSelected}"/>
                         </p:selectOneRadio>
 
@@ -278,14 +278,16 @@ and open the template in the editor.
                             </p:selectOneRadio>
                             <p:inputTextarea id="vartrandes" value="#{breederFormBean.vegetableForms.varietyTransferDescription}" class="maxsize " 
                                              style="#{breederFormBean.withDescriptionVariety ? 'display:block' : 'display:none'}" maxlength="255"
-                                             styleClass="#{(breederFormBean.vegetableForms.varietyTransferDescription.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                                             styleClass="#{(breederFormBean.vegetableForms.varietyTransferDescription.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>                            
                             <br/>
                             <p:outputLabel value="Origen geográfico de la variedad*:" class="maxsize" for="paisorigen"/>
                             <p:selectOneMenu id="paisorigen" value="#{breederFormBean.countryOrigin}" converter="countryConverter"
                                              class="maxsize" widgetVar="paisor" dynamic="false">                                                    
                                 <f:selectItems value="#{breederFormBean.countries}" var="c" 
-                                               itemLabel="#{c.name}" itemValue="#{c}" />                            
+                                               itemLabel="#{c.name}" itemValue="#{c}" />
                             </p:selectOneMenu>
+                            <br/><br/>
+                            <p>Si el/los solicitante(s) no es/son el/los obtentor(es), ingrese la documentación probatoria física o digital, con sus respectivas firmas o apostillas manuscritas o electrónicas, que demuestre dicha transferencia.</p>
                         </p:panel>
 
                     </p:tab>
@@ -302,12 +304,7 @@ and open the template in the editor.
                         <p:panelGrid columns="1" style="#{breederFormBean.vegetableForms.hasOtherApplications ? 'display:block' : 'display:none'}" 
                                      id="solant">
                             <p:panel header="Solicitudes anteriores:">
-                                <p>La protección se refiere a patentes de plantas, patentes industriales, y a títulos 
-                                    especiales de protección vegetal, entre éstos, el certificado de obtentor</p>
-
-                                <p>Registro de variedades es cualquier inscripción en el registro de variedades 
-                                    cuya comercialización está autorizada por la autoridad competente. 
-                                    (Ejm.: en Ecuador, Dirección Nacional Agropecuaria, Unidad de Semillas.) </p>
+                                <p>Se refiere a la protección de variedades vegetales por: patentes, derecho de obtentor o registro de cultivares.</p>
 
                                 <p>En la columna situación de la solicitud debe usar las abreviaturas indicadas en el apartado. Esto es,</p>
                                 <ul>
@@ -564,30 +561,48 @@ and open the template in the editor.
                                              class="maxsize" widgetVar="paislivs" dynamic="false" required="true"
                                              styleClass="#{breederFormBean.showTab10Error and (breederFormBean.countryLivingSample eq null || breederFormBean.countryLivingSample.getId() lt 1) ? 'invalid-inputfield' : 'maxsize'}">
                                 <f:selectItems value="#{breederFormBean.countries}" var="c" 
-                                               itemLabel="#{c.name}" itemValue="#{c}" />                            
+                                               itemLabel="#{c.name}" itemValue="#{c}" />
+                                <p:ajax listener="#{breederFormBean.onCountryLSChange}" update="allform:acordion:panLiv" /><!--provincelivs cityls-->
                             </p:selectOneMenu>
-                            <p:outputLabel value="Lugar exacto: *" class="maxsize" for="samplac"/>
+                            <p:outputLabel value="Provincia: *" for="provincelivs" class="maxsize" rendered="#{breederFormBean.ecuadorLS}"/>
+                            <p:selectOneMenu id="provincelivs" value="#{breederFormBean.provinceLS}" converter="provinceLSConverter"
+                                             class="maxsize" widgetVar="provincelivs" rendered="#{breederFormBean.ecuadorLS}" 
+                                             styleClass="#{breederFormBean.showTab10Error and (breederFormBean.provinceLS eq null || breederFormBean.provinceLS.getId() lt 1) ? 'invalid-inputfield' : 'maxsize'}">
+                                <f:selectItems value="#{breederFormBean.provincesLS}" var="p" 
+                                               itemLabel="#{p.name}" itemValue="#{p}" />
+                                <p:ajax listener="#{breederFormBean.onProvinceLSChange}" update="allform:acordion:panLiv" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ciudad: *" for="cityls" class="maxsize" rendered="#{breederFormBean.ecuadorLS}"/>
+                            <p:selectOneMenu id="cityls" value="#{breederFormBean.cityLS}" converter="cityLSConverter"
+                                             class="maxsize" rendered="#{breederFormBean.ecuadorLS}" 
+                                             styleClass="#{breederFormBean.showTab10Error and (breederFormBean.cityLS eq null || breederFormBean.cityLS.getId() lt 1) ? 'invalid-inputfield' : 'maxsize'}">
+                                <f:selectItems value="#{breederFormBean.citiesLS}" var="c" 
+                                               itemLabel="#{c.name}" itemValue="#{c}" />
+                            </p:selectOneMenu>
+
+                            <p:outputLabel value="Lugar exacto: * (Parroquia, Referencias geográficas, vías de acceso y puntos de referencia)" class="maxsize" for="samplac"/>
                             <p:inputTextarea id="samplac" class="maxsize" value="#{breederFormBean.vegetableForms.samplePlace}" 
                                              styleClass="#{breederFormBean.showTab10Error and (breederFormBean.vegetableForms.samplePlace eq null || breederFormBean.vegetableForms.samplePlace.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         </p:panelGrid>
                     </p:tab>
                     <p:tab title="12. Descripción técnica de la variedad" id="destec">
                         <p:outputLabel value="Genealogía:" for="geneal"/>
-                        <span> origen genético (parentales/en el caso de variedades híbridas indique en primer lugar el componente madre y luego el componente padre) (Confidencial)</span>
+                        <span> La Genealogía, Método de mejoramiento vegetal y el Historial del procesos de mejoramiento vegetal deben marcarse con asterisco, porque es información obligatoria.</span>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.genealogy}" id="geneal"
                                          styleClass="#{breederFormBean.showTab11Error and (breederFormBean.vegetableForms.genealogy eq null || breederFormBean.vegetableForms.genealogy.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <p:panel header="Metodología de obtención de la variedad vegetal (Cofindencial)" id="methodologypan">
                             <p:outputLabel value="Método de mejoramiento vegetal"/>
                             <span>(Marque el casillero que corresponda)</span>
                             <p:selectManyCheckbox id="meths" value="#{breederFormBean.selectedMethodologies}" converter="methodologyConverter"
-                                                  layout="pageDirection"
-                                                  styleClass="#{breederFormBean.showTab11Error and breederFormBean.selectedMethodologies.size() == 0 ?'invalid-manycheck':''}">
+                                                  layout="pageDirection" 
+                                                  styleClass="#{breederFormBean.showTab11Error and breederFormBean.selectedMethodologies.size() == 0 ?'invalid-manycheck':'radio-style-checkbox'}">
                                 <f:selectItems value="#{breederFormBean.methodologies}"
                                                var="m"
                                                itemValue="#{m}"
                                                itemLabel="#{m.name}" />
-                                <p:ajax update="mensajes allform:acordion:especiespan" listener="#{breederFormBean.onMethodologiesSelected}"/>
+                                <p:ajax update="mensajes allform:acordion:especiespan meths" listener="#{breederFormBean.onMethodologiesSelected}"/>
                             </p:selectManyCheckbox>
+
                             <p:panel id="especiespan" class="noBorders" style="#{(breederFormBean.autogamousSelected or breederFormBean.allogamousSelected) ?'display:block' : 'display:none'}">
                                 <p:outputLabel value="Especies Autógamas:" for="esau" 
                                                style="#{breederFormBean.autogamousSelected ? 'display:block' : 'display:none'}"/>
@@ -644,8 +659,32 @@ and open the template in the editor.
                         <p:outputLabel value="Caracteres de la variedad conforme a las directrices UPOV, directrices nacionales del SENADI o a falta de lo anterior, el solicitante señalará los caracteres pertinentes, esenciales o discriminatorios que permitan identificarla y diferenciarla:" class="maxsize"/>
                         <br/><br/>
                         <span>Nota aclaratoria: "INDICAR, SEGÚN LA ESPECIE, DE ACUERDO CON LA TABLA DE CARACTERÍSTICAS QUE CONSTA EN LOS PRINCIPIOS 
-                            RECTORES PARA LA EJECUCIÓN DEL EXAMEN PREPARADOS POR LA UPOV. (Señale el número que mejor corresponda al nivel de 
+                            RECTORES PARA LA EJECUCIÓN DEL EXAMEN PREPARADOS POR LA UPOV O DIRECTRICES NACIONALES. (Señale el número que mejor corresponda al nivel de 
                             expresión y la variedad a título de ejemplo)"</span>
+                        <br/><br/>                        
+
+                        <table style="width:70%; border-collapse: collapse; text-align:center; margin: 0 auto;">
+                            <caption style="caption-side: top; font-weight: bold; margin-bottom:5px; text-align: left">
+                                Ejemplo:
+                            </caption>
+                            <thead>
+                                <tr style="background-color:#f2f2f2; font-size: 10px; ">
+                                    <th style="border:1px solid #ccc; padding:8px; text-align: center;">Caracteres</th>
+                                    <th style="border:1px solid #ccc; padding:8px; text-align: center;">Nivel de expresión</th>
+                                    <th style="border:1px solid #ccc; padding:8px; text-align: center;">Variedad a título de ejemplo</th>
+                                    <th style="border:1px solid #ccc; padding:8px; text-align: center;">Nota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="font-size: 10px">
+                                    <td style="border:1px solid #ccc; padding:8px;">Planta: Crecimiento</td>
+                                    <td style="border:1px solid #ccc; padding:8px;">Erecto</td>
+                                    <td style="border:1px solid #ccc; padding:8px;">Freedom</td>
+                                    <td style="border:1px solid #ccc; padding:8px;">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
                         <br/><br/>
                         <p:commandButton value="AGREGAR NUEVO" actionListener="#{breederFormBean.prepareNewCharacter}" process="@this"
                                          update="mensajes dlgCharacter frmCharacter" 
@@ -658,19 +697,19 @@ and open the template in the editor.
                                      rows="20" style="width: 80%; text-align: center; margin: 0 auto;"
                                      rowKey="#{character.id}" 
                                      styleClass="#{breederFormBean.showTab13Error and breederFormBean.varietiesCharacters.size() == 0 ?'invalid-table btn_peque':'btn_peque'}">
-                            <p:column headerText="Caracteres" style="text-align: center;" >
+                            <p:column headerText="Caracteres" style="text-align: center; border: 1px solid gray; padding: 7px !important" >
                                 <h:outputText value="#{character.characters}" />                                    
                             </p:column>
-                            <p:column headerText="Nivel de expresión" style="text-align: center;" >
+                            <p:column headerText="Nivel de expresión" style="text-align: center; border: 1px solid gray;" >
                                 <h:outputText value="#{character.expressionLevel}" />
                             </p:column>
-                            <p:column headerText="Variedad a título de ejemplo" style="text-align: center;" >
+                            <p:column headerText="Variedad a título de ejemplo" style="text-align: center; border: 1px solid gray;" >
                                 <h:outputText value="#{character.sampleTitleVariety}" />
                             </p:column>
-                            <p:column headerText="Nota" style="text-align: center;" >
+                            <p:column headerText="Nota" style="text-align: center; border: 1px solid gray;" >
                                 <h:outputText value="#{character.note}" />
                             </p:column>
-                            <p:column headerText="Acciones" style="text-align: center;" >
+                            <p:column headerText="Acciones" style="text-align: center; border: 1px solid gray;" >
                                 <p:commandLink class="link_remove" actionListener="#{breederFormBean.removeVarietyCharacter}"
                                                update="allform:acordion:tablaChar mensajes"
                                                title="Remover Registro" process="@this" >
@@ -816,7 +855,8 @@ and open the template in the editor.
                     <p:commandButton value="GUARDAR" class="btn_buscar" actionListener="#{breederFormBean.prepareSaveVegetableForms}" 
                                      process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.savevf){PF('dlgConfirmar').show();}"/>
                     <p:commandButton value="VISTA PREVIA" class="btn_buscar" actionListener="#{breederFormBean.preparePreviewVegetableForms}"
-                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.previewvf){PF('dlgConfirmar').show();}"/>
+                                     process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.previewvf){PF('dlgConfirmar').show();}"
+                                     rendered="#{breederFormBean.vegetableForms.status eq 'SAVED' or breederFormBean.vegetableForms.status eq 'PREVIEW'}"/>
                     <p:commandButton value="GENERAR COMPROBANTE" class="btn_buscar" actionListener="#{breederFormBean.prepareGenerateVoucher}"
                                      rendered="#{breederFormBean.vegetableForms.status eq 'PREVIEW'}"
                                      process="@this" update="mensajes allform:dlgConfirmar" oncomplete="if(args.generatev){PF('dlgConfirmar').show();}"/>
@@ -838,7 +878,7 @@ and open the template in the editor.
                                      actionListener="#{breederFormBean.saveVegetableForms}"
                                      update="mensajes @form"
                                      process="@form"
-                                     oncomplete="PF('dlgFinalConfirm').hide();if(args.doit){setTimeout(function(){window.location='breederform.xhtml';}, 1000);}else{scrollToActiveTab();}"
+                                     oncomplete="PF('dlgFinalConfirm').hide();if(args.doit){setTimeout(function(){window.location=args.redirectUrl || 'breederform.xhtml';}, 1000);}else{scrollToActiveTab();}"
                                      icon="ui-icon-check" />
                     <p:commandButton value="NO" class="btn_cerrar" onclick="PF('dlgFinalConfirm').hide()" />
                 </p:dialog>
@@ -932,9 +972,9 @@ and open the template in the editor.
                         <p:outputLabel value="Fecha de Nacimiento:" for="fechan" class="maxsize" 
                                        rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
                         <p:calendar id="fechan" pattern="yyyy-MM-dd" value="#{breederFormBean.person.dateBirth}" lang="es" locale="es"
-                                    label="Fecha de Nacimiento" style="font-size: 20px !important;" class="maxsize" required="#{breederFormBean.fechnac}"
+                                    label="Fecha de Nacimiento" style="font-size: 20px !important;" class="maxsize" 
                                     placeholder="Fecha de Nacimiento" navigator="true" readonly="#{!breederFormBean.fechnac}" 
-                                    inputStyleClass="maxsize" rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/>
+                                    inputStyleClass="maxsize" rendered="#{!breederFormBean.empresa and !breederFormBean.ruc}"/> <!--required="{breederFormBean.fechnac}"-->
                     </p:panelGrid>
                     <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders panelToTop" id="addsol">
                         <p:outputLabel value="Ciudad de Residencia:" for="city" class="maxsize" rendered="#{breederFormBean.ecuador}"/>
@@ -1050,7 +1090,7 @@ and open the template in the editor.
                         <f:selectItem itemLabel="D = aceptada" itemValue="D" />
                         <f:selectItem itemLabel="E = otros" itemValue="E" />
                     </p:selectOneMenu>
-                    <p:outputLabel value="Denominación de la variedad y referencia del obtentor:" class="maxsize bordesuperior" for="denop"/>
+                    <p:outputLabel value="Denominación de registro de la variedad:" class="maxsize bordesuperior" for="denop"/>
                     <p:inputText id="denop" value="#{breederFormBean.vegetableProtection.denomination}" class="maxsize"
                                  required="true"/>
                 </p:panelGrid>
@@ -1333,6 +1373,7 @@ and open the template in the editor.
                 window.location = 'login.xhtml';
             }, 500);
         }
+
         //]]>
     </script>
 </html>

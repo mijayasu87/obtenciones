@@ -1100,6 +1100,27 @@ body .ui-widget {
     font-size: 16px;
 }
 
+.radio-style-checkbox .ui-chkbox-box {
+    border-radius: 50% !important;
+}
+
+.radio-style-checkbox .ui-chkbox-icon {
+    display: none !important;
+}
+
+.radio-style-checkbox .ui-chkbox-box.ui-state-active::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: #2196F3;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+}
+
+
+
 /* Aplica el borde y efecto al bloque completo */
 .invalid-manycheck .ui-selectmanycheckbox {
     border: 2px solid #e53935 !important;
