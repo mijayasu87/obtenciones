@@ -273,7 +273,7 @@ public class BreederFormBean implements Serializable {
             annexes.get(i).setIdVegatableForms(null);
         }
         annexes.get(1).setRequired(true);
-        annexes.get(4).setRequired(true);
+//        annexes.get(4).setRequired(true);
         annexes.get(5).setRequired(true);
         annexes.get(6).setRequired(true);
         annexes.get(8).setRequired(true);
@@ -2528,38 +2528,67 @@ public class BreederFormBean implements Serializable {
         FacesMessage msg = null;
         Controller c = new Controller();
         if (person != null && person.getIdentificationNumber() != null && !person.getIdentificationNumber().trim().isEmpty()) {
-            if (cedula && person.getIdentificationNumber().length() == 10) {
+            String identificationNumber = person.getIdentificationNumber().trim();
+
+            person = new Person();
+            person.setIdentificationNumber(identificationNumber);
+            hashPerson = "";
+            generoSolicitante = "";
+            provinces = new ArrayList<>();
+            province = new Province();
+            cities = new ArrayList<>();
+            city = new City();
+
+            if (countries != null && !countries.isEmpty()) {
+                country = countries.get(0);
+            }
+
+            if (cedula && identificationNumber.length() == 10) {
                 ValidarIdentificacion vi = new ValidarIdentificacion();
-                if (vi.validarCedula(person.getIdentificationNumber())) {
-                    Person personaux = c.getPersonByIdentificationAndType(person.getIdentificationNumber(), "CI");
+                if (vi.validarCedula(identificationNumber)) {
+                    Person personaux = c.getPersonByIdentificationAndType(identificationNumber, "CI");
                     msg = validatePerson(personaux);
                 } else {
                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "LA CÉDULA INGRESADA ES INCORRECTA");
                 }
             } else if (passport) {
-                Person personaux = c.getPersonByIdentificationAndType(person.getIdentificationNumber(), "PASSPORT");
+                Person personaux = c.getPersonByIdentificationAndType(identificationNumber, "PASSPORT");
                 msg = validatePerson(personaux);
-            } else if (ruc && person.getIdentificationNumber().length() == 13) {
+            } else if (ruc && identificationNumber.length() == 13) {
                 ValidarIdentificacion vi = new ValidarIdentificacion();
                 boolean flag = false;
                 String msj = "";
-                if (tipoDocumentoNatural.trim().isEmpty()) {
-                    if (vi.validarRucSociedadPrivada(person.getIdentificationNumber())) {
+
+                boolean juridicoSeleccionado = "RUCJ".equals(tipoDocumentoJuridico);
+                boolean naturalSeleccionado = "RUCN".equals(tipoDocumentoNatural);
+
+                // Fallback defensivo para estados JSF inconsistentes.
+                if (!juridicoSeleccionado && !naturalSeleccionado && identificationNumber.length() >= 3) {
+                    char tercerDigito = identificationNumber.charAt(2);
+                    juridicoSeleccionado = (tercerDigito == '6' || tercerDigito == '9');
+                    naturalSeleccionado = !juridicoSeleccionado;
+                }
+
+                if (juridicoSeleccionado) {
+                    if (vi.validarRucSociedadPrivada(identificationNumber)
+                            || vi.validarRucSociedadPublica(identificationNumber)) {
                         flag = true;
                     } else {
 
                         msj = "EL RUC INGRESADO NO ES JURÍDICO";
                     }
-                } else {
-                    if (vi.validarRucPersonaNatural(person.getIdentificationNumber())) {
+                } else if (naturalSeleccionado) {
+                    if (vi.validarRucPersonaNatural(identificationNumber)) {
                         flag = true;
                     } else {
                         msj = "EL RUC INGRESADO NO ES NATURAL";
                     }
+                } else {
+                    msj = "NO SE PUDO DETERMINAR EL TIPO DE RUC";
                 }
 
                 if (flag) {
-                    Person personaux = c.getPersonByIdentificationAndType(person.getIdentificationNumber(), "RUC");
+                    Person personaux = c.getPersonByIdentificationAndType(identificationNumber, "RUC");
                     msg = validatePerson(personaux);
                 } else {
                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", msj);
@@ -2568,11 +2597,11 @@ public class BreederFormBean implements Serializable {
             } else {
                 msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DOCUMENTO INCORRECTO");
             }
-        } else {
-
         }
 
-        FacesContext.getCurrentInstance().addMessage(null, msg);
+        if (msg != null) {
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+        }
     }
 
     public FacesMessage validatePerson(Person personaux) {

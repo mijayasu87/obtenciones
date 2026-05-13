@@ -20,67 +20,84 @@ public class CodigoDescuentoDAO extends DAOAbstractD<CodigoDescuento> {
 
     @Override
     public List<CodigoDescuento> buscarTodos() {
-        Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c");
-        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
-        return query.getResultList();
+        try {
+            Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c");
+            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+            return query.getResultList();
+        } finally {
+            this.getEntityManager().close();
+        }
     }
 
     public boolean existeCodigoVigente(String numero, int owner_id, String identificacion, boolean usado) {
-        String fechaActual = Operations.getCurrentTimeStamp();
-        Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c where c.identificacion = '" + identificacion + "' and c.numero = '" + numero + "' "
-                + "and c.ownerId = " + owner_id + " and "
-                + "c.usado = " + usado + " and c.fechaCreacion <= '" + fechaActual + "' and c.fechaCaduca >= '" + fechaActual + "'");
-        List<CodigoDescuento> codigos = query.getResultList();
-        if (codigos.isEmpty()) {
-            return false;
-        } else {
-            return true;
+        try {
+            String fechaActual = Operations.getCurrentTimeStamp();
+            Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c where c.identificacion = '" + identificacion + "' and c.numero = '" + numero + "' "
+                    + "and c.ownerId = " + owner_id + " and "
+                    + "c.usado = " + usado + " and c.fechaCreacion <= '" + fechaActual + "' and c.fechaCaduca >= '" + fechaActual + "'");
+            List<CodigoDescuento> codigos = query.getResultList();
+            return !codigos.isEmpty();
+        } finally {
+            this.getEntityManager().close();
         }
     }
 
     public CodigoDescuento getCodigoDescuentoByCode(String code) {
         String fechaActual = Operations.getCurrentTimeStamp();
-        Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c where c.codigoGenerado = :code "
-                + "and c.fechaCreacion <= '"+fechaActual+"' and c.fechaCaduca >= '"+fechaActual+"'");
-        query.setParameter("code", code);
+        try {
+            Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c where c.codigoGenerado = :code "
+                    + "and c.fechaCreacion <= '" + fechaActual + "' and c.fechaCaduca >= '" + fechaActual + "'");
+            query.setParameter("code", code);
 //        query.setParameter("fechaActual", fechaActual);
-        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
-        List<CodigoDescuento> codigos = query.getResultList();
-        if (codigos.isEmpty()) {
-            return new CodigoDescuento();
-        } else {
-            return codigos.get(0);
+            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+            List<CodigoDescuento> codigos = query.getResultList();
+            if (codigos.isEmpty()) {
+                return new CodigoDescuento();
+            } else {
+                return codigos.get(0);
+            }
+        } finally {
+            this.getEntityManager().close();
         }
     }
 
     public CodigoDescuento getCodigoDescuento(String numero, int owner_id, String identificacion, boolean usado) {
+
         String fechaActual = Operations.getCurrentTimeStamp();
-        Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c where c.identificacion = :idenficacion "
-                + "and c.numero = :numero and c.ownerId = :owner_id and "
-                + "c.usado = :usado and c.fechaCreacion <= :fechaActual and c.fechaCaduca >= :fechaActual");
-        query.setParameter("identificacion", identificacion);
-        query.setParameter("numero", numero);
-        query.setParameter("owner_id", owner_id);
-        query.setParameter("usado", usado);
-        query.setParameter("fechaActual", fechaActual);
-        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
-        List<CodigoDescuento> codigos = query.getResultList();
-        if (codigos.isEmpty()) {
-            return new CodigoDescuento();
-        } else {
-            return codigos.get(0);
+        try {
+            Query query = this.getEntityManager().createQuery("Select c from CodigoDescuento c where c.identificacion = :idenficacion "
+                    + "and c.numero = :numero and c.ownerId = :owner_id and "
+                    + "c.usado = :usado and c.fechaCreacion <= :fechaActual and c.fechaCaduca >= :fechaActual");
+            query.setParameter("identificacion", identificacion);
+            query.setParameter("numero", numero);
+            query.setParameter("owner_id", owner_id);
+            query.setParameter("usado", usado);
+            query.setParameter("fechaActual", fechaActual);
+            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+            List<CodigoDescuento> codigos = query.getResultList();
+            if (codigos.isEmpty()) {
+                return new CodigoDescuento();
+            } else {
+                return codigos.get(0);
+            }
+        } finally {
+            this.getEntityManager().close();
         }
     }
-    
-    public Descuento getDescuentoByNumero(String numero){
-        Query query = this.getEntityManager().createQuery("Select d from Descuento d where d.numero = :numero");
-        query.setParameter("numero", numero);
-        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
-        List<Descuento> descuentos = query.getResultList();
-        if (descuentos.isEmpty()) {
-            return new Descuento();
-        } else {
-            return descuentos.get(0);
+
+    public Descuento getDescuentoByNumero(String numero) {
+        try {
+            Query query = this.getEntityManager().createQuery("Select d from Descuento d where d.numero = :numero");
+            query.setParameter("numero", numero);
+            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+            List<Descuento> descuentos = query.getResultList();
+            if (descuentos.isEmpty()) {
+                return new Descuento();
+            } else {
+                return descuentos.get(0);
+            }
+        } finally {
+            this.getEntityManager().close();
         }
     }
 }

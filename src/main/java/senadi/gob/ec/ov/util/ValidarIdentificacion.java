@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
  * @author michael
  */
 public class ValidarIdentificacion {
-    
+
     private static final ValidarIdentificacion VALIDAR_IDENTIFICACION;
 
     static {
@@ -60,6 +60,7 @@ public class ValidarIdentificacion {
             algoritmoModulo10(numero.substring(0, 9), Integer.parseInt(String.valueOf(numero.charAt(9))));
         } catch (Exception e) {
 //            e.printStackTrace();
+            System.err.println("Error en ruc natural " + numero + ": " + e);
             return false;
         }
 
@@ -81,6 +82,28 @@ public class ValidarIdentificacion {
             validarCodigoEstablecimiento(numero.substring(10, 13));
             algoritmoModulo11(numero.substring(0, 9), Integer.parseInt(String.valueOf(numero.charAt(9))), TipoDocumento.getRucPrivada());
         } catch (Exception e) {
+//            System.err.println("Error en ruc privado " + numero + ": " + e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param numero ruc empresa publica
+     * @return
+     * @throws Exception
+     */
+    public boolean validarRucSociedadPublica(String numero) throws Exception {
+
+        try {
+            validarInicial(numero, 13);
+            validarCodigoProvincia(numero.substring(0, 2));
+            validarTercerDigito(String.valueOf(numero.charAt(2)), TipoDocumento.getRucPublica());
+            validarCodigoEstablecimiento(numero.substring(9, 13));
+            algoritmoModulo11(numero.substring(0, 8), Integer.parseInt(String.valueOf(numero.charAt(8))), TipoDocumento.getRucPublica());
+        } catch (Exception e) {
+//            System.err.println("Error en ruc publico " + numero + ": " + e);
             return false;
         }
 
@@ -95,14 +118,18 @@ public class ValidarIdentificacion {
      */
     protected boolean validarInicial(String numero, int caracteres) throws Exception {
         if (StringUtils.isEmpty(numero)) {
+            System.err.println("Valor no puede estar vacio");
             throw new Exception("Valor no puede estar vacio");
         }
 
         if (!NumberUtils.isDigits(numero)) {
+            System.err.println("Valor ingresado solo puede tener dígitos");
             throw new Exception("Valor ingresado solo puede tener dígitos");
+
         }
 
         if (numero.length() != caracteres) {
+            System.err.println("Valor ingresado debe tener " + caracteres + " caracteres");
             throw new Exception("Valor ingresado debe tener " + caracteres + " caracteres");
         }
 
@@ -110,12 +137,13 @@ public class ValidarIdentificacion {
     }
 
     /**
-     * @param n&uacutemero en el rango de n&uacutemeros de provincias del ecuador
+     * @param numero en el rango de n&uacutemeros de provincias del ecuador
      * @return
      * @throws Exception
      */
     protected boolean validarCodigoProvincia(String numero) throws Exception {
         if (Integer.parseInt(numero) < 0 || Integer.parseInt(numero) > 24) {
+            System.err.println("Codigo de Provincia (dos primeros dígitos) no deben ser mayor a 24 ni menores a 0");
             throw new Exception("Codigo de Provincia (dos primeros dígitos) no deben ser mayor a 24 ni menores a 0");
         }
 
@@ -124,7 +152,7 @@ public class ValidarIdentificacion {
 
     /**
      * @param numero
-     * @param tipo   de documento cedula, ruc
+     * @param tipo de documento cedula, ruc
      * @return
      * @throws Exception
      */
@@ -133,22 +161,26 @@ public class ValidarIdentificacion {
             case 1:
             case 2:
 
-                if (Integer.parseInt(numero) < 0 || Integer.parseInt(numero) > 5) {
+                if (Integer.parseInt(numero) < 0 || Integer.parseInt(numero) > 6) {
+                    System.err.println("Tercer dígito debe ser mayor o igual a 0 y menor a 6 para cédulas y RUC de persona natural ... permitidos de 0 a 5: " + numero);
                     throw new Exception("Tercer dígito debe ser mayor o igual a 0 y menor a 6 para cédulas y RUC de persona natural ... permitidos de 0 a 5");
                 }
                 break;
             case 3:
                 if (Integer.parseInt(numero) != 9) {
+                    System.err.println("Tercer dígito debe ser igual a 9 para sociedades privadas");
                     throw new Exception("Tercer dígito debe ser igual a 9 para sociedades privadas");
                 }
                 break;
 
             case 4:
                 if (Integer.parseInt(numero) != 6) {
+                    System.err.println("Tercer dígito debe ser igual a 6 para sociedades públicas");
                     throw new Exception("Tercer dígito debe ser igual a 6 para sociedades públicas");
                 }
                 break;
             default:
+                System.err.println("Tipo de Identificacion no existe.");
                 throw new Exception("Tipo de Identificacion no existe.");
         }
 
@@ -239,15 +271,13 @@ public class ValidarIdentificacion {
         }
 
         List<Integer> digitosInicialesTMP = IntStream.range(0, digitosIniciales.length()).mapToObj(
-                        i -> NumberUtils.createInteger(String.valueOf(digitosIniciales.charAt(i)))).
+                i -> NumberUtils.createInteger(String.valueOf(digitosIniciales.charAt(i)))).
                 collect(Collectors.toCollection(() -> new ArrayList<>(digitosIniciales.length())));
-
 
         AtomicInteger consolidadodMultiplicacionIndiceConeficiente = new AtomicInteger();
         List<Integer> finalArrayCoeficientes = arrayCoeficientes;
         IntStream.range(0, arrayCoeficientes.size()).map(x -> (digitosInicialesTMP.get(x) * finalArrayCoeficientes.get(x))).
                 forEach(consolidadodMultiplicacionIndiceConeficiente::addAndGet);
-
 
         int residuo = consolidadodMultiplicacionIndiceConeficiente.get() % 11;
         int resultado;

@@ -759,6 +759,9 @@ and open the template in the editor.
                         <p:outputLabel value="Se adjuntan los siguientes formularios y documentos a la presente solicitud: Por favor, adjunte los documentos pertinentes:" />
                         <p:panel style="border: 1px black solid">
                             <span style="color: blue; font-size: 10px">Los documentos obligatorios, también debe presentarlos de manera física en el SENADI</span>
+                            <br/>
+                            <span style="font-weight: bold; font-size: 10px">Nota: Si su proceso es ABREVIADO, por favor, descargar el siguiente documento a ser incluido en Documentos Adjuntos <a href="http://www.derechosintelectuales.gob.ec/wp-content/uploads/2026/04/MINUTA_ABREVIADOS.docx">Descargar</a></span>
+                            
                         </p:panel>
                         <p:dataList id="dtganx" var="anx" value="#{breederFormBean.annexes}" varStatus="st"
                                     widgetVar="dtganx" binding="#{breederFormBean.annexeData}" 
@@ -909,6 +912,13 @@ and open the template in the editor.
             <p:ajax event="close" update="dlgPerson" resetValues="true" />
             <p:growl id="nuevoreg" life="1000"/>
             <h:form id="frmPerson">
+                <h:inputHidden id="personIdHidden" value="#{breederFormBean.person.id}" />
+                <h:inputHidden id="hashPersonHidden" value="#{breederFormBean.hashPerson}" />
+                <p:remoteCommand name="validateIdentificationNumber"
+                                 process="docn personIdHidden hashPersonHidden"
+                                 update=":mensajes nationa docpanel addsol"
+                                 actionListener="#{breederFormBean.verificarDocumento}"
+                                 oncomplete="restoreDocumentFocus();" />
                 <p:panelGrid columns="2" columnClasses="fifty-percent,fifty-percent" class="noBorders" id="solpanel" style="text-align: left">                                    
                     <p:panelGrid columns="2"  id="tipodocs" class="noBorders" >                                        
                         <p:fieldset legend="Natural">
@@ -945,11 +955,14 @@ and open the template in the editor.
                             <p:ajax listener="#{breederFormBean.onProvinceChange}" update="city" />
                         </p:selectOneMenu>
                     </p:panelGrid>
-                    <p:panelGrid columns="1" style="width: 100%" class="panelCeldas noBorders">
+                    <p:panelGrid id="docpanel" columns="1" style="width: 100%" class="panelCeldas noBorders">
                         <p:outputLabel value="Número de Documento:" for="docn" class="maxsize"/>
                         <p:inputText id="docn" value="#{breederFormBean.person.identificationNumber}" readonly="#{!breederFormBean.doc}" 
-                                     class="maxsize" required="true" widgetVar="focusCedula">
+                                     class="maxsize" required="true" widgetVar="focusCedula"
+                                     onkeydown="return preventEnterSubmit(event);"
+                                     oninput="handleIdentificationInput(this)">
                             <p:ajax event="blur" listener="#{breederFormBean.verificarDocumento}" 
+                                    process="@this personIdHidden hashPersonHidden"
                                     update="mensajes @parent nationa addsol pais province city" />
                         </p:inputText>
                         <p:outputLabel value="Nombre:" for="nombre" class="maxsize"/>
@@ -1350,6 +1363,134 @@ and open the template in the editor.
                 parent = parent.parentElement;
             }
             return document.scrollingElement || document.documentElement;
+        }
+
+        function preventEnterSubmit(event) {
+            if (event && event.key === 'Enter') {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+
+        function getPersonForm() {
+            return document.querySelector("form[id$='frmPerson']");
+        }
+
+        function restoreDocumentFocus() {
+            var form = getPersonForm();
+            var input = form ? form.querySelector("input[id$='docn']") : null;
+            if (input) {
+                var len = input.value ? input.value.length : 0;
+                input.focus();
+                if (input.setSelectionRange) {
+                    input.setSelectionRange(len, len);
+                }
+            }
+        }
+
+        function handleIdentificationInput(input) {
+            if (!input) {
+                return;
+            }
+
+            clearPersonFieldsOnDocumentChange(input);
+            triggerCedulaAutoValidation(input);
+        }
+
+        function getSelectedDocumentType() {
+            var naturalSelected = document.querySelector("input[name$='natural']:checked");
+            if (naturalSelected) {
+                return naturalSelected.value;
+            }
+
+            var juridicoSelected = document.querySelector("input[name$='juridico']:checked");
+            return juridicoSelected ? juridicoSelected.value : '';
+        }
+
+        function clearPersonFieldsOnDocumentChange(input) {
+            var documentType = getSelectedDocumentType();
+            if (!documentType || ['CI', 'PASSPORT', 'RUCN', 'RUCJ'].indexOf(documentType) === -1) {
+                return;
+            }
+
+            var currentValue = input.value || '';
+            if (input.dataset.lastDocumentValue === currentValue) {
+                return;
+            }
+            input.dataset.lastDocumentValue = currentValue;
+            input.dataset.autoValidated = '';
+
+            var form = getPersonForm();
+            if (!form) {
+                return;
+            }
+
+            setFieldValueBySuffix(form, 'personIdHidden', '');
+            setFieldValueBySuffix(form, 'hashPersonHidden', '');
+            setFieldValueBySuffix(form, 'nombre', '');
+            setFieldValueBySuffix(form, 'pojo_input', '');
+            setFieldValueBySuffix(form, 'pojo_hinput', '');
+            setFieldValueBySuffix(form, 'fechan_input', '');
+            setFieldValueBySuffix(form, 'direc', '');
+            setFieldValueBySuffix(form, 'email', '');
+            setFieldValueBySuffix(form, 'cel', '');
+            clearRadioGroupByNameSuffix(form, 'genero');
+            resetSelectBySuffix(form, 'pais');
+            resetSelectBySuffix(form, 'province');
+            resetSelectBySuffix(form, 'city');
+        }
+
+        function setFieldValueBySuffix(root, suffix, value) {
+            var field = root.querySelector("input[id$='" + suffix + "'], textarea[id$='" + suffix + "']");
+            if (field) {
+                field.value = value;
+            }
+        }
+
+        function clearRadioGroupByNameSuffix(root, nameSuffix) {
+            var radios = root.querySelectorAll("input[type='radio'][name$='" + nameSuffix + "']");
+            radios.forEach(function (radio) {
+                radio.checked = false;
+            });
+        }
+
+        function resetSelectBySuffix(root, suffix) {
+            var select = root.querySelector("select[id$='" + suffix + "']");
+            if (select) {
+                select.selectedIndex = 0;
+            }
+        }
+
+        function triggerCedulaAutoValidation(input) {
+            var documentType = getSelectedDocumentType();
+            var rawValue = input.value || '';
+            var documentValue = rawValue;
+            var expectedLength = 0;
+
+            if (documentType === 'CI') {
+                documentValue = rawValue.replace(/\D/g, '');
+                expectedLength = 10;
+            } else if (documentType === 'RUCN' || documentType === 'RUCJ') {
+                documentValue = rawValue.replace(/\D/g, '');
+                expectedLength = 13;
+            } else {
+                input.dataset.autoValidated = '';
+                return;
+            }
+
+            if (rawValue !== documentValue) {
+                input.value = documentValue;
+            }
+
+            if (documentValue.length === expectedLength && input.dataset.autoValidated !== documentValue) {
+                input.dataset.autoValidated = documentValue;
+                if (typeof validateIdentificationNumber === 'function') {
+                    validateIdentificationNumber();
+                }
+            } else if (documentValue.length < expectedLength) {
+                input.dataset.autoValidated = '';
+            }
         }
 
         function popupwindow(url, title, args) {

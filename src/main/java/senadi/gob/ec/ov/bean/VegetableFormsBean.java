@@ -108,7 +108,7 @@ public class VegetableFormsBean implements Serializable {
         vegetableForms = (VegetableForms) vegetableFormsData.getRowData();
         if (vegetableForms != null && vegetableForms.getId() != null) {
             previewPath = Parameter.RUTA_URL + vegetableForms.getId() + "/pdf_voucher_breederfrm_" + vegetableForms.getId() + ".pdf";
-            System.out.println("preview path: " + previewPath);
+//            System.out.println("preview path: " + previewPath);
             //Operations.mensaje(Operations.INFORMACION, "ENVIADO A IMPRIMIR");
             PrimeFaces.current().ajax().addCallbackParam("url", previewPath);
             PrimeFaces.current().ajax().addCallbackParam("doit", true);
