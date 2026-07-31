@@ -59,7 +59,6 @@ public class ValidarIdentificacion {
             validarCodigoEstablecimiento(numero.substring(10, 13));
             algoritmoModulo10(numero.substring(0, 9), Integer.parseInt(String.valueOf(numero.charAt(9))));
         } catch (Exception e) {
-//            e.printStackTrace();
             System.err.println("Error en ruc natural " + numero + ": " + e);
             return false;
         }
@@ -82,7 +81,7 @@ public class ValidarIdentificacion {
             validarCodigoEstablecimiento(numero.substring(10, 13));
             algoritmoModulo11(numero.substring(0, 9), Integer.parseInt(String.valueOf(numero.charAt(9))), TipoDocumento.getRucPrivada());
         } catch (Exception e) {
-//            System.err.println("Error en ruc privado " + numero + ": " + e);
+            System.err.println("Error en ruc privado " + numero + ": " + e);
             return false;
         }
 

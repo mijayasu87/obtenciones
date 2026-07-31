@@ -187,6 +187,10 @@ public class BreederFormBean implements Serializable {
     private String materialVarietyIdentification;
     private String productVarietyIdentification;
 
+    // Id en BD del anexo "Reivindicación de prioridad (copia certificada de la primera solicitud)".
+    // Solo se muestra/exige cuando en el tab 9 se reivindica prioridad.
+    private static final int ANNEX_PRIORITY_CLAIM_ID = 5;
+
     private List<VegetableAnnexes> annexes;
     private VegetableAnnexes currentAnnex;
     private UIData annexeData;
@@ -272,10 +276,10 @@ public class BreederFormBean implements Serializable {
             annexes.get(i).setIdAnnexes(null);
             annexes.get(i).setIdVegatableForms(null);
         }
-        annexes.get(1).setRequired(true);
+//        annexes.get(1).setRequired(true);
 //        annexes.get(4).setRequired(true);
         annexes.get(5).setRequired(true);
-        annexes.get(6).setRequired(true);
+//        annexes.get(6).setRequired(true);
         annexes.get(8).setRequired(true);
 
         if (editId != null) {
@@ -384,6 +388,10 @@ public class BreederFormBean implements Serializable {
         vegetablePriority = new VegetablePriority();
         if (vegetableForms.getPriorityClaim() != null) {
             priorityClaim = vegetableForms.getPriorityClaim() ? "SI" : "NO";
+            VegetableAnnexes priorityAnnex = findAnnexById(ANNEX_PRIORITY_CLAIM_ID);
+            if (priorityAnnex != null) {
+                priorityAnnex.setRequired("SI".equals(priorityClaim));
+            }
             if (priorityClaim.equals("SI")) {
                 if (vegetableForms.getVegetablePriority() != null) {
                     vegetablePriority = vegetableForms.getVegetablePriority();
@@ -854,15 +862,67 @@ public class BreederFormBean implements Serializable {
 
     public void onPriorityClaim() {
         if (priorityClaim != null) {
+            VegetableAnnexes priorityAnnex = findAnnexById(ANNEX_PRIORITY_CLAIM_ID);
             if (priorityClaim.equals("SI")) {
                 vegetableForms.setPriorityClaim(true);
+                // Se reivindica prioridad: se muestra y se exige el anexo de reivindicación.
+                if (priorityAnnex != null) {
+                    priorityAnnex.setRequired(true);
+                }
             } else {
                 vegetableForms.setPriorityClaim(false);
+                // No hay prioridad: se oculta el anexo y se descarta cualquier archivo cargado.
+                if (priorityAnnex != null) {
+                    priorityAnnex.setRequired(false);
+                    priorityAnnex.setError(false);
+                    priorityAnnex.setWithFile(false);
+                    priorityAnnex.setCurrentFile(null);
+                    priorityAnnex.setFileContent(null);
+                }
             }
             showTab8Error = false;
         } else {
             Operations.mensaje(Operations.ERROR, "NO SE RECONOCE LA OPCIÓN SELECCIONADA");
         }
+    }
+
+    /**
+     * Devuelve el anexo cuyo id en BD coincide con el indicado, o {@code null}.
+     */
+    private VegetableAnnexes findAnnexById(int id) {
+        if (annexes == null) {
+            return null;
+        }
+        for (VegetableAnnexes a : annexes) {
+            if (a.getId() != null && a.getId() == id) {
+                return a;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Lista de anexos a mostrar en el tab 16. El anexo de "Reivindicación de
+     * prioridad" (id = {@value #ANNEX_PRIORITY_CLAIM_ID}) solo se incluye cuando
+     * en el tab 9 se reivindicó prioridad.
+     */
+    public List<VegetableAnnexes> getVisibleAnnexes() {
+        if (annexes == null) {
+            return annexes;
+        }
+        Boolean pc = (vegetableForms != null) ? vegetableForms.getPriorityClaim() : null;
+        boolean priority = pc != null && pc;
+        if (priority) {
+            return annexes;
+        }
+        List<VegetableAnnexes> visible = new ArrayList<>();
+        for (VegetableAnnexes a : annexes) {
+            if (a.getId() != null && a.getId() == ANNEX_PRIORITY_CLAIM_ID) {
+                continue;
+            }
+            visible.add(a);
+        }
+        return visible;
     }
 
     public void onPreviousRequestSelected() {
@@ -1333,13 +1393,6 @@ public class BreederFormBean implements Serializable {
             showTab12Error = true;
             activeIndex = 12;
             Operations.mensaje(Operations.ERROR, "ESPECIFIQUE LA PROCEDENCIA GEOGRÁFICA DE LA VARIEDAD A SER PROTEGIDA");
-            return false;
-        }
-
-        if (vegetableForms.getReproductionMechanism() == null || vegetableForms.getReproductionMechanism().trim().isEmpty()) {
-            showTab12Error = true;
-            activeIndex = 12;
-            Operations.mensaje(Operations.ERROR, "ESPECIFIQUE EL MECANISMO DE REPRODUCCIÓN, PROPAGACIÓN O MULTIPLICACIÓN");
             return false;
         }
 

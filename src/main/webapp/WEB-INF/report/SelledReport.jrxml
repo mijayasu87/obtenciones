@@ -53,7 +53,7 @@
 				</textElement>
 				<text><![CDATA[Fecha Presentación:]]></text>
 			</staticText>
-			<textField isStretchWithOverflow="true" pattern="MMMMM dd, yyyy" isBlankWhenNull="true">
+			<textField isStretchWithOverflow="true" pattern="dd MMMMM yyyy" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="122" y="0" width="364" height="20" uuid="33697a19-8d2a-4ac2-b3f6-cd72662b3210"/>
 				<box leftPadding="3">
 					<topPen lineWidth="1.0"/>

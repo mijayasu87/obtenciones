@@ -199,7 +199,7 @@ and open the template in the editor.
                             <p:inputText value="#{breederFormBean.personNotification.email}" class="maxsize " readonly="true"/>
                             <p:outputLabel value="Email Abogado Patrocinador: " class="maxsize bordesuperior"/>
                             <p:inputText value="#{breederFormBean.personVegetableNotification.emailLawyerAttorney}" class="maxsize bordesuperior" maxlength="255"/>
-                            <p:outputLabel value="Casillero Judicial: " class="maxsize bordesuperior"/>
+                            <p:outputLabel value="Casillero Virtual: " class="maxsize bordesuperior"/>
                             <p:inputText value="#{breederFormBean.personVegetableNotification.judicialLocker}" class="maxsize bordesuperior" maxlength="30"/>
                             <p:outputLabel value="Código Poder: " class="maxsize bordesuperior"/>
                             <p:inputText value="#{breederFormBean.personVegetableNotification.powerCode}" class="maxsize bordesuperior" maxlength="30"/>
@@ -385,7 +385,7 @@ and open the template in the editor.
                                           styleClass="#{breederFormBean.showTab8Error and (breederFormBean.priorityClaim eq null || breederFormBean.priorityClaim.trim().isEmpty()) ? 'invalid-field' : 'maxsize'}">
                             <f:selectItem itemValue="SI" itemLabel="Sí"/>
                             <f:selectItem itemValue="NO" itemLabel="No" />
-                            <p:ajax update="mensajes allform:acordion:panpriori" listener="#{breederFormBean.onPriorityClaim}"/>
+                            <p:ajax update="mensajes allform:acordion:panpriori allform:acordion:dtganx" listener="#{breederFormBean.onPriorityClaim}"/>
                         </p:selectOneRadio>
 
                         <p:panel id="panpriori" style="#{breederFormBean.vegetableForms.priorityClaim ?'display:block':'display:none'}">
@@ -587,7 +587,7 @@ and open the template in the editor.
                     </p:tab>
                     <p:tab title="12. Descripción técnica de la variedad" id="destec">
                         <p:outputLabel value="Genealogía:" for="geneal"/>
-                        <span> La Genealogía, Método de mejoramiento vegetal y el Historial del procesos de mejoramiento vegetal deben marcarse con asterisco, porque es información obligatoria.</span>
+                        <span> (progenitor materno x progenitor paterno)</span>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.genealogy}" id="geneal"
                                          styleClass="#{breederFormBean.showTab11Error and (breederFormBean.vegetableForms.genealogy eq null || breederFormBean.vegetableForms.genealogy.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         <p:panel header="Metodología de obtención de la variedad vegetal (Cofindencial)" id="methodologypan">
@@ -617,7 +617,7 @@ and open the template in the editor.
                                              styleClass="#{breederFormBean.showTab11Error and (breederFormBean.allogamousSpecies eq null || breederFormBean.allogamousSpecies.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                             </p:panel>                            
                             <p:outputLabel value="Historial del procesos de mejoramiento vegetal" for="history"/>
-                            <span>(Detallar en forma cronológica la historia del mejoramiento hasta la estabilización de la variedad cuya inscripción se pretende) (Confidencial)</span>
+                            <span>(Detalle de la cronología del proceso de fitomejoramiento que dio origen a la variedad candidata, describiendo desde los cruzamientos iniciales y las etapas de selección, hasta alcanzar la homogeneidad y estabilidad fenotípica requeridas para su inscripción. Asimismo especificar el método de multiplicación y propagación para la conservación de la identidad varietal). (Confidencial)</span>
                             <p:inputTextarea value="#{breederFormBean.vegetableForms.processHistory}" id="history" 
                                              styleClass="#{breederFormBean.showTab11Error and (breederFormBean.vegetableForms.processHistory eq null || breederFormBean.vegetableForms.processHistory.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
                         </p:panel>                        
@@ -632,9 +632,9 @@ and open the template in the editor.
                         <p:outputLabel for="geovar" value="Procedencia geográfica de la variedad a ser protegida"/>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.geographicalVarietyOrigin}" id="geovar" class="maxsize" maxlength="255"
                                          styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.geographicalVarietyOrigin eq null || breederFormBean.vegetableForms.geographicalVarietyOrigin.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
-                        <p:outputLabel for="repmec" value="Mecanismo de reproducción, propagación o multiplicación"/>
-                        <p:inputTextarea value="#{breederFormBean.vegetableForms.reproductionMechanism}" id="repmec" class="maxsize" maxlength="255"
-                                         styleClass="#{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.reproductionMechanism eq null || breederFormBean.vegetableForms.reproductionMechanism.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>
+                        <!--<p:outputLabel for="repmec" value="Mecanismo de reproducción, propagación o multiplicación"/>
+                        <p:inputTextarea value="{breederFormBean.vegetableForms.reproductionMechanism}" id="repmec" class="maxsize" maxlength="255"
+                                         styleClass="{breederFormBean.showTab12Error and (breederFormBean.vegetableForms.reproductionMechanism eq null || breederFormBean.vegetableForms.reproductionMechanism.trim().isEmpty()) ? 'invalid-inputfield' : 'maxsize'}"/>-->
                         <p:outputLabel value="Información adicional de la variedad que permita distinguirla de otras existentes, consideraciones que serán tomadas en cuenta para la ejecución del examen de Distinción, Homogeneidad y Estabilidad" for="addit"/>
                         <span> (a. condiciones medioambientales: suelo, agua, luz, temperatura; b. manejo agronómico: nutrientes, labores culturales, medidas fitosanitarias)</span>
                         <p:inputTextarea value="#{breederFormBean.vegetableForms.additionalInformation}" id="addit" class="maxsize" maxlength="255"
@@ -690,11 +690,14 @@ and open the template in the editor.
                                          update="mensajes dlgCharacter frmCharacter" 
                                          oncomplete="if(args.newch){PF('dlgCharacter').show()}" id="btnchar"
                                          styleClass="#{breederFormBean.showTab13Error and breederFormBean.varietiesCharacters.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
-                        <p:dataTable id="tablaChar" var="character" 
+                        <p:dataTable id="tablaChar" var="character"
                                      value="#{breederFormBean.varietiesCharacters}" widgetVar="tablaChar"
-                                     emptyMessage="No hay Datos para mostrar"                                              
-                                     binding="#{breederFormBean.characterData}"                                             
-                                     rows="20" style="width: 80%; text-align: center; margin: 0 auto;"
+                                     emptyMessage="No hay Datos para mostrar"
+                                     binding="#{breederFormBean.characterData}"
+                                     paginator="#{breederFormBean.varietiesCharacters.size() gt 10}"
+                                     rows="10" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,50"
+                                     style="width: 80%; text-align: center; margin: 0 auto;"
                                      rowKey="#{character.id}" 
                                      styleClass="#{breederFormBean.showTab13Error and breederFormBean.varietiesCharacters.size() == 0 ?'invalid-table btn_peque':'btn_peque'}">
                             <p:column headerText="Caracteres" style="text-align: center; border: 1px solid gray; padding: 7px !important" >
@@ -727,11 +730,14 @@ and open the template in the editor.
                                          update="mensajes dlgSimilary frmSimilary" class="btn_peque"                                          
                                          oncomplete="if(args.newsim){PF('dlgSimilary').show()}" id="btnsim"
                                          styleClass="#{breederFormBean.showTab14Error and breederFormBean.similaritiesVariety.size() == 0 ? 'invalid-table btn_peque' : 'btn_peque'}"/>
-                        <p:dataTable id="tablaSim" var="similary" 
+                        <p:dataTable id="tablaSim" var="similary"
                                      value="#{breederFormBean.similaritiesVariety}" widgetVar="tablaSim"
-                                     emptyMessage="No hay Datos para mostrar"                                              
-                                     binding="#{breederFormBean.similaryData}"                                             
-                                     rows="20" style="width: 80%; text-align: center; margin: 0 auto;"
+                                     emptyMessage="No hay Datos para mostrar"
+                                     binding="#{breederFormBean.similaryData}"
+                                     paginator="#{breederFormBean.similaritiesVariety.size() gt 10}"
+                                     rows="10" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,50"
+                                     style="width: 80%; text-align: center; margin: 0 auto;"
                                      rowKey="#{similary.id}" 
                                      styleClass="#{breederFormBean.showTab14Error and breederFormBean.similaritiesVariety.size() == 0 ?'invalid-table btn_peque':'btn_peque'}">
                             <p:column headerText="Denominación de la variedad similar" style="text-align: center;" >
@@ -763,7 +769,7 @@ and open the template in the editor.
                             <span style="font-weight: bold; font-size: 10px">Nota: Si su proceso es ABREVIADO, por favor, descargar el siguiente documento a ser incluido en Documentos Adjuntos <a href="http://www.derechosintelectuales.gob.ec/wp-content/uploads/2026/04/MINUTA_ABREVIADOS.docx">Descargar</a></span>
                             
                         </p:panel>
-                        <p:dataList id="dtganx" var="anx" value="#{breederFormBean.annexes}" varStatus="st"
+                        <p:dataList id="dtganx" var="anx" value="#{breederFormBean.visibleAnnexes}" varStatus="st"
                                     widgetVar="dtganx" binding="#{breederFormBean.annexeData}" 
                                     styleClass="annex-list">
                             <p:commandLink value="#{anx.fullName}"

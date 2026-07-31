@@ -229,14 +229,14 @@ public class Report implements Serializable {
             if (vp != null && vp.getId() != null) {
                 vp.setCountry(c.getCountryById(vp.getCountryId()).getName());
                 priorities.add(vp);
+            }
 
-                for (int i = 0; i < vf.getExploitedSelleds().size(); i++) {
-                    vf.getExploitedSelleds().get(i).setCountry(c.getCountryById(vf.getExploitedSelleds().get(i).getCountryId()).getName());
-                    if (vf.getExploitedSelleds().get(i).getExplotationType().equals(ExplotationType.IN_ANDEAN_SUBREGION)) {
-                        interr.add(vf.getExploitedSelleds().get(i));
-                    } else {
-                        outerr.add(vf.getExploitedSelleds().get(i));
-                    }
+            for (int i = 0; i < vf.getExploitedSelleds().size(); i++) {
+                vf.getExploitedSelleds().get(i).setCountry(c.getCountryById(vf.getExploitedSelleds().get(i).getCountryId()).getName());
+                if (vf.getExploitedSelleds().get(i).getExplotationType().equals(ExplotationType.IN_ANDEAN_SUBREGION)) {
+                    interr.add(vf.getExploitedSelleds().get(i));
+                } else {
+                    outerr.add(vf.getExploitedSelleds().get(i));
                 }
             }
 

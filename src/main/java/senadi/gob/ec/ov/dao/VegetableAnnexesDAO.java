@@ -21,7 +21,7 @@ public class VegetableAnnexesDAO extends DAOAbstractM<VegetableAnnexes> {
 
     @Override
     public List<VegetableAnnexes> buscarTodos() {
-        Query query = this.getEntityManager().createQuery("Select v from VegetableAnnexes v order by v.id");
+        Query query = this.getEntityManager().createQuery("Select v from VegetableAnnexes v where v.id != 6 order by v.id");//6: comprobante de tasa
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
         return query.setMaxResults(300).getResultList();
     }
